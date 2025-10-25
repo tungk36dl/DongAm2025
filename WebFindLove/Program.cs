@@ -1,0 +1,116 @@
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+using System;
+using WebFindLove.Models;
+using WebFindLove.Models.Repositories;
+using WebFindLove.Models.Services;
+using WebFindLove.Models.Services.RoleService;
+using WebFindLove.Models.Services.UserService;
+using WebFindLove.Models.UnitOfWork;
+
+// 🔹 Cấu hình Serilog trước khi build
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.Hosting.Lifetime", Serilog.Events.LogEventLevel.Information)
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "WebFindLove")
+    .WriteTo.Console(
+        outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+    .WriteTo.File(
+        "Logs/app-log-.txt", 
+        rollingInterval: RollingInterval.Day,
+        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+    .CreateLogger();
+
+try
+{
+    Log.Information("Starting WebFindLove application");
+
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Use Serilog for logging
+    builder.Host.UseSerilog();
+
+    // Add services to the container.
+    builder.Services.AddControllersWithViews();
+
+    // Thêm EF vào DI container
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    Log.Information("Database configured with connection string");
+
+    // Configure Authentication
+    builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddCookie(options =>
+        {
+            options.LoginPath = "/Auth/Login";
+            options.LogoutPath = "/Auth/Logout";
+            options.AccessDeniedPath = "/Home/Index";
+            options.ExpireTimeSpan = TimeSpan.FromDays(7);
+            options.SlidingExpiration = true;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        });
+    Log.Information("Authentication configured");
+
+    builder.Services.AddAuthorization();
+
+    // Register UnitOfWork and services
+    builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+    builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
+
+    // Đăng ký các dịch vụ ứng dụng và kho lưu trữ
+    // Pattern: Controller → Service → Repository → UnitOfWork → DbContext
+    builder.Services.AddApplicationServices();      // Đăng ký tất cả Services (User, Role, ...)
+    builder.Services.AddInfrastructureRepositories(); // Đăng ký tất cả Repositories (User, Role, ...)
+
+    Log.Information("Services registered successfully");
+
+    var app = builder.Build();
+
+    Log.Information("Application built successfully");
+
+    // Configure the HTTP request pipeline.
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseExceptionHandler("/Home/Error");
+        app.UseHsts();
+        Log.Information("Production environment configured");
+    }
+    else
+    {
+        Log.Information("Development environment configured");
+    }
+
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+
+    app.UseRouting();
+
+    // Authentication & Authorization middleware
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    Log.Information("Application starting...");
+    Log.Information("Environment: {Environment}", app.Environment.EnvironmentName);
+    Log.Information("Listening on: {Urls}", string.Join(", ", app.Urls));
+
+    app.Run();
+
+    Log.Information("Application stopped gracefully");
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+    throw;
+}
+finally
+{
+    Log.CloseAndFlush();
+}

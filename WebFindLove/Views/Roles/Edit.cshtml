@@ -1,0 +1,93 @@
+@model WebFindLove.Models.Services.RoleService.ViewModels.RoleUpdateVM
+
+@{
+    ViewData["Title"] = "Edit Role";
+}
+
+<div class="max-w-3xl mx-auto">
+    <div class="mb-6">
+        <a asp-action="Index" class="text-primary hover:text-pink-600 font-medium">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Roles List
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">
+                <i class="fas fa-user-edit text-primary mr-2"></i>Edit Role
+            </h1>
+            <p class="text-gray-600 mt-2">Update role information</p>
+        </div>
+
+        <form method="post" asp-action="Edit">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4"></div>
+
+            <div class="space-y-6">
+                <div>
+                    <label asp-for="Name" class="block text-gray-700 font-semibold mb-2">
+                        <i class="fas fa-tag mr-2"></i>Role Name <span class="text-red-500">*</span>
+                    </label>
+                    <input asp-for="Name" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                           placeholder="Enter role name (e.g., Admin, User, Manager)" />
+                    <span asp-validation-for="Name" class="text-red-500 text-sm"></span>
+                    <p class="text-xs text-gray-500 mt-1">Maximum 50 characters</p>
+                </div>
+
+                <div>
+                    <label asp-for="Description" class="block text-gray-700 font-semibold mb-2">
+                        <i class="fas fa-align-left mr-2"></i>Description
+                    </label>
+                    <textarea asp-for="Description" 
+                              rows="4"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                              placeholder="Describe the role and its permissions"></textarea>
+                    <span asp-validation-for="Description" class="text-red-500 text-sm"></span>
+                    <p class="text-xs text-gray-500 mt-1">Maximum 200 characters</p>
+                </div>
+
+                <div>
+                    <label class="flex items-center cursor-pointer">
+                        <input asp-for="IsActive" 
+                               type="checkbox" 
+                               class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary" />
+                        <span class="ml-3 text-gray-700 font-semibold">
+                            <i class="fas fa-toggle-on mr-2"></i>Is Active
+                        </span>
+                    </label>
+                    <p class="text-xs text-gray-500 mt-1 ml-8">Enable this role for assignment to users</p>
+                </div>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                <strong>Warning:</strong> Changing the role name may affect users currently assigned to this role. Please proceed with caution.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end space-x-4">
+                <a asp-action="Index" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition font-medium">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </a>
+                <button type="submit" class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium">
+                    <i class="fas fa-save mr-2"></i>Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
+

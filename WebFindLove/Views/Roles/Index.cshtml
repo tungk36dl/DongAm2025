@@ -1,0 +1,139 @@
+@model IEnumerable<WebFindLove.Models.Role>
+
+@{
+    ViewData["Title"] = "Roles Management";
+    var search = ViewBag.Search as WebFindLove.Models.Services.RoleService.Dto.RoleSearch;
+}
+
+<div class="mb-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+                <i class="fas fa-user-shield text-primary mr-2"></i>Roles Management
+            </h1>
+            <p class="text-gray-600 mt-1">Manage system roles and permissions</p>
+        </div>
+        <a asp-action="Create" class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium">
+            <i class="fas fa-plus mr-2"></i>Add New Role
+        </a>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <form method="get" asp-action="Index" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2 text-sm">
+                    <i class="fas fa-search mr-1"></i>Search
+                </label>
+                <input type="text" 
+                       name="Keyword" 
+                       value="@search?.Keyword"
+                       placeholder="Search by role name or description" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2 text-sm">
+                    <i class="fas fa-toggle-on mr-1"></i>Status
+                </label>
+                <select name="IsActive" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <option value="">All Status</option>
+                    <option value="true" selected="@(search?.IsActive == true)">Active</option>
+                    <option value="false" selected="@(search?.IsActive == false)">Inactive</option>
+                </select>
+            </div>
+
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-primary text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition font-medium">
+                    <i class="fas fa-filter mr-2"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
+    {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
+    <!-- Roles Grid -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach (var role in Model)
+            {
+                <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                    <div class="bg-gradient-to-r from-primary to-secondary p-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="h-12 w-12 rounded-full bg-white flex items-center justify-center">
+                                    <i class="fas fa-user-shield text-2xl text-primary"></i>
+                                </div>
+                                <div class="ml-4 text-white">
+                                    <h3 class="text-xl font-bold">@role.Name</h3>
+                                </div>
+                            </div>
+                            @if (role.IsActive)
+                            {
+                                <span class="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
+                                    <i class="fas fa-check-circle mr-1"></i>Active
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="px-3 py-1 bg-red-500 text-white text-xs font-semibold rounded-full">
+                                    <i class="fas fa-times-circle mr-1"></i>Inactive
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        <div class="mb-4">
+                            <label class="text-xs font-semibold text-gray-500 uppercase">Description</label>
+                            <p class="text-gray-700 mt-1">@(role.Description ?? "No description available")</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 uppercase">Created</label>
+                                <p class="text-sm text-gray-700">@role.CreatedAt?.ToString("MMM dd, yyyy")</p>
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 uppercase">Updated</label>
+                                <p class="text-sm text-gray-700">@role.UpdatedAt?.ToString("MMM dd, yyyy")</p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                            <a asp-action="Details" asp-route-id="@role.Id" class="text-blue-600 hover:text-blue-800 font-medium">
+                                <i class="fas fa-eye mr-1"></i>View
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@role.Id" class="text-green-600 hover:text-green-800 font-medium">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@role.Id" class="text-red-600 hover:text-red-800 font-medium">
+                                <i class="fas fa-trash mr-1"></i>Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="bg-white rounded-lg shadow-md p-12 text-center">
+            <i class="fas fa-user-shield text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No Roles Found</h3>
+            <p class="text-gray-500 mb-6">Try adjusting your search or filter criteria</p>
+            <a asp-action="Create" class="inline-block bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium">
+                <i class="fas fa-plus mr-2"></i>Create Your First Role
+            </a>
+        </div>
+    }
+</div>
+
