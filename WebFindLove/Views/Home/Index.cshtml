@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
 }
 
 <div class="min-h-[80vh]">
@@ -7,23 +7,23 @@
     <div class="bg-gradient-to-r from-primary to-secondary rounded-2xl shadow-2xl p-12 text-white mb-12">
         <div class="text-center">
             <i class="fas fa-heart text-6xl mb-6 animate-pulse"></i>
-            <h1 class="text-5xl font-bold mb-4">Welcome to WebFindLove</h1>
-            <p class="text-xl text-pink-100 mb-8">Your journey to finding love starts here</p>
+            <h1 class="text-5xl font-bold mb-4">Chào mừng đến với WebFindLove</h1>
+            <p class="text-xl text-pink-100 mb-8">Hành trình tìm kiếm tình yêu của bạn bắt đầu từ đây</p>
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <div class="bg-white/20 backdrop-blur-sm rounded-lg p-6 max-w-md mx-auto">
-                    <p class="text-lg mb-4">Welcome back, <strong>@User.Identity.Name</strong>!</p>
-                    <p class="text-pink-100">You are logged in as <strong>@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</strong></p>
+                    <p class="text-lg mb-4">Chào mừng trở lại, <strong>@User.Identity.Name</strong>!</p>
+                    <p class="text-pink-100">Bạn đang đăng nhập với vai trò <strong>@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</strong></p>
                 </div>
             }
             else
             {
                 <div class="flex justify-center space-x-4">
                     <a asp-controller="Auth" asp-action="Register" class="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-pink-50 transition transform hover:scale-105">
-                        <i class="fas fa-user-plus mr-2"></i>Get Started
+                        <i class="fas fa-user-plus mr-2"></i>Bắt đầu ngay
                     </a>
                     <a asp-controller="Auth" asp-action="Login" class="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10 transition">
-                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        <i class="fas fa-sign-in-alt mr-2"></i>Đăng nhập
                     </a>
                 </div>
             }
@@ -32,37 +32,37 @@
 
     <!-- Features Section -->
     <div class="mb-12">
-        <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">
-            <i class="fas fa-star text-primary mr-2"></i>Why Choose Us?
+        <h2 class="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8">
+            <i class="fas fa-star text-primary mr-2"></i>Tại sao chọn chúng tôi?
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
                 <div class="text-center">
                     <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-shield-alt text-3xl text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">Secure & Private</h3>
-                    <p class="text-gray-600">Your information is protected with industry-leading security measures</p>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">An toàn & Riêng tư</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Thông tin của bạn được bảo vệ bằng các biện pháp bảo mật hàng đầu trong ngành</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
                 <div class="text-center">
                     <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-users text-3xl text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">Active Community</h3>
-                    <p class="text-gray-600">Connect with thousands of singles looking for meaningful relationships</p>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">Cộng đồng sôi động</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Kết nối với hàng ngàn người độc thân đang tìm kiếm mối quan hệ có ý nghĩa</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
                 <div class="text-center">
                     <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-heart text-3xl text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">Perfect Matches</h3>
-                    <p class="text-gray-600">Our smart algorithm helps you find your perfect match</p>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">Ghép đôi hoàn hảo</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Thuật toán thông minh của chúng tôi giúp bạn tìm thấy người phù hợp nhất</p>
                 </div>
             </div>
         </div>
@@ -73,28 +73,28 @@
         <!-- Quick Actions for Admins -->
         @if (User.IsInRole("Admin"))
         {
-            <div class="bg-white rounded-xl shadow-md p-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">
-                    <i class="fas fa-cog text-primary mr-2"></i>Admin Dashboard
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
+                    <i class="fas fa-cog text-primary mr-2"></i>Bảng điều khiển Admin
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <a asp-controller="Users" asp-action="Index" class="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-pink-50 transition">
+                    <a asp-controller="Users" asp-action="Index" class="flex items-center p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary hover:bg-pink-50 dark:hover:bg-gray-700 transition">
                         <div class="bg-gradient-to-r from-primary to-secondary w-12 h-12 rounded-full flex items-center justify-center mr-4">
                             <i class="fas fa-users text-xl text-white"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-800">Manage Users</h3>
-                            <p class="text-sm text-gray-600">View and manage all users</p>
+                            <h3 class="font-bold text-gray-800 dark:text-gray-100">Quản lý người dùng</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Xem và quản lý tất cả người dùng</p>
                         </div>
                     </a>
 
-                    <a asp-controller="Roles" asp-action="Index" class="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-pink-50 transition">
+                    <a asp-controller="Roles" asp-action="Index" class="flex items-center p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary hover:bg-pink-50 dark:hover:bg-gray-700 transition">
                         <div class="bg-gradient-to-r from-primary to-secondary w-12 h-12 rounded-full flex items-center justify-center mr-4">
                             <i class="fas fa-user-shield text-xl text-white"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-800">Manage Roles</h3>
-                            <p class="text-sm text-gray-600">Configure user roles and permissions</p>
+                            <h3 class="font-bold text-gray-800 dark:text-gray-100">Quản lý vai trò</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Cấu hình vai trò và quyền hạn của người dùng</p>
                         </div>
                     </a>
                 </div>
@@ -105,10 +105,10 @@
     {
         <!-- Call to Action -->
         <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-xl p-12 text-white text-center">
-            <h2 class="text-3xl font-bold mb-4">Ready to Find Your Perfect Match?</h2>
-            <p class="text-xl mb-8 text-purple-100">Join thousands of happy couples who found love here</p>
+            <h2 class="text-3xl font-bold mb-4">Sẵn sàng tìm kiếm nửa kia hoàn hảo?</h2>
+            <p class="text-xl mb-8 text-purple-100">Tham gia cùng hàng ngàn cặp đôi hạnh phúc đã tìm thấy tình yêu ở đây</p>
             <a asp-controller="Auth" asp-action="Register" class="inline-block bg-white text-purple-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-purple-50 transition transform hover:scale-105">
-                <i class="fas fa-heart mr-2"></i>Start Your Journey Today
+                <i class="fas fa-heart mr-2"></i>Bắt đầu hành trình của bạn ngay hôm nay
             </a>
         </div>
     }

@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi" class="scroll-smooth">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -18,47 +19,79 @@
                 }
             }
         }
+        
+        // Initialize dark mode before page loads to prevent flash
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     </script>
 </head>
-<body class="bg-gray-50">
-    <header class="bg-white shadow-md">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <header class="bg-white dark:bg-gray-800 shadow-md transition-colors duration-200">
         <nav class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 <a class="text-2xl font-bold text-primary hover:text-pink-600 transition" asp-controller="Home" asp-action="Index">
                     <i class="fas fa-heart mr-2"></i>WebFindLove
                 </a>
                 
-                <button class="lg:hidden text-gray-700 focus:outline-none" id="mobile-menu-button">
+                <button class="lg:hidden text-gray-700 dark:text-gray-300 focus:outline-none" id="mobile-menu-button">
                     <i class="fas fa-bars text-2xl"></i>
                 </button>
 
                 <div class="hidden lg:flex items-center space-x-6" id="desktop-menu">
-                    <a class="text-gray-700 hover:text-primary transition font-medium" asp-controller="Home" asp-action="Index">
-                        <i class="fas fa-home mr-1"></i>Home
+                    <!-- Dark Mode Toggle -->
+                    <button id="theme-toggle" class="text-gray-700 dark:text-gray-300 hover:text-primary transition">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                    
+                    <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-home mr-1"></i>Trang chủ
                     </a>
                     @if (User.Identity?.IsAuthenticated == true)
                     {
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="MatchResults" asp-action="Index">
+                            <i class="fas fa-heart text-pink-500 mr-1"></i>Ghép đôi
+                        </a>
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Messages" asp-action="Index">
+                            <i class="fas fa-comments text-blue-500 mr-1"></i>Tin nhắn
+                        </a>
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Photos" asp-action="Index">
+                            <i class="fas fa-images text-purple-500 mr-1"></i>Ảnh
+                        </a>
                         @if (User.IsInRole("Admin"))
                         {
-                            <a class="text-gray-700 hover:text-primary transition font-medium" asp-controller="Users" asp-action="Index">
-                                <i class="fas fa-users mr-1"></i>Users
+                            <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Users" asp-action="Index">
+                                <i class="fas fa-users mr-1"></i>Người dùng
                             </a>
-                            <a class="text-gray-700 hover:text-primary transition font-medium" asp-controller="Roles" asp-action="Index">
-                                <i class="fas fa-user-shield mr-1"></i>Roles
+                            <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Roles" asp-action="Index">
+                                <i class="fas fa-user-shield mr-1"></i>Vai trò
                             </a>
                         }
                         <div class="relative group">
-                            <button class="text-gray-700 hover:text-primary transition font-medium flex items-center">
+                            <button class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium flex items-center">
                                 <i class="fas fa-user-circle mr-1"></i>@User.Identity.Name
                                 <i class="fas fa-chevron-down ml-1 text-xs"></i>
                             </button>
-                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <a class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-t-lg" asp-controller="Home" asp-action="Privacy">
-                                    <i class="fas fa-user-cog mr-2"></i>Profile
+                            <div class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border dark:border-gray-700">
+                                <a class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg" asp-controller="Users" asp-action="EditAccount">
+                                    <i class="fas fa-user-circle mr-2"></i>Tài khoản
                                 </a>
+                                <a class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" asp-controller="Users" asp-action="EditProfile">
+                                    <i class="fas fa-user-edit mr-2"></i>Hồ sơ cá nhân
+                                </a>
+                                <a class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" asp-controller="UserPreferences" asp-action="Index">
+                                    <i class="fas fa-sliders-h mr-2"></i>Tùy chọn
+                                </a>
+                                <a class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" asp-controller="PersonalityTraits" asp-action="Index">
+                                    <i class="fas fa-brain mr-2"></i>Tính cách
+                                </a>
+                                <div class="border-t dark:border-gray-700 my-1"></div>
                                 <form method="post" asp-controller="Auth" asp-action="Logout" class="m-0">
-                                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-b-lg">
-                                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-b-lg">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
                                     </button>
                                 </form>
                             </div>
@@ -66,49 +99,77 @@
                     }
                     else
                     {
-                        <a class="text-gray-700 hover:text-primary transition font-medium" asp-controller="Auth" asp-action="Login">
-                            <i class="fas fa-sign-in-alt mr-1"></i>Login
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Auth" asp-action="Login">
+                            <i class="fas fa-sign-in-alt mr-1"></i>Đăng nhập
                         </a>
                         <a class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full hover:shadow-lg transition font-medium" asp-controller="Auth" asp-action="Register">
-                            <i class="fas fa-user-plus mr-1"></i>Register
+                            <i class="fas fa-user-plus mr-1"></i>Đăng ký
                         </a>
                     }
                 </div>
             </div>
 
             <!-- Mobile menu -->
-            <div class="lg:hidden mt-4 hidden" id="mobile-menu">
+            <div class="lg:hidden mt-4 hidden bg-white dark:bg-gray-800 rounded-lg p-4 shadow-lg" id="mobile-menu">
+                <!-- Dark Mode Toggle Mobile -->
+                <div class="flex items-center justify-between mb-4 pb-4 border-b dark:border-gray-700">
+                    <button id="theme-toggle-mobile" class="text-gray-700 dark:text-gray-300 hover:text-primary transition flex items-center">
+                        <i class="fas fa-moon dark:hidden mr-2"></i>
+                        <i class="fas fa-sun hidden dark:inline mr-2"></i>
+                        <span class="dark:hidden">Chế độ tối</span>
+                        <span class="hidden dark:inline">Chế độ sáng</span>
+                    </button>
+                </div>
+                
                 <div class="flex flex-col space-y-2">
-                    <a class="text-gray-700 hover:text-primary transition font-medium py-2" asp-controller="Home" asp-action="Index">
-                        <i class="fas fa-home mr-1"></i>Home
+                    <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-home mr-1"></i>Trang chủ
                     </a>
                     @if (User.Identity?.IsAuthenticated == true)
                     {
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="MatchResults" asp-action="Index">
+                            <i class="fas fa-heart text-pink-500 mr-1"></i>Ghép đôi
+                        </a>
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Messages" asp-action="Index">
+                            <i class="fas fa-comments text-blue-500 mr-1"></i>Tin nhắn
+                        </a>
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Photos" asp-action="Index">
+                            <i class="fas fa-images text-purple-500 mr-1"></i>Ảnh
+                        </a>
                         @if (User.IsInRole("Admin"))
                         {
-                            <a class="text-gray-700 hover:text-primary transition font-medium py-2" asp-controller="Users" asp-action="Index">
-                                <i class="fas fa-users mr-1"></i>Users
+                            <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Users" asp-action="Index">
+                                <i class="fas fa-users mr-1"></i>Người dùng
                             </a>
-                            <a class="text-gray-700 hover:text-primary transition font-medium py-2" asp-controller="Roles" asp-action="Index">
-                                <i class="fas fa-user-shield mr-1"></i>Roles
+                            <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Roles" asp-action="Index">
+                                <i class="fas fa-user-shield mr-1"></i>Vai trò
                             </a>
                         }
-                        <a class="text-gray-700 hover:text-primary transition font-medium py-2" asp-controller="Home" asp-action="Privacy">
-                            <i class="fas fa-user-cog mr-1"></i>Profile
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Users" asp-action="EditAccount">
+                            <i class="fas fa-user-circle mr-1"></i>Tài khoản
+                        </a>
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Users" asp-action="EditProfile">
+                            <i class="fas fa-user-edit mr-1"></i>Hồ sơ cá nhân
+                        </a>
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="UserPreferences" asp-action="Index">
+                            <i class="fas fa-sliders-h mr-1"></i>Tùy chọn
+                        </a>
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="PersonalityTraits" asp-action="Index">
+                            <i class="fas fa-brain mr-1"></i>Tính cách
                         </a>
                         <form method="post" asp-controller="Auth" asp-action="Logout" class="m-0">
-                            <button type="submit" class="text-left text-gray-700 hover:text-primary transition font-medium py-2">
-                                <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                            <button type="submit" class="text-left text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2 w-full">
+                                <i class="fas fa-sign-out-alt mr-1"></i>Đăng xuất
                             </button>
                         </form>
                     }
                     else
                     {
-                        <a class="text-gray-700 hover:text-primary transition font-medium py-2" asp-controller="Auth" asp-action="Login">
-                            <i class="fas fa-sign-in-alt mr-1"></i>Login
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Auth" asp-action="Login">
+                            <i class="fas fa-sign-in-alt mr-1"></i>Đăng nhập
                         </a>
                         <a class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full hover:shadow-lg transition font-medium text-center" asp-controller="Auth" asp-action="Register">
-                            <i class="fas fa-user-plus mr-1"></i>Register
+                            <i class="fas fa-user-plus mr-1"></i>Đăng ký
                         </a>
                     }
                 </div>
@@ -119,34 +180,34 @@
     <main class="container mx-auto px-4 py-8 min-h-screen">
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4 flex items-center justify-between" role="alert">
+            <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 px-4 py-3 rounded-lg mb-4 flex items-center justify-between" role="alert">
                 <div class="flex items-center">
                     <i class="fas fa-check-circle mr-2"></i>
                     <span>@TempData["SuccessMessage"]</span>
                 </div>
-                <button onclick="this.parentElement.style.display='none'" class="text-green-700 hover:text-green-900">
+                <button onclick="this.parentElement.style.display='none'" class="text-green-700 dark:text-green-200 hover:text-green-900 dark:hover:text-green-100">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         }
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4 flex items-center justify-between" role="alert">
+            <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg mb-4 flex items-center justify-between" role="alert">
                 <div class="flex items-center">
                     <i class="fas fa-exclamation-circle mr-2"></i>
                     <span>@TempData["ErrorMessage"]</span>
                 </div>
-                <button onclick="this.parentElement.style.display='none'" class="text-red-700 hover:text-red-900">
+                <button onclick="this.parentElement.style.display='none'" class="text-red-700 dark:text-red-200 hover:text-red-900 dark:hover:text-red-100">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         }
-        @RenderBody()
-    </main>
+            @RenderBody()
+        </main>
 
-    <footer class="bg-white border-t mt-12">
-        <div class="container mx-auto px-4 py-6 text-center text-gray-600">
-            <p>&copy; 2025 - WebFindLove - <a class="text-primary hover:text-pink-600" asp-controller="Home" asp-action="Privacy">Privacy</a></p>
+    <footer class="bg-white dark:bg-gray-800 border-t dark:border-gray-700 mt-12 transition-colors duration-200">
+        <div class="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400">
+            <p>&copy; 2025 - WebFindLove - <a class="text-primary hover:text-pink-600" asp-controller="Home" asp-action="Privacy">Quyền riêng tư</a></p>
         </div>
     </footer>
 
@@ -156,6 +217,23 @@
         document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
             document.getElementById('mobile-menu')?.classList.toggle('hidden');
         });
+
+        // Dark mode toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+        
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
+        
+        themeToggle?.addEventListener('click', toggleDarkMode);
+        themeToggleMobile?.addEventListener('click', toggleDarkMode);
 
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {

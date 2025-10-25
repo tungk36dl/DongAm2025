@@ -1,63 +1,63 @@
 @model IEnumerable<WebFindLove.Models.User>
 
 @{
-    ViewData["Title"] = "Users Management";
+    ViewData["Title"] = "Quản Lý Người Dùng";
     var search = ViewBag.Search as WebFindLove.Models.Services.UserService.Dto.UserSearch;
 }
 
 <div class="mb-6">
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">
-                <i class="fas fa-users text-primary mr-2"></i>Users Management
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+                <i class="fas fa-users text-primary mr-2"></i>Quản Lý Người Dùng
             </h1>
-            <p class="text-gray-600 mt-1">Manage all users in the system</p>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">Quản lý tất cả người dùng trong hệ thống</p>
         </div>
         <a asp-action="Create" class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium">
-            <i class="fas fa-plus mr-2"></i>Add New User
+            <i class="fas fa-plus mr-2"></i>Thêm Người Dùng Mới
         </a>
     </div>
 
     <!-- Search and Filter Section -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <form method="get" asp-action="Index" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-                <label class="block text-gray-700 font-semibold mb-2 text-sm">
-                    <i class="fas fa-search mr-1"></i>Search
+                <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                    <i class="fas fa-search mr-1"></i>Tìm Kiếm
                 </label>
                 <input type="text" 
                        name="Keyword" 
                        value="@search?.Keyword"
-                       placeholder="Username, Email, or Name" 
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                       placeholder="Tên đăng nhập, Email hoặc Họ tên" 
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
             </div>
 
             <div>
-                <label class="block text-gray-700 font-semibold mb-2 text-sm">
-                    <i class="fas fa-user-shield mr-1"></i>Role
+                <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                    <i class="fas fa-user-shield mr-1"></i>Vai Trò
                 </label>
-                <select name="Role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-                    <option value="">All Roles</option>
-                    <option value="Admin" selected="@(search?.Role == "Admin")">Admin</option>
-                    <option value="NhanVien" selected="@(search?.Role == "NhanVien")">NhanVien</option>
-                    <option value="User" selected="@(search?.Role == "User")">User</option>
+                <select name="Role" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <option value="">Tất Cả Vai Trò</option>
+                    <option value="Admin" selected="@(search?.Role == "Admin")">Quản Trị Viên</option>
+                    <option value="NhanVien" selected="@(search?.Role == "NhanVien")">Nhân Viên</option>
+                    <option value="User" selected="@(search?.Role == "User")">Người Dùng</option>
                 </select>
             </div>
 
             <div>
-                <label class="block text-gray-700 font-semibold mb-2 text-sm">
-                    <i class="fas fa-toggle-on mr-1"></i>Status
+                <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                    <i class="fas fa-toggle-on mr-1"></i>Trạng Thái
                 </label>
-                <select name="IsActive" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-                    <option value="">All Status</option>
-                    <option value="true" selected="@(search?.IsActive == true)">Active</option>
-                    <option value="false" selected="@(search?.IsActive == false)">Inactive</option>
+                <select name="IsActive" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <option value="">Tất Cả Trạng Thái</option>
+                    <option value="true" selected="@(search?.IsActive == true)">Hoạt Động</option>
+                    <option value="false" selected="@(search?.IsActive == false)">Không Hoạt Động</option>
                 </select>
             </div>
 
             <div class="flex items-end">
                 <button type="submit" class="w-full bg-primary text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition font-medium">
-                    <i class="fas fa-filter mr-2"></i>Filter
+                    <i class="fas fa-filter mr-2"></i>Lọc
                 </button>
             </div>
         </form>
@@ -65,44 +65,44 @@
 
     @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
     {
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+        <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg mb-4">
             <i class="fas fa-exclamation-circle mr-2"></i>
             @ViewBag.ErrorMessage
         </div>
     }
 
     <!-- Users Table -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         @if (Model != null && Model.Any())
         {
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                User Info
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Thông Tin Người Dùng
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Email
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Role
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Vai Trò
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Trạng Thái
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Created
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Ngày Tạo
                             </th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Hành Động
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         @foreach (var user in Model)
                         {
-                            <tr class="hover:bg-gray-50 transition">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
@@ -111,13 +111,13 @@
                                             </div>
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">@user.UserName</div>
-                                            <div class="text-sm text-gray-500">@user.FullName</div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">@user.UserName</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">@user.FullName</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">@user.Email</div>
+                                    <div class="text-sm text-gray-900 dark:text-white">@user.Email</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -131,27 +131,27 @@
                                     @if (user.IsActive)
                                     {
                                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            <i class="fas fa-check-circle mr-1"></i>Active
+                                            <i class="fas fa-check-circle mr-1"></i>Hoạt Động
                                         </span>
                                     }
                                     else
                                     {
                                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            <i class="fas fa-times-circle mr-1"></i>Inactive
+                                            <i class="fas fa-times-circle mr-1"></i>Không Hoạt Động
                                         </span>
                                     }
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    @user.CreatedAt?.ToString("MMM dd, yyyy")
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                    @user.CreatedAt?.ToString("dd/MM/yyyy")
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a asp-action="Details" asp-route-id="@user.Id" class="text-blue-600 hover:text-blue-900 mr-3" title="View Details">
+                                    <a asp-action="Details" asp-route-id="@user.Id" class="text-blue-600 hover:text-blue-900 mr-3" title="Xem Chi Tiết">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a asp-action="Edit" asp-route-id="@user.Id" class="text-green-600 hover:text-green-900 mr-3" title="Edit">
+                                    <a asp-action="Edit" asp-route-id="@user.Id" class="text-green-600 hover:text-green-900 mr-3" title="Chỉnh Sửa">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a asp-action="Delete" asp-route-id="@user.Id" class="text-red-600 hover:text-red-900" title="Delete">
+                                    <a asp-action="Delete" asp-route-id="@user.Id" class="text-red-600 hover:text-red-900" title="Xóa">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
@@ -165,10 +165,9 @@
         {
             <div class="text-center py-12">
                 <i class="fas fa-users text-6xl text-gray-300 mb-4"></i>
-                <h3 class="text-xl font-semibold text-gray-600 mb-2">No Users Found</h3>
-                <p class="text-gray-500">Try adjusting your search or filter criteria</p>
+                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">Không Tìm Thấy Người Dùng</h3>
+                <p class="text-gray-500 dark:text-gray-500">Thử điều chỉnh tiêu chí tìm kiếm hoặc bộ lọc</p>
             </div>
         }
     </div>
 </div>
-

@@ -1,0 +1,180 @@
+@model WebFindLove.Models.UserPreference
+@{
+    ViewData["Title"] = "My Preferences";
+}
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            <i class="fas fa-sliders-h text-purple-600 mr-2"></i>My Preferences
+        </h1>
+        <p class="text-gray-600">Your search preferences for finding compatible matches</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Preferences Display -->
+        <div class="md:col-span-2">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                @if (Model.Id != Guid.Empty)
+                {
+                    <div class="space-y-6">
+                        <!-- Gender Preference -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-venus-mars text-pink-500"></i>
+                                Gender Preference
+                            </h3>
+                            <p class="text-gray-700 bg-gray-50 p-3 rounded">
+                                @(string.IsNullOrEmpty(Model.PreferredGender) ? "Not specified" : Model.PreferredGender)
+                            </p>
+                        </div>
+
+                        <!-- Age Range -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-birthday-cake text-blue-500"></i>
+                                Age Range
+                            </h3>
+                            <p class="text-gray-700 bg-gray-50 p-3 rounded">
+                                @if (Model.AgeMin.HasValue && Model.AgeMax.HasValue)
+                                {
+                                    <span>@Model.AgeMin - @Model.AgeMax years old</span>
+                                }
+                                else
+                                {
+                                    <span>Not specified</span>
+                                }
+                            </p>
+                        </div>
+
+                        <!-- Height Range -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-ruler-vertical text-green-500"></i>
+                                Height Range
+                            </h3>
+                            <p class="text-gray-700 bg-gray-50 p-3 rounded">
+                                @if (Model.MinHeight.HasValue && Model.MaxHeight.HasValue)
+                                {
+                                    <span>@Model.MinHeight - @Model.MaxHeight cm</span>
+                                }
+                                else
+                                {
+                                    <span>Not specified</span>
+                                }
+                            </p>
+                        </div>
+
+                        <!-- Location Preference -->
+                        @if (!string.IsNullOrEmpty(Model.LocationPreference))
+                        {
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-map-marker-alt text-red-500"></i>
+                                    Location Preference
+                                </h3>
+                                <p class="text-gray-700 bg-gray-50 p-3 rounded">@Model.LocationPreference</p>
+                            </div>
+                        }
+
+                        <!-- Personality Preference -->
+                        @if (!string.IsNullOrEmpty(Model.PersonalityPreference))
+                        {
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-brain text-purple-500"></i>
+                                    Personality Preference
+                                </h3>
+                                <p class="text-gray-700 bg-gray-50 p-3 rounded font-mono text-sm">@Model.PersonalityPreference</p>
+                            </div>
+                        }
+
+                        <!-- Interest Preference -->
+                        @if (!string.IsNullOrEmpty(Model.InterestPreference))
+                        {
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-heart text-pink-500"></i>
+                                    Interest Preference
+                                </h3>
+                                <p class="text-gray-700 bg-gray-50 p-3 rounded font-mono text-sm">@Model.InterestPreference</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Edit Button -->
+                    <div class="mt-6">
+                        <a asp-action="Edit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition inline-block">
+                            <i class="fas fa-edit mr-2"></i>Edit Preferences
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <!-- Empty State -->
+                    <div class="text-center py-8">
+                        <i class="fas fa-sliders-h text-gray-400 text-5xl mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">No Preferences Set</h3>
+                        <p class="text-gray-500 mb-6">Set your preferences to help us find better matches for you!</p>
+                        <a asp-action="Edit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition inline-block">
+                            <i class="fas fa-plus mr-2"></i>Set Preferences
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Info Sidebar -->
+        <div class="space-y-6">
+            <!-- Why Preferences Matter -->
+            <div class="bg-purple-50 border-l-4 border-purple-500 rounded-lg p-4">
+                <h3 class="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+                    <i class="fas fa-lightbulb"></i>
+                    Why It Matters
+                </h3>
+                <p class="text-purple-700 text-sm">
+                    Your preferences help our AI find the most compatible matches for you based on what you're looking for.
+                </p>
+            </div>
+
+            <!-- Tips -->
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <i class="fas fa-info-circle text-blue-500"></i>
+                    Tips
+                </h3>
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check text-green-500 mt-1"></i>
+                        <span>Be specific about what you're looking for</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check text-green-500 mt-1"></i>
+                        <span>Keep an open mind - don't be too restrictive</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check text-green-500 mt-1"></i>
+                        <span>Update your preferences as your needs change</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h3 class="font-semibold text-gray-800 mb-3">Quick Actions</h3>
+                <div class="space-y-2">
+                    <a asp-controller="MatchResults" asp-action="Index"
+                       class="block bg-blue-600 hover:bg-blue-700 text-white text-center py-2 rounded-lg transition text-sm">
+                        <i class="fas fa-heart mr-1"></i>View Matches
+                    </a>
+                    <a asp-controller="PersonalityTraits" asp-action="Index"
+                       class="block bg-purple-600 hover:bg-purple-700 text-white text-center py-2 rounded-lg transition text-sm">
+                        <i class="fas fa-brain mr-1"></i>Personality
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

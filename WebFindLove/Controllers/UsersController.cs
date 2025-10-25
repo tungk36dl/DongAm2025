@@ -225,5 +225,166 @@ namespace WebFindLove.Controllers
                 ViewBag.Roles = new SelectList(new List<Role>(), "Name", "Name");
             }
         }
+
+        // ============================
+        // Edit Account (Username & Password)
+        // ============================
+        public async Task<IActionResult> EditAccount()
+        {
+            if (CurrentUser == null)
+            {
+                _logger.LogWarning("Unauthorized access attempt to EditAccount");
+                return RedirectToAction("Login", "Auth");
+            }
+
+            _logger.LogInformation("GET EditAccount - UserId: {UserId}, Requested by: {CurrentUser}", CurrentUser.Id, CurrentUser.UserName);
+
+            var resp = await _userService.GetByIdAsync(CurrentUser.Id);
+            if (!resp.Success || resp.Data == null)
+            {
+                _logger.LogWarning("User not found for edit account - UserId: {UserId}", CurrentUser.Id);
+                return NotFound();
+            }
+
+            var model = new EditAccountVM
+            {
+                Id = resp.Data.Id,
+                UserName = resp.Data.UserName,
+                Email = resp.Data.Email
+            };
+
+            _logger.LogDebug("Loaded user for edit account - Username: {Username}, Email: {Email}", resp.Data.UserName, resp.Data.Email);
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAccount(EditAccountVM model)
+        {
+            if (CurrentUser == null || model.Id != CurrentUser.Id)
+            {
+                _logger.LogWarning("Unauthorized edit account attempt - UserId: {UserId}", model.Id);
+                return Forbid();
+            }
+
+            _logger.LogInformation("POST EditAccount - UserId: {UserId}, Username: {Username}, Requested by: {CurrentUser}",
+                model.Id, model.UserName, CurrentUser.UserName);
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Edit account validation failed - UserId: {UserId}, Errors: {Errors}",
+                    model.Id, string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+                return View(model);
+            }
+
+            var result = await _userService.UpdateAccountAsync(model);
+            if (!result.Success)
+            {
+                _logger.LogError("Failed to update account - UserId: {UserId}, Username: {Username}, Message: {Message}, ErrorDetails: {ErrorDetails}",
+                    model.Id, model.UserName, result.Message, result.ErrorDetails);
+                ModelState.AddDataResponse(new DataResponse<object> { Success = result.Success, Message = result.Message, ErrorDetails = result.ErrorDetails });
+                return View(model);
+            }
+
+            _logger.LogInformation("Account updated successfully - UserId: {UserId}, Username: {Username}", model.Id, model.UserName);
+            TempData["SuccessMessage"] = "Account information updated successfully.";
+            
+            // Update session if username changed
+            if (result.Data != null && result.Data.UserName != CurrentUser.UserName)
+            {
+                HttpContext.Session.SetObjectAsJson("CurrentUser", result.Data);
+            }
+
+            return RedirectToAction(nameof(EditAccount));
+        }
+
+        // ============================
+        // Edit Profile (Personal Information)
+        // ============================
+        public async Task<IActionResult> EditProfile()
+        {
+            if (CurrentUser == null)
+            {
+                _logger.LogWarning("Unauthorized access attempt to EditProfile");
+                return RedirectToAction("Login", "Auth");
+            }
+
+            _logger.LogInformation("GET EditProfile - UserId: {UserId}, Requested by: {CurrentUser}", CurrentUser.Id, CurrentUser.UserName);
+
+            var resp = await _userService.GetByIdAsync(CurrentUser.Id);
+            if (!resp.Success || resp.Data == null)
+            {
+                _logger.LogWarning("User not found for edit profile - UserId: {UserId}", CurrentUser.Id);
+                return NotFound();
+            }
+
+            var model = new EditProfileVM
+            {
+                Id = resp.Data.Id,
+                FullName = resp.Data.FullName,
+                PhoneNumber = resp.Data.PhoneNumber,
+                Gender = resp.Data.Gender,
+                DateOfBirth = resp.Data.DateOfBirth,
+                Height = resp.Data.Height,
+                Location = resp.Data.Location,
+                Hometown = resp.Data.Hometown,
+                Bio = resp.Data.Bio,
+                Interests = resp.Data.Interests,
+                Avatar = resp.Data.Avatar
+            };
+
+            _logger.LogDebug("Loaded user for edit profile - FullName: {FullName}", resp.Data.FullName);
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(EditProfileVM model)
+        {
+            try
+            {
+                if (CurrentUser == null || model.Id != CurrentUser.Id)
+                {
+                    _logger.LogWarning("Unauthorized edit profile attempt - UserId: {UserId}", model.Id);
+                    return Forbid();
+                }
+
+                _logger.LogInformation("POST EditProfile - UserId: {UserId}, FullName: {FullName}, Requested by: {CurrentUser}",
+                    model.Id, model.FullName, CurrentUser.UserName);
+
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogWarning("Edit profile validation failed - UserId: {UserId}, Errors: {Errors}",
+                        model.Id, string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+                    return View(model);
+                }
+
+                var result = await _userService.UpdateProfileAsync(model);
+                if (!result.Success)
+                {
+                    _logger.LogError("Failed to update profile - UserId: {UserId}, Message: {Message}, ErrorDetails: {ErrorDetails}",
+                        model.Id, result.Message, result.ErrorDetails);
+                    ModelState.AddDataResponse(new DataResponse<object> { Success = result.Success, Message = result.Message, ErrorDetails = result.ErrorDetails });
+                    return View(model);
+                }
+
+                _logger.LogInformation("Profile updated successfully - UserId: {UserId}", model.Id);
+                TempData["SuccessMessage"] = "Profile information updated successfully.";
+
+                // Update session with new user data
+                if (result.Data != null)
+                {
+                    //HttpContext.Session.SetObjectAsJson("CurrentUser", result.Data);
+                }
+
+                return RedirectToAction(nameof(EditProfile));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred while updating profile - UserId: {UserId}", model.Id);
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again later.");
+                return View(model);
+            }
+        }
     }
 }

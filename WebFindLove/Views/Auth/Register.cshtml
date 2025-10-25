@@ -1,98 +1,98 @@
 @model WebFindLove.Models.User
 
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Đăng ký";
 }
 
 <div class="min-h-[80vh] flex items-center justify-center py-12">
     <div class="max-w-md w-full">
         <div class="text-center mb-8">
             <i class="fas fa-heart text-6xl text-primary mb-4"></i>
-            <h2 class="text-3xl font-bold text-gray-800">Join WebFindLove</h2>
-            <p class="text-gray-600 mt-2">Create your account and start your journey</p>
+            <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Tham gia WebFindLove</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Tạo tài khoản và bắt đầu hành trình của bạn</p>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-8">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
             <form method="post" asp-action="Register" asp-controller="Auth" id="registerForm">
                 @Html.AntiForgeryToken()
                 
                 <div class="mb-5">
-                    <label for="UserName" class="block text-gray-700 font-semibold mb-2">
-                        <i class="fas fa-user mr-2"></i>Username
+                    <label for="UserName" class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">
+                        <i class="fas fa-user mr-2"></i>Tên đăng nhập
                     </label>
                     <input type="text" 
                            id="UserName" 
                            name="UserName"
                            asp-for="UserName"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                           placeholder="Choose a username"
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                           placeholder="Chọn tên đăng nhập"
                            required />
                     <span asp-validation-for="UserName" class="text-red-500 text-sm"></span>
                 </div>
 
                 <div class="mb-5">
-                    <label for="Email" class="block text-gray-700 font-semibold mb-2">
+                    <label for="Email" class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">
                         <i class="fas fa-envelope mr-2"></i>Email
                     </label>
                     <input type="email" 
                            id="Email" 
                            name="Email"
                            asp-for="Email"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                           placeholder="Enter your email"
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                           placeholder="Nhập địa chỉ email"
                            required />
                     <span asp-validation-for="Email" class="text-red-500 text-sm"></span>
                 </div>
 
                 <div class="mb-5">
-                    <label for="FullName" class="block text-gray-700 font-semibold mb-2">
-                        <i class="fas fa-id-card mr-2"></i>Full Name
+                    <label for="FullName" class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">
+                        <i class="fas fa-id-card mr-2"></i>Họ và tên
                     </label>
                     <input type="text" 
                            id="FullName" 
                            name="FullName"
                            asp-for="FullName"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                           placeholder="Enter your full name" />
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                           placeholder="Nhập họ và tên đầy đủ" />
                     <span asp-validation-for="FullName" class="text-red-500 text-sm"></span>
                 </div>
 
                 <div class="mb-5">
-                    <label for="password" class="block text-gray-700 font-semibold mb-2">
-                        <i class="fas fa-lock mr-2"></i>Password
+                    <label for="password" class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">
+                        <i class="fas fa-lock mr-2"></i>Mật khẩu
                     </label>
                     <div class="relative">
                         <input type="password" 
                                id="password" 
                                name="password" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                               placeholder="Choose a strong password"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                               placeholder="Chọn mật khẩu mạnh"
                                required 
                                minlength="6" />
                         <button type="button" 
                                 onclick="togglePassword('password', 'toggleIcon1')" 
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
                             <i class="fas fa-eye" id="toggleIcon1"></i>
                         </button>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Phải có ít nhất 6 ký tự</p>
                     <span id="passwordError" class="text-red-500 text-sm"></span>
                 </div>
 
                 <div class="mb-6">
-                    <label for="confirmPassword" class="block text-gray-700 font-semibold mb-2">
-                        <i class="fas fa-lock mr-2"></i>Confirm Password
+                    <label for="confirmPassword" class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">
+                        <i class="fas fa-lock mr-2"></i>Xác nhận mật khẩu
                     </label>
                     <div class="relative">
                         <input type="password" 
                                id="confirmPassword" 
                                name="confirmPassword" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                               placeholder="Confirm your password"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                               placeholder="Xác nhận mật khẩu"
                                required />
                         <button type="button" 
                                 onclick="togglePassword('confirmPassword', 'toggleIcon2')" 
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
                             <i class="fas fa-eye" id="toggleIcon2"></i>
                         </button>
                     </div>
@@ -102,8 +102,8 @@
                 <div class="mb-6">
                     <label class="flex items-start">
                         <input type="checkbox" id="terms" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary mt-1" required>
-                        <span class="ml-2 text-gray-600 text-sm">
-                            I agree to the <a href="#" class="text-primary hover:text-pink-600">Terms and Conditions</a> and <a href="#" class="text-primary hover:text-pink-600">Privacy Policy</a>
+                        <span class="ml-2 text-gray-600 dark:text-gray-400 text-sm">
+                            Tôi đồng ý với <a href="#" class="text-primary hover:text-pink-600">Điều khoản và Điều kiện</a> và <a href="#" class="text-primary hover:text-pink-600">Chính sách bảo mật</a>
                         </span>
                     </label>
                 </div>
@@ -123,24 +123,24 @@
 
                 <button type="submit" 
                         class="w-full bg-gradient-to-r from-primary to-secondary text-white font-semibold py-3 rounded-lg hover:shadow-lg transition duration-300 transform hover:scale-105">
-                    <i class="fas fa-user-plus mr-2"></i>Create Account
+                    <i class="fas fa-user-plus mr-2"></i>Tạo tài khoản
                 </button>
             </form>
 
             <div class="mt-6 text-center">
-                <p class="text-gray-600">
-                    Already have an account? 
+                <p class="text-gray-600 dark:text-gray-400">
+                    Đã có tài khoản?
                     <a asp-controller="Auth" asp-action="Login" class="text-primary hover:text-pink-600 font-semibold">
-                        Login here
+                        Đăng nhập tại đây
                     </a>
                 </p>
             </div>
         </div>
 
         <div class="mt-8 text-center">
-            <p class="text-gray-500 text-sm">
+            <p class="text-gray-500 dark:text-gray-400 text-sm">
                 <i class="fas fa-shield-alt mr-1"></i>
-                Your information is safe with us
+                Thông tin của bạn được bảo mật tuyệt đối
             </p>
         </div>
     </div>
@@ -173,7 +173,7 @@
             
             if (password !== confirmPassword) {
                 e.preventDefault();
-                confirmError.textContent = 'Passwords do not match';
+                confirmError.textContent = 'Mật khẩu không khớp';
                 document.getElementById('confirmPassword').classList.add('border-red-500');
                 return false;
             } else {
@@ -183,7 +183,7 @@
 
             if (password.length < 6) {
                 e.preventDefault();
-                document.getElementById('passwordError').textContent = 'Password must be at least 6 characters';
+                document.getElementById('passwordError').textContent = 'Mật khẩu phải có ít nhất 6 ký tự';
                 document.getElementById('password').classList.add('border-red-500');
                 return false;
             } else {
@@ -204,4 +204,3 @@
         });
     </script>
 }
-

@@ -1,17 +1,17 @@
 @model WebFindLove.Models.User
 
 @{
-    ViewData["Title"] = "User Details";
+    ViewData["Title"] = "Chi Tiết Người Dùng";
 }
 
 <div class="max-w-4xl mx-auto">
     <div class="mb-6">
         <a asp-action="Index" class="text-primary hover:text-pink-600 font-medium">
-            <i class="fas fa-arrow-left mr-2"></i>Back to Users List
+            <i class="fas fa-arrow-left mr-2"></i>Quay Lại Danh Sách
         </a>
     </div>
 
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <!-- Header Section -->
         <div class="bg-gradient-to-r from-primary to-secondary p-8 text-white">
             <div class="flex items-center">
@@ -25,13 +25,13 @@
                         @if (Model.IsActive)
                         {
                             <span class="px-4 py-1 bg-green-500 text-white text-sm font-semibold rounded-full">
-                                <i class="fas fa-check-circle mr-1"></i>Active
+                                <i class="fas fa-check-circle mr-1"></i>Hoạt Động
                             </span>
                         }
                         else
                         {
                             <span class="px-4 py-1 bg-red-500 text-white text-sm font-semibold rounded-full">
-                                <i class="fas fa-times-circle mr-1"></i>Inactive
+                                <i class="fas fa-times-circle mr-1"></i>Không Hoạt Động
                             </span>
                         }
                         <span class="px-4 py-1 bg-white text-primary text-sm font-semibold rounded-full ml-2">
@@ -45,37 +45,37 @@
         <!-- Details Section -->
         <div class="p-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="border-b border-gray-200 pb-4">
-                    <label class="text-sm font-semibold text-gray-500 uppercase">
-                        <i class="fas fa-id-card mr-2"></i>User ID
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <label class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                        <i class="fas fa-id-card mr-2"></i>ID Người Dùng
                     </label>
-                    <p class="mt-2 text-gray-800 font-medium">@Model.Id</p>
+                    <p class="mt-2 text-gray-800 dark:text-white font-medium">@Model.Id</p>
                 </div>
 
-                <div class="border-b border-gray-200 pb-4">
-                    <label class="text-sm font-semibold text-gray-500 uppercase">
-                        <i class="fas fa-user mr-2"></i>Username
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <label class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                        <i class="fas fa-user mr-2"></i>Tên Đăng Nhập
                     </label>
-                    <p class="mt-2 text-gray-800 font-medium">@Model.UserName</p>
+                    <p class="mt-2 text-gray-800 dark:text-white font-medium">@Model.UserName</p>
                 </div>
 
-                <div class="border-b border-gray-200 pb-4">
-                    <label class="text-sm font-semibold text-gray-500 uppercase">
-                        <i class="fas fa-envelope mr-2"></i>Email Address
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <label class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                        <i class="fas fa-envelope mr-2"></i>Địa Chỉ Email
                     </label>
-                    <p class="mt-2 text-gray-800 font-medium">@Model.Email</p>
+                    <p class="mt-2 text-gray-800 dark:text-white font-medium">@Model.Email</p>
                 </div>
 
-                <div class="border-b border-gray-200 pb-4">
-                    <label class="text-sm font-semibold text-gray-500 uppercase">
-                        <i class="fas fa-id-card-alt mr-2"></i>Full Name
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <label class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                        <i class="fas fa-id-card-alt mr-2"></i>Họ và Tên
                     </label>
-                    <p class="mt-2 text-gray-800 font-medium">@(Model.FullName ?? "N/A")</p>
+                    <p class="mt-2 text-gray-800 dark:text-white font-medium">@(Model.FullName ?? "Chưa cập nhật")</p>
                 </div>
 
-                <div class="border-b border-gray-200 pb-4">
-                    <label class="text-sm font-semibold text-gray-500 uppercase">
-                        <i class="fas fa-user-shield mr-2"></i>Role
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <label class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                        <i class="fas fa-user-shield mr-2"></i>Vai Trò
                     </label>
                     <p class="mt-2">
                         <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full 
@@ -87,54 +87,53 @@
                     </p>
                 </div>
 
-                <div class="border-b border-gray-200 pb-4">
-                    <label class="text-sm font-semibold text-gray-500 uppercase">
-                        <i class="fas fa-toggle-on mr-2"></i>Status
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <label class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                        <i class="fas fa-toggle-on mr-2"></i>Trạng Thái
                     </label>
                     <p class="mt-2">
                         @if (Model.IsActive)
                         {
                             <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-green-100 text-green-800">
-                                <i class="fas fa-check-circle mr-1"></i>Active
+                                <i class="fas fa-check-circle mr-1"></i>Hoạt Động
                             </span>
                         }
                         else
                         {
                             <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-red-100 text-red-800">
-                                <i class="fas fa-times-circle mr-1"></i>Inactive
+                                <i class="fas fa-times-circle mr-1"></i>Không Hoạt Động
                             </span>
                         }
                     </p>
                 </div>
 
-                <div class="border-b border-gray-200 pb-4">
-                    <label class="text-sm font-semibold text-gray-500 uppercase">
-                        <i class="fas fa-calendar-plus mr-2"></i>Created At
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <label class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                        <i class="fas fa-calendar-plus mr-2"></i>Ngày Tạo
                     </label>
-                    <p class="mt-2 text-gray-800 font-medium">@Model.CreatedAt?.ToString("MMMM dd, yyyy HH:mm")</p>
+                    <p class="mt-2 text-gray-800 dark:text-white font-medium">@Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
                 </div>
 
-                <div class="border-b border-gray-200 pb-4">
-                    <label class="text-sm font-semibold text-gray-500 uppercase">
-                        <i class="fas fa-calendar-check mr-2"></i>Last Updated
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <label class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                        <i class="fas fa-calendar-check mr-2"></i>Cập Nhật Lần Cuối
                     </label>
-                    <p class="mt-2 text-gray-800 font-medium">@Model.UpdatedAt?.ToString("MMMM dd, yyyy HH:mm")</p>
+                    <p class="mt-2 text-gray-800 dark:text-white font-medium">@Model.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
                 </div>
             </div>
 
             <!-- Action Buttons -->
             <div class="mt-8 flex justify-end space-x-4">
-                <a asp-action="Index" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition font-medium">
-                    <i class="fas fa-list mr-2"></i>Back to List
+                <a asp-action="Index" class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition font-medium">
+                    <i class="fas fa-list mr-2"></i>Quay Lại Danh Sách
                 </a>
                 <a asp-action="Edit" asp-route-id="@Model.Id" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-medium">
-                    <i class="fas fa-edit mr-2"></i>Edit User
+                    <i class="fas fa-edit mr-2"></i>Chỉnh Sửa
                 </a>
                 <a asp-action="Delete" asp-route-id="@Model.Id" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition font-medium">
-                    <i class="fas fa-trash mr-2"></i>Delete User
+                    <i class="fas fa-trash mr-2"></i>Xóa
                 </a>
             </div>
         </div>
     </div>
 </div>
-

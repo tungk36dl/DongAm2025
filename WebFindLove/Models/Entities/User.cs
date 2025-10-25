@@ -50,6 +50,9 @@ namespace WebFindLove.Models
 
         public string? Interests { get; set; }  // JSON array
 
+        [StringLength(500)]
+        public string? Avatar { get; set; }  // Path to avatar image
+
         // ============================
         // Role Relationship
         // ============================

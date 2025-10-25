@@ -6,7 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using WebFindLove.Models.Repositories.UserRepo;
 using WebFindLove.Models.Services.UserService.Dto;
+using WebFindLove.Models.Services.UserService.ViewModels;
 using WebFindLove.Models.UnitOfWork;
+using Microsoft.AspNetCore.Identity;
+using WebFindLove.Models.Services.FileUploadService;
+using WebFindLove.Models.Services.FileUploadService.Dto;
 
 namespace WebFindLove.Models.Services.UserService
 {
@@ -15,13 +19,16 @@ namespace WebFindLove.Models.Services.UserService
         private readonly IUnitOfWork _unitOfWork;
         //private readonly IGenericRepository<User, Guid> _userRepository;
         private readonly IUserRepository _userRepository;
-
+        private readonly PasswordHasher<User> _passwordHasher;
+        private readonly IFileUploadService _fileUploadService;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IUnitOfWork unitOfWork, IUserRepository userRepository, ILogger<UserService> logger)
+        public UserService(IUnitOfWork unitOfWork, IUserRepository userRepository, IFileUploadService fileUploadService, ILogger<UserService> logger)
         {
             _unitOfWork = unitOfWork;
             _userRepository = userRepository;
+            _passwordHasher = new PasswordHasher<User>();
+            _fileUploadService = fileUploadService;
             _logger = logger;
         }
 
@@ -213,6 +220,159 @@ namespace WebFindLove.Models.Services.UserService
             }
         }
 
-     
+        public async Task<DataResponse<User>> UpdateAccountAsync(EditAccountVM model)
+        {
+            if (model == null)
+            {
+                return new DataResponse<User> { Success = false, Message = "Model is required." };
+            }
+
+            try
+            {
+                var user = await _userRepository.FindByIdAsync(model.Id);
+                if (user == null)
+                {
+                    return new DataResponse<User> { Success = false, Message = "User not found." };
+                }
+
+                var fieldErrors = new Dictionary<string, List<string>>();
+
+                // Check username uniqueness
+                if (!string.IsNullOrWhiteSpace(model.UserName) && model.UserName != user.UserName)
+                {
+                    var existsUserName = await _userRepository.AnyAsync(u => u.Id != model.Id && u.UserName == model.UserName);
+                    if (existsUserName)
+                    {
+                        fieldErrors.TryAdd(nameof(model.UserName), new List<string>());
+                        fieldErrors[nameof(model.UserName)].Add("Username already exists.");
+                    }
+                }
+
+                // Check email uniqueness
+                if (!string.IsNullOrWhiteSpace(model.Email) && model.Email != user.Email)
+                {
+                    var existsEmail = await _userRepository.AnyAsync(u => u.Id != model.Id && u.Email == model.Email);
+                    if (existsEmail)
+                    {
+                        fieldErrors.TryAdd(nameof(model.Email), new List<string>());
+                        fieldErrors[nameof(model.Email)].Add("Email already exists.");
+                    }
+                }
+
+                if (fieldErrors.Any())
+                {
+                    return new DataResponse<User>
+                    {
+                        Success = false,
+                        Message = "Validation errors",
+                        ErrorDetails = System.Text.Json.JsonSerializer.Serialize(fieldErrors)
+                    };
+                }
+
+                // Update account information
+                user.UserName = model.UserName;
+                user.Email = model.Email;
+
+                // Update password if provided
+                if (!string.IsNullOrWhiteSpace(model.NewPassword))
+                {
+                    user.PasswordHash = _passwordHasher.HashPassword(user, model.NewPassword);
+                }
+
+                user.UpdatedAt = DateTime.UtcNow;
+                _userRepository.Update(user);
+                await _unitOfWork.SaveChangesAsync();
+
+                return new DataResponse<User> { Success = true, Data = user };
+            }
+            catch (ValidationException vex)
+            {
+                return new DataResponse<User> { Success = false, Message = vex.Message };
+            }
+            catch (Exception ex)
+            {
+                return new DataResponse<User> { Success = false, Message = "Failed to update account.", ErrorDetails = ex.Message };
+            }
+        }
+
+        public async Task<DataResponse<User>> UpdateProfileAsync(EditProfileVM model)
+        {
+            if (model == null)
+            {
+                return new DataResponse<User> { Success = false, Message = "Model is required." };
+            }
+
+            try
+            {
+                var user = await _userRepository.FindByIdAsync(model.Id);
+                if (user == null)
+                {
+                    return new DataResponse<User> { Success = false, Message = "User not found." };
+                }
+
+                // Update profile information
+                user.FullName = model.FullName;
+                user.PhoneNumber = model.PhoneNumber;
+                user.Gender = model.Gender;
+                user.DateOfBirth = model.DateOfBirth;
+                user.Height = model.Height;
+                user.Location = model.Location;
+                user.Hometown = model.Hometown;
+                user.Bio = model.Bio;
+                user.Interests = model.Interests;
+
+                // Handle avatar upload using FileUploadService
+                if (model.AvatarFile != null && model.AvatarFile.Length > 0)
+                {
+                    _logger.LogInformation("Uploading avatar for user {UserId}", model.Id);
+
+                    // Configure upload options
+                    var uploadOptions = new FileUploadOptions
+                    {
+                        SubDirectory = "avatars",
+                        AllowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" },
+                        MaxFileSize = 5 * 1024 * 1024, // 5MB
+                        GenerateUniqueFileName = true
+                    };
+
+                    // Upload new avatar
+                    var uploadResult = await _fileUploadService.UploadFileAsync(model.AvatarFile, uploadOptions);
+                    
+                    if (!uploadResult.Success)
+                    {
+                        _logger.LogWarning("Avatar upload failed for user {UserId}: {Error}", model.Id, uploadResult.ErrorMessage);
+                        return new DataResponse<User> 
+                        { 
+                            Success = false, 
+                            Message = uploadResult.ErrorMessage ?? "Failed to upload avatar." 
+                        };
+                    }
+
+                    // Delete old avatar if exists
+                    if (!string.IsNullOrEmpty(user.Avatar))
+                    {
+                        var oldAvatarPath = Path.Combine("avatars", user.Avatar);
+                        await _fileUploadService.DeleteFileAsync(oldAvatarPath);
+                        _logger.LogInformation("Deleted old avatar for user {UserId}: {OldAvatar}", model.Id, user.Avatar);
+                    }
+
+                    // Update user avatar with new filename
+                    user.Avatar = uploadResult.FileName;
+                    _logger.LogInformation("Avatar uploaded successfully for user {UserId}: {FileName}", model.Id, uploadResult.FileName);
+                }
+
+                user.UpdatedAt = DateTime.UtcNow;
+                _userRepository.Update(user);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Profile updated successfully for user {UserId}", model.Id);
+                return new DataResponse<User> { Success = true, Data = user };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating profile for user {UserId}", model.Id);
+                return new DataResponse<User> { Success = false, Message = "Failed to update profile.", ErrorDetails = ex.Message };
+            }
+        }
     }
 }

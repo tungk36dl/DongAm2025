@@ -5,6 +5,7 @@ using WebFindLove.Models.Services.PersonalityTraitService;
 using WebFindLove.Models.Services.MatchResultService;
 using WebFindLove.Models.Services.PhotoService;
 using WebFindLove.Models.Services.MessageService;
+using WebFindLove.Models.Services.FileUploadService;
 
 namespace WebFindLove.Models.Services
 {
@@ -29,6 +30,9 @@ namespace WebFindLove.Models.Services
             services.AddScoped<IMatchResultService, MatchResultService.MatchResultService>();
             services.AddScoped<IPhotoService, PhotoService.PhotoService>();
             services.AddScoped<IMessageService, MessageService.MessageService>();
+
+            // Utility services
+            services.AddScoped<IFileUploadService, FileUploadService.FileUploadService>();
 
             return services;
         }

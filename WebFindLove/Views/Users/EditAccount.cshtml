@@ -1,0 +1,124 @@
+@model WebFindLove.Models.Services.UserService.ViewModels.EditAccountVM
+
+@{
+    ViewData["Title"] = "Edit Account";
+}
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-primary to-pink-600 text-white px-6 py-4">
+            <h2 class="text-2xl font-bold flex items-center">
+                <i class="fas fa-user-circle mr-3"></i>
+                Chỉnh Sửa Tài Khoản
+            </h2>
+        </div>
+        
+        <div class="p-6 md:p-8">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 px-4 py-3 rounded-lg mb-6 flex items-center justify-between animate-fade-in">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <span>@TempData["SuccessMessage"]</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-green-700 dark:text-green-200 hover:text-green-900 dark:hover:text-green-100">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            }
+
+            <form asp-action="EditAccount" method="post" enctype="multipart/form-data" class="space-y-6">
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg mb-4"></div>
+
+                <!-- Account Information Section -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-id-card mr-2 text-primary"></i>
+                        Thông Tin Tài Khoản
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label asp-for="UserName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-user mr-1"></i> Tên Đăng Nhập
+                            </label>
+                            <input asp-for="UserName" 
+                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition" 
+                                   placeholder="Nhập tên đăng nhập" />
+                            <span asp-validation-for="UserName" class="text-red-500 text-sm mt-1"></span>
+                        </div>
+
+                        <div>
+                            <label asp-for="Email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-envelope mr-1"></i> Email
+                            </label>
+                            <input asp-for="Email" 
+                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition" 
+                                   placeholder="Nhập email" />
+                            <span asp-validation-for="Email" class="text-red-500 text-sm mt-1"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-300 dark:border-gray-600" />
+
+                <!-- Change Password Section -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-key mr-2 text-secondary"></i>
+                        Đổi Mật Khẩu
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Để trống nếu bạn không muốn thay đổi mật khẩu
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label asp-for="NewPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-lock mr-1"></i> Mật Khẩu Mới
+                            </label>
+                            <input asp-for="NewPassword" 
+                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition" 
+                                   placeholder="Nhập mật khẩu mới" />
+                            <span asp-validation-for="NewPassword" class="text-red-500 text-sm mt-1"></span>
+                        </div>
+
+                        <div>
+                            <label asp-for="ConfirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-lock mr-1"></i> Xác Nhận Mật Khẩu
+                            </label>
+                            <input asp-for="ConfirmPassword" 
+                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition" 
+                                   placeholder="Nhập lại mật khẩu mới" />
+                            <span asp-validation-for="ConfirmPassword" class="text-red-500 text-sm mt-1"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-300 dark:border-gray-600" />
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-3">
+                    <button type="submit" class="bg-gradient-to-r from-primary to-pink-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium flex items-center">
+                        <i class="fas fa-save mr-2"></i>
+                        Lưu Thay Đổi
+                    </button>
+                    <a asp-action="EditProfile" class="bg-gradient-to-r from-secondary to-purple-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium flex items-center">
+                        <i class="fas fa-user-edit mr-2"></i>
+                        Sửa Hồ Sơ
+                    </a>
+                    <a asp-controller="Home" asp-action="Index" class="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition font-medium flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Về Trang Chủ
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

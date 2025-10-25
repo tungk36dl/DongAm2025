@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System;
 using WebFindLove.HelperServices;
 using WebFindLove.Models;
 using WebFindLove.Models.Repositories;
