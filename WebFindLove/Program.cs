@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System;
+using WebFindLove.HelperServices;
 using WebFindLove.Models;
 using WebFindLove.Models.Repositories;
 using WebFindLove.Models.Services;
@@ -66,6 +67,8 @@ try
     builder.Services.AddApplicationServices();      // Đăng ký tất cả Services (User, Role, ...)
     builder.Services.AddInfrastructureRepositories(); // Đăng ký tất cả Repositories (User, Role, ...)
 
+    builder.Services.AddScoped<IDataSeedService, DataSeedService>();
+
     Log.Information("Services registered successfully");
 
     var app = builder.Build();
@@ -92,6 +95,16 @@ try
     // Authentication & Authorization middleware
     app.UseAuthentication();
     app.UseAuthorization();
+
+    // Seed default admin user
+    using (var scope = app.Services.CreateScope())
+    {
+        var dataSeedService = scope.ServiceProvider.GetRequiredService<IDataSeedService>();
+        await dataSeedService.SeedDefaultAdminUserAsync();
+    }
+
+    // Map API routes
+    app.MapControllers();
 
     app.MapControllerRoute(
         name: "default",

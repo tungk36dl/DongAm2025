@@ -1,0 +1,86 @@
+@model List<WebFindLove.Models.Message>
+@{
+    ViewData["Title"] = "Messages";
+    var unreadCount = ViewData["UnreadCount"] as int? ?? 0;
+}
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Messages</h1>
+            <p class="text-gray-600 mt-1">Your conversations</p>
+            @if (unreadCount > 0)
+            {
+                <span class="inline-block mt-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    @unreadCount unread message(s)
+                </span>
+            }
+        </div>
+    </div>
+
+    <!-- Conversations List -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            @foreach (var message in Model)
+            {
+                var currentUserIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var currentUserId = Guid.TryParse(currentUserIdString, out var cuid) ? cuid : Guid.Empty;
+                var isUnread = !message.IsRead && message.ReceiverId == currentUserId;
+                var otherUserId = message.SenderId == currentUserId ? message.ReceiverId : message.SenderId;
+                var otherUserName = message.SenderId == currentUserId ? message.Receiver?.UserName : message.Sender?.UserName;
+
+                <a href="@Url.Action("Conversation", new { userId = otherUserId })" 
+                   class="block border-b hover:bg-gray-50 transition @(isUnread ? "bg-blue-50" : "")">
+                    <div class="p-6 flex items-start gap-4">
+                        <!-- Avatar -->
+                        <div class="flex-shrink-0">
+                            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                                @(otherUserName?.Substring(0, 1).ToUpper())
+                            </div>
+                        </div>
+
+                        <!-- Message Info -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="text-lg font-semibold text-gray-800 @(isUnread ? "font-bold" : "")">
+                                    @otherUserName
+                                    @if (isUnread)
+                                    {
+                                        <span class="ml-2 w-2 h-2 bg-red-500 rounded-full inline-block"></span>
+                                    }
+                                </h3>
+                                <span class="text-sm text-gray-500">
+                                    @message.SentAt.ToString("MMM dd, HH:mm")
+                                </span>
+                            </div>
+                            
+                            <p class="text-gray-600 truncate @(isUnread ? "font-medium" : "")">
+                                @if (message.SenderId == currentUserId)
+                                {
+                                    <span class="text-blue-600 mr-1">You:</span>
+                                }
+                                @message.Content
+                            </p>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="bg-white rounded-lg shadow-md p-12 text-center">
+            <i class="fas fa-comments text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">No Messages Yet</h3>
+            <p class="text-gray-500">Start a conversation with other users to see messages here.</p>
+        </div>
+    }
+</div>
+

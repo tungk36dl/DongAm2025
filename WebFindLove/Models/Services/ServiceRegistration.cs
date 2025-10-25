@@ -1,5 +1,10 @@
 ﻿using WebFindLove.Models.Services.UserService;
 using WebFindLove.Models.Services.RoleService;
+using WebFindLove.Models.Services.UserPreferenceService;
+using WebFindLove.Models.Services.PersonalityTraitService;
+using WebFindLove.Models.Services.MatchResultService;
+using WebFindLove.Models.Services.PhotoService;
+using WebFindLove.Models.Services.MessageService;
 
 namespace WebFindLove.Models.Services
 {
@@ -12,14 +17,18 @@ namespace WebFindLove.Models.Services
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            // User Service
+            // Core services
             services.AddScoped<IUserService, UserService.UserService>();
-            
-            // Role Service  
             services.AddScoped<IRoleService, RoleService.RoleService>();
 
-            // Thêm services khác ở đây khi cần
-            // services.AddScoped<IXxxService, XxxService>();
+            // Profile & Preference services
+            services.AddScoped<IUserPreferenceService, UserPreferenceService.UserPreferenceService>();
+            services.AddScoped<IPersonalityTraitService, PersonalityTraitService.PersonalityTraitService>();
+
+            // Matching & Communication services
+            services.AddScoped<IMatchResultService, MatchResultService.MatchResultService>();
+            services.AddScoped<IPhotoService, PhotoService.PhotoService>();
+            services.AddScoped<IMessageService, MessageService.MessageService>();
 
             return services;
         }

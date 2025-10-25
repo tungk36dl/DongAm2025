@@ -1,5 +1,10 @@
 ﻿using WebFindLove.Models.Repositories.UserRepo;
 using WebFindLove.Models.Repositories.RoleRepo;
+using WebFindLove.Models.Repositories.UserPreferenceRepo;
+using WebFindLove.Models.Repositories.PersonalityTraitRepo;
+using WebFindLove.Models.Repositories.MatchResultRepo;
+using WebFindLove.Models.Repositories.PhotoRepo;
+using WebFindLove.Models.Repositories.MessageRepo;
 
 namespace WebFindLove.Models.Repositories
 {
@@ -11,14 +16,18 @@ namespace WebFindLove.Models.Repositories
     {
         public static IServiceCollection AddInfrastructureRepositories(this IServiceCollection services)
         {
-            // User Repository
+            // Core repositories
             services.AddScoped<IUserRepository, UserRepository>();
-            
-            // Role Repository
             services.AddScoped<IRoleRepository, RoleRepository>();
 
-            // Thêm repositories khác ở đây khi cần
-            // services.AddScoped<IXxxRepository, XxxRepository>();
+            // Profile & Preference repositories
+            services.AddScoped<IUserPreferenceRepository, UserPreferenceRepository>();
+            services.AddScoped<IPersonalityTraitRepository, PersonalityTraitRepository>();
+
+            // Matching & Communication repositories
+            services.AddScoped<IMatchResultRepository, MatchResultRepository>();
+            services.AddScoped<IPhotoRepository, PhotoRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
 
             return services;
         }

@@ -2,12 +2,179 @@
 
 namespace WebFindLove.Models
 {
-
+    /// <summary>
+    /// AppDbContext - Database context cho WebFindLove application
+    /// </summary>
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        // ============================
+        // DbSets
+        // ============================
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<UserPreference> UserPreferences { get; set; }
+        public DbSet<PersonalityTrait> PersonalityTraits { get; set; }
+        public DbSet<MatchResult> MatchResults { get; set; }
+        public DbSet<Photo> Photos { get; set; }
+        public DbSet<Message> Messages { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // ============================
+            // User Configuration
+            // ============================
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.Email).IsUnique();
+                entity.HasIndex(e => e.UserName).IsUnique();
+
+                // User -> Role relationship
+                entity.HasOne(e => e.Role)
+                    .WithMany(r => r.Users)
+                    .HasForeignKey(e => e.RoleId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                // User -> UserPreference (1:1)
+                entity.HasOne(e => e.Preference)
+                    .WithOne(p => p.User)
+                    .HasForeignKey<UserPreference>(p => p.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // User -> PersonalityTrait (1:1)
+                entity.HasOne(e => e.PersonalityTrait)
+                    .WithOne(p => p.User)
+                    .HasForeignKey<PersonalityTrait>(p => p.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // User -> Photos (1:many)
+                entity.HasMany(e => e.Photos)
+                    .WithOne(p => p.User)
+                    .HasForeignKey(p => p.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // User -> MatchResults as User (1:many)
+                entity.HasMany(e => e.MatchesAsUser)
+                    .WithOne(m => m.User)
+                    .HasForeignKey(m => m.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // User -> MatchResults as MatchedUser (1:many)
+                entity.HasMany(e => e.MatchesAsMatchedUser)
+                    .WithOne(m => m.MatchedUser)
+                    .HasForeignKey(m => m.MatchedUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // User -> Messages as Sender (1:many)
+                entity.HasMany(e => e.SentMessages)
+                    .WithOne(m => m.Sender)
+                    .HasForeignKey(m => m.SenderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // User -> Messages as Receiver (1:many)
+                entity.HasMany(e => e.ReceivedMessages)
+                    .WithOne(m => m.Receiver)
+                    .HasForeignKey(m => m.ReceiverId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ============================
+            // Role Configuration
+            // ============================
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.Name).IsUnique();
+            });
+
+            // ============================
+            // UserPreference Configuration
+            // ============================
+            modelBuilder.Entity<UserPreference>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.UserId).IsUnique();
+            });
+
+            // ============================
+            // PersonalityTrait Configuration
+            // ============================
+            modelBuilder.Entity<PersonalityTrait>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.UserId).IsUnique();
+            });
+
+            // ============================
+            // MatchResult Configuration
+            // ============================
+            modelBuilder.Entity<MatchResult>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => new { e.UserId, e.MatchedUserId });
+                
+                // Prevent self-matching
+                entity.ToTable(t => t.HasCheckConstraint("CK_MatchResult_NoSelfMatch", "[UserId] <> [MatchedUserId]"));
+            });
+
+            // ============================
+            // Photo Configuration
+            // ============================
+            modelBuilder.Entity<Photo>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.UserId);
+            });
+
+            // ============================
+            // Message Configuration
+            // ============================
+            modelBuilder.Entity<Message>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.SenderId);
+                entity.HasIndex(e => e.ReceiverId);
+                entity.HasIndex(e => e.SentAt);
+                
+                // Prevent self-messaging
+                entity.ToTable(t => t.HasCheckConstraint("CK_Message_NoSelfMessage", "[SenderId] <> [ReceiverId]"));
+            });
+
+            // ============================
+            // Seed Data (Optional)
+            // ============================
+            SeedData(modelBuilder);
+        }
+
+        private void SeedData(ModelBuilder modelBuilder)
+        {
+            // Seed default roles
+            var adminRoleId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+            var userRoleId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+            var seedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc); // Fixed date for seeding
+
+            modelBuilder.Entity<Role>().HasData(
+                new Role
+                {
+                    Id = adminRoleId,
+                    Name = "Admin",
+                    Description = "Administrator role with full permissions",
+                    IsActive = true,
+                    CreatedAt = seedDate
+                },
+                new Role
+                {
+                    Id = userRoleId,
+                    Name = "User",
+                    Description = "Regular user role",
+                    IsActive = true,
+                    CreatedAt = seedDate
+                }
+            );
+        }
     }
 }
