@@ -1,5 +1,6 @@
 using WebFindLove.Models.Repositories.UserPreferenceRepo;
 using WebFindLove.Models.UnitOfWork;
+using WebFindLove.Models.Services.EmbeddingService;
 
 namespace WebFindLove.Models.Services.UserPreferenceService
 {
@@ -7,15 +8,18 @@ namespace WebFindLove.Models.Services.UserPreferenceService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserPreferenceRepository _repository;
+        private readonly IEmbeddingService _embeddingService;
         private readonly ILogger<UserPreferenceService> _logger;
 
         public UserPreferenceService(
             IUnitOfWork unitOfWork,
             IUserPreferenceRepository repository,
+            IEmbeddingService embeddingService,
             ILogger<UserPreferenceService> logger)
         {
             _unitOfWork = unitOfWork;
             _repository = repository;
+            _embeddingService = embeddingService;
             _logger = logger;
         }
 
@@ -86,6 +90,20 @@ namespace WebFindLove.Models.Services.UserPreferenceService
                     _repository.Update(existing);
                     await _unitOfWork.SaveChangesAsync();
 
+                    // Generate and save preference embedding
+                    _logger.LogInformation("Generating preference embedding for user {UserId}", model.UserId);
+                    var embeddingResult = await _embeddingService.SavePreferenceEmbeddingAsync(existing);
+                    if (!embeddingResult.Success)
+                    {
+                        _logger.LogWarning("Failed to generate preference embedding for user {UserId}: {Message}", 
+                            model.UserId, embeddingResult.Message);
+                        // Continue even if embedding fails - không block việc cập nhật preference
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Preference embedding generated successfully for user {UserId}", model.UserId);
+                    }
+
                     return new DataResponse<UserPreference> { Success = true, Data = existing, Message = "Preference updated successfully" };
                 }
                 else
@@ -95,6 +113,20 @@ namespace WebFindLove.Models.Services.UserPreferenceService
                     model.CreatedBy = userId;
                     _repository.Add(model);
                     await _unitOfWork.SaveChangesAsync();
+
+                    // Generate and save preference embedding
+                    _logger.LogInformation("Generating preference embedding for user {UserId}", model.UserId);
+                    var embeddingResult = await _embeddingService.SavePreferenceEmbeddingAsync(model);
+                    if (!embeddingResult.Success)
+                    {
+                        _logger.LogWarning("Failed to generate preference embedding for user {UserId}: {Message}", 
+                            model.UserId, embeddingResult.Message);
+                        // Continue even if embedding fails - không block việc tạo preference
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Preference embedding generated successfully for user {UserId}", model.UserId);
+                    }
 
                     return new DataResponse<UserPreference> { Success = true, Data = model, Message = "Preference created successfully" };
                 }

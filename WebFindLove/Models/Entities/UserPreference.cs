@@ -31,6 +31,10 @@ namespace WebFindLove.Models
 
         public string? InterestPreference { get; set; }     // JSON
 
+        public string? PreferenceText { get; set; }  // Text mô tả sở thích tìm kiếm đầy đủ
+
+        public string? PreferenceEmbedding { get; set; }  // Vector embedding của preference (lưu dạng JSON string)
+
         // ============================
         // Navigation Properties
         // ============================

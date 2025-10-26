@@ -18,7 +18,6 @@ namespace WebFindLove.Models
         [StringLength(100)]
         public string? Email { get; set; }
 
-        [Required]
         [StringLength(255)]
         public string? PasswordHash { get; set; }
 
@@ -58,6 +57,13 @@ namespace WebFindLove.Models
 
         [StringLength(1000)]
         public string? PersonalityText { get; set; }  // Mô tả tính cách tự do
+
+        [StringLength(200)]
+        public string? Occupation { get; set; }  // Nghề nghiệp hiện tại
+
+        public string? ProfileText { get; set; }  // Text mô tả profile đầy đủ
+
+        public string? ProfileEmbedding { get; set; }  // Vector embedding của profile (lưu dạng JSON string)
 
         // ============================
         // Role Relationship

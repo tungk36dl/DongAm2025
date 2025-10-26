@@ -7,6 +7,7 @@ using WebFindLove.Models.Services.PhotoService;
 using WebFindLove.Models.Services.MessageService;
 using WebFindLove.Models.Services.ConversationService;
 using WebFindLove.Models.Services.FileUploadService;
+using WebFindLove.Models.Services.EmbeddingService;
 
 namespace WebFindLove.Models.Services
 {
@@ -35,6 +36,7 @@ namespace WebFindLove.Models.Services
 
             // Utility services
             services.AddScoped<IFileUploadService, FileUploadService.FileUploadService>();
+            services.AddScoped<IEmbeddingService, EmbeddingService.EmbeddingService>();
 
             return services;
         }

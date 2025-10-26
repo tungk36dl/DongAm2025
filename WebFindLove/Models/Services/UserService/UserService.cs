@@ -11,6 +11,7 @@ using WebFindLove.Models.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using WebFindLove.Models.Services.FileUploadService;
 using WebFindLove.Models.Services.FileUploadService.Dto;
+using WebFindLove.Models.Services.EmbeddingService;
 
 namespace WebFindLove.Models.Services.UserService
 {
@@ -21,14 +22,21 @@ namespace WebFindLove.Models.Services.UserService
         private readonly IUserRepository _userRepository;
         private readonly PasswordHasher<User> _passwordHasher;
         private readonly IFileUploadService _fileUploadService;
+        private readonly IEmbeddingService _embeddingService;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IUnitOfWork unitOfWork, IUserRepository userRepository, IFileUploadService fileUploadService, ILogger<UserService> logger)
+        public UserService(
+            IUnitOfWork unitOfWork, 
+            IUserRepository userRepository, 
+            IFileUploadService fileUploadService, 
+            IEmbeddingService embeddingService,
+            ILogger<UserService> logger)
         {
             _unitOfWork = unitOfWork;
             _userRepository = userRepository;
             _passwordHasher = new PasswordHasher<User>();
             _fileUploadService = fileUploadService;
+            _embeddingService = embeddingService;
             _logger = logger;
         }
 
@@ -366,6 +374,22 @@ namespace WebFindLove.Models.Services.UserService
                 user.UpdatedAt = DateTime.UtcNow;
                 _userRepository.Update(user);
                 await _unitOfWork.SaveChangesAsync();
+
+                // Generate and save profile embedding
+                _logger.LogInformation("Generating profile embedding for user {UserId}", model.Id);
+                var embeddingResult = await _embeddingService.SaveProfileEmbeddingAsync(user);
+                if (!embeddingResult.Success)
+                {
+                    _logger.LogWarning("Failed to generate profile embedding for user {UserId}: {Message}", 
+                        model.Id, embeddingResult.Message);
+                    return new DataResponse<User> { Success = true, Data = user, Message= "Failed to generate profile embedding" };
+
+                    // Continue even if embedding fails - không block việc cập nhật profile
+                }
+                else
+                {
+                    _logger.LogInformation("Profile embedding generated successfully for user {UserId}", model.Id);
+                }
 
                 _logger.LogInformation("Profile updated successfully for user {UserId}", model.Id);
                 return new DataResponse<User> { Success = true, Data = user };
