@@ -1,5 +1,7 @@
 using WebFindLove.Models.Repositories.MessageRepo;
+using WebFindLove.Models.Repositories.ConversationRepo;
 using WebFindLove.Models.UnitOfWork;
+using WebFindLove.Models.Services.ConversationService;
 
 namespace WebFindLove.Models.Services.MessageService
 {
@@ -7,15 +9,21 @@ namespace WebFindLove.Models.Services.MessageService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMessageRepository _repository;
+        private readonly IConversationService _conversationService;
+        private readonly IConversationRepository _conversationRepository;
         private readonly ILogger<MessageService> _logger;
 
         public MessageService(
             IUnitOfWork unitOfWork,
             IMessageRepository repository,
+            IConversationService conversationService,
+            IConversationRepository conversationRepository,
             ILogger<MessageService> logger)
         {
             _unitOfWork = unitOfWork;
             _repository = repository;
+            _conversationService = conversationService;
+            _conversationRepository = conversationRepository;
             _logger = logger;
         }
 
@@ -83,10 +91,21 @@ namespace WebFindLove.Models.Services.MessageService
                     return new DataResponse<Message> { Success = false, Message = "Message content cannot be empty" };
                 }
 
+                // Tìm hoặc tạo conversation
+                var conversationResponse = await _conversationService.GetOrCreatePrivateConversationAsync(senderId, receiverId);
+                if (!conversationResponse.Success || conversationResponse.Data == null)
+                {
+                    return new DataResponse<Message> { Success = false, Message = "Failed to create conversation" };
+                }
+
+                var conversation = conversationResponse.Data;
+
+                // Tạo message
                 var message = new Message
                 {
                     SenderId = senderId,
                     ReceiverId = receiverId,
+                    ConversationId = conversation.Id,
                     Content = content,
                     SentAt = DateTime.UtcNow,
                     IsRead = false,
@@ -95,6 +114,10 @@ namespace WebFindLove.Models.Services.MessageService
                 };
 
                 _repository.Add(message);
+
+                // Cập nhật last message của conversation
+                await _conversationRepository.UpdateLastMessageAsync(conversation.Id, content);
+
                 await _unitOfWork.SaveChangesAsync();
 
                 return new DataResponse<Message> { Success = true, Data = message, Message = "Message sent successfully" };

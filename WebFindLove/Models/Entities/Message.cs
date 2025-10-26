@@ -2,6 +2,7 @@ using Microsoft.VisualBasic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WebFindLove.Models.Entity;
+using WebFindLove.Models.Entities;
 
 namespace WebFindLove.Models
 {
@@ -17,6 +18,8 @@ namespace WebFindLove.Models
         [Required]
         [ForeignKey(nameof(Receiver))]
         public Guid ReceiverId { get; set; }
+
+        public Guid? ConversationId { get; set; }
 
         [Required]
         [StringLength(5000)]
@@ -34,6 +37,8 @@ namespace WebFindLove.Models
         // Navigation Properties
         // ============================
         public virtual User? Sender { get; set; }
+        
+        [ForeignKey(nameof(ConversationId))]
         public virtual Conversation? Conversation { get; set; }
 
         [ForeignKey(nameof(ReceiverId))]

@@ -1,7 +1,9 @@
-@model List<WebFindLove.Models.Message>
+@model List<WebFindLove.Models.Entities.Conversation>
 @{
     ViewData["Title"] = "Messages";
     var unreadCount = ViewData["UnreadCount"] as int? ?? 0;
+    var currentUserIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var currentUserId = Guid.TryParse(currentUserIdString, out var cuid) ? cuid : Guid.Empty;
 }
 
 <div class="container mx-auto px-4 py-8">
@@ -23,45 +25,61 @@
     @if (Model != null && Model.Any())
     {
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            @foreach (var message in Model)
+            @foreach (var conversation in Model)
             {
-                var currentUserIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                var currentUserId = Guid.TryParse(currentUserIdString, out var cuid) ? cuid : Guid.Empty;
-                var isUnread = !message.IsRead && message.ReceiverId == currentUserId;
-                var otherUserId = message.SenderId == currentUserId ? message.ReceiverId : message.SenderId;
-                var otherUserName = message.SenderId == currentUserId ? message.Receiver?.UserName : message.Sender?.UserName;
+                // Tìm người dùng khác trong conversation (không phải current user)
+                var otherParticipant = conversation.Participants?.FirstOrDefault(p => p.UserId != currentUserId);
+                var otherUser = otherParticipant?.User;
+                var otherUserId = otherUser?.Id ?? Guid.Empty;
+                var otherUserName = otherUser?.UserName ?? "Unknown User";
+                var otherUserAvatar = otherUser?.Avatar;
+                
+                // Kiểm tra tin nhắn chưa đọc
+                var hasUnread = conversation.Messages?.Any(m => !m.IsRead && m.ReceiverId == currentUserId) ?? false;
+                DateTime tempTime = conversation.LastMessageAt ?? conversation.CreatedAt ?? DateTime.UtcNow;
+                var lastMessageTime = tempTime.ToString("MMM dd, HH:mm");
 
                 <a href="@Url.Action("Conversation", new { userId = otherUserId })" 
-                   class="block border-b hover:bg-gray-50 transition @(isUnread ? "bg-blue-50" : "")">
+                   class="block border-b hover:bg-gray-50 transition @(hasUnread ? "bg-blue-50" : "")">
                     <div class="p-6 flex items-start gap-4">
                         <!-- Avatar -->
                         <div class="flex-shrink-0">
-                            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                                @(otherUserName?.Substring(0, 1).ToUpper())
-                            </div>
+                            @if (!string.IsNullOrEmpty(otherUserAvatar))
+                            {
+                                <img src="@otherUserAvatar" alt="@otherUserName" class="w-14 h-14 rounded-full object-cover border-2 border-gray-200">
+                            }
+                            else
+                            {
+                                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                                    @(otherUserName?.Substring(0, 1).ToUpper())
+                                </div>
+                            }
                         </div>
 
                         <!-- Message Info -->
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-start mb-1">
-                                <h3 class="text-lg font-semibold text-gray-800 @(isUnread ? "font-bold" : "")">
+                                <h3 class="text-lg font-semibold text-gray-800 @(hasUnread ? "font-bold" : "")">
                                     @otherUserName
-                                    @if (isUnread)
+                                    @if (hasUnread)
                                     {
                                         <span class="ml-2 w-2 h-2 bg-red-500 rounded-full inline-block"></span>
                                     }
                                 </h3>
                                 <span class="text-sm text-gray-500">
-                                    @message.SentAt.ToString("MMM dd, HH:mm")
+                                    @lastMessageTime
                                 </span>
                             </div>
                             
-                            <p class="text-gray-600 truncate @(isUnread ? "font-medium" : "")">
-                                @if (message.SenderId == currentUserId)
+                            <p class="text-gray-600 truncate @(hasUnread ? "font-medium" : "")">
+                                @if (!string.IsNullOrEmpty(conversation.LastMessage))
                                 {
-                                    <span class="text-blue-600 mr-1">You:</span>
+                                    @conversation.LastMessage
                                 }
-                                @message.Content
+                                else
+                                {
+                                    <span class="text-gray-400 italic">No messages yet</span>
+                                }
                             </p>
                         </div>
 

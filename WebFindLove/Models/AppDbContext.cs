@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WebFindLove.Models.Entities;
 
 namespace WebFindLove.Models
 {
@@ -19,6 +20,8 @@ namespace WebFindLove.Models
         public DbSet<MatchResult> MatchResults { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Conversation> Conversations { get; set; }
+        public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -142,6 +145,44 @@ namespace WebFindLove.Models
                 
                 // Prevent self-messaging
                 entity.ToTable(t => t.HasCheckConstraint("CK_Message_NoSelfMessage", "[SenderId] <> [ReceiverId]"));
+            });
+
+            // ============================
+            // Conversation Configuration
+            // ============================
+            modelBuilder.Entity<Conversation>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.LastMessageAt);
+                entity.HasIndex(e => e.Type);
+
+                // Conversation -> Messages (1:many)
+                entity.HasMany(e => e.Messages)
+                    .WithOne(m => m.Conversation)
+                    .HasForeignKey("ConversationId")
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ============================
+            // ConversationParticipant Configuration
+            // ============================
+            modelBuilder.Entity<ConversationParticipant>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => new { e.ConversationId, e.UserId }).IsUnique();
+                entity.HasIndex(e => e.UserId);
+
+                // ConversationParticipant -> Conversation (many:1)
+                entity.HasOne(e => e.Conversation)
+                    .WithMany(c => c.Participants)
+                    .HasForeignKey(e => e.ConversationId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // ConversationParticipant -> User (many:1)
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // ============================

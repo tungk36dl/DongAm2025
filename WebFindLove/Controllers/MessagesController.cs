@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using WebFindLove.Models;
 using WebFindLove.Models.Services;
 using WebFindLove.Models.Services.MessageService;
+using WebFindLove.Models.Services.ConversationService;
 using WebFindLove.Models.Services.UserService.Dto;
 using WebFindLove.Hubs;
 
@@ -13,17 +14,20 @@ namespace WebFindLove.Controllers
     public class MessagesController : BaseController
     {
         private readonly IMessageService _messageService;
+        private readonly IConversationService _conversationService;
         private readonly IUserService _userService;
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly ILogger<MessagesController> _logger;
 
         public MessagesController(
             IMessageService messageService,
+            IConversationService conversationService,
             IUserService userService,
             IHubContext<ChatHub> hubContext,
             ILogger<MessagesController> logger)
         {
             _messageService = messageService;
+            _conversationService = conversationService;
             _userService = userService;
             _hubContext = hubContext;
             _logger = logger;
@@ -36,7 +40,7 @@ namespace WebFindLove.Controllers
         {
             _logger.LogInformation("GET Messages Index - User: {Username}", CurrentUser?.UserName);
 
-            var response = await _messageService.GetUserConversationsAsync(UserId!.Value);
+            var response = await _conversationService.GetUserConversationsAsync(UserId!.Value);
 
             if (!response.Success)
             {
@@ -48,7 +52,7 @@ namespace WebFindLove.Controllers
             var unreadResponse = await _messageService.GetUnreadCountAsync(UserId!.Value);
             ViewData["UnreadCount"] = unreadResponse.Success ? unreadResponse.Data : 0;
 
-            return View(response.Data ?? new List<Message>());
+            return View(response.Data ?? new List<WebFindLove.Models.Entities.Conversation>());
         }
 
         // GET: Messages/Conversation/5 - View conversation with specific user
@@ -70,20 +74,32 @@ namespace WebFindLove.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            // Get or create conversation
+            var conversationResponse = await _conversationService.GetOrCreatePrivateConversationAsync(UserId!.Value, userId);
+            
+            if (!conversationResponse.Success || conversationResponse.Data == null)
+            {
+                _logger.LogWarning("Failed to get conversation: {Message}", conversationResponse.Message);
+                TempData["ErrorMessage"] = conversationResponse.Message;
+                return RedirectToAction(nameof(Index));
+            }
+
             // Get conversation messages
             var response = await _messageService.GetConversationAsync(UserId!.Value, userId);
 
             if (!response.Success)
             {
-                _logger.LogWarning("Failed to get conversation: {Message}", response.Message);
+                _logger.LogWarning("Failed to get conversation messages: {Message}", response.Message);
                 TempData["ErrorMessage"] = response.Message;
             }
 
             // Mark messages as read
             await _messageService.MarkAsReadAsync(UserId!.Value, userId);
+            await _conversationService.MarkConversationAsReadAsync(conversationResponse.Data.Id, UserId!.Value);
 
             ViewData["OtherUser"] = userResponse.Data;
             ViewData["OtherUserId"] = userId;
+            ViewData["ConversationId"] = conversationResponse.Data.Id;
 
             return View(response.Data ?? new List<Message>());
         }
