@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using WebFindLove.HelperServices;
@@ -8,6 +9,7 @@ using WebFindLove.Models.Services;
 using WebFindLove.Models.Services.RoleService;
 using WebFindLove.Models.Services.UserService;
 using WebFindLove.Models.UnitOfWork;
+using WebFindLove.Hubs;
 
 // 🔹 Cấu hình Serilog trước khi build
 Log.Logger = new LoggerConfiguration()
@@ -57,6 +59,20 @@ try
 
     builder.Services.AddAuthorization();
 
+    // Register SignalR (built-in .NET 8.0)
+    builder.Services.AddSignalR();
+    builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
+    Log.Information("SignalR configured");
+
+    // Add Session support for storing user data
+    builder.Services.AddDistributedMemoryCache();
+    builder.Services.AddSession(options =>
+    {
+        options.IdleTimeout = TimeSpan.FromMinutes(30);
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+    });
+
     // Register UnitOfWork and services
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
@@ -91,6 +107,9 @@ try
 
     app.UseRouting();
 
+    // Session middleware (must be before authentication)
+    app.UseSession();
+
     // Authentication & Authorization middleware
     app.UseAuthentication();
     app.UseAuthorization();
@@ -104,6 +123,10 @@ try
 
     // Map API routes
     app.MapControllers();
+
+    // Map SignalR Hub
+    app.MapHub<ChatHub>("/chatHub");
+    Log.Information("SignalR ChatHub mapped to /chatHub");
 
     app.MapControllerRoute(
         name: "default",

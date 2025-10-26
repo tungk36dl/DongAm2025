@@ -8,82 +8,124 @@
 
 <div class="container mx-auto px-4 py-8 max-w-4xl">
     <!-- Header -->
-    <div class="bg-white rounded-lg shadow-md p-4 mb-4 flex justify-between items-center">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-4 flex justify-between items-center">
         <div class="flex items-center gap-4">
-            <a asp-action="Index" class="text-gray-600 hover:text-gray-800">
+            <a asp-action="Index" class="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
                 <i class="fas fa-arrow-left text-xl"></i>
             </a>
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-lg font-bold">
-                @(otherUser?.UserName?.Substring(0, 1).ToUpper())
-            </div>
+            @if (!string.IsNullOrEmpty(otherUser?.Avatar))
+            {
+                <img src="@otherUser.Avatar" alt="@otherUser.UserName" class="w-12 h-12 rounded-full object-cover border-2 border-primary">
+            }
+            else
+            {
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-lg font-bold">
+                    @(otherUser?.UserName?.Substring(0, 1).ToUpper())
+                </div>
+            }
             <div>
-                <h2 class="text-xl font-bold text-gray-800">@otherUser?.UserName</h2>
-                <p class="text-sm text-gray-500">@otherUser?.Email</p>
+                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">@otherUser?.UserName</h2>
+                <div class="flex items-center gap-2">
+                    <span id="onlineStatus" class="w-2 h-2 rounded-full bg-gray-400"></span>
+                    <p class="text-sm text-gray-500 dark:text-gray-400" id="statusText">Checking...</p>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Messages Container -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-4" style="height: 500px; overflow-y: auto;" id="messagesContainer">
-        @if (Model != null && Model.Any())
-        {
-            @foreach (var message in Model)
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-4" style="height: 500px; overflow-y: auto;" id="messagesContainer">
+        <div id="messagesList">
+            @if (Model != null && Model.Any())
             {
-                var isSentByMe = message.SenderId.ToString() == currentUserId;
-                var alignmentClass = isSentByMe ? "justify-end" : "justify-start";
-                var bgClass = isSentByMe ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800";
-                var roundingClass = isSentByMe ? "rounded-br-none" : "rounded-bl-none";
+                @foreach (var message in Model)
+                {
+                    var isSentByMe = message.SenderId.ToString() == currentUserId;
+                    var alignmentClass = isSentByMe ? "justify-end" : "justify-start";
+                    var bgClass = isSentByMe ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100";
+                    var roundingClass = isSentByMe ? "rounded-br-none" : "rounded-bl-none";
 
-                <div class="flex @alignmentClass mb-4">
-                    <div class="max-w-[70%]">
-                        <div class="@bgClass @roundingClass rounded-2xl px-4 py-3 shadow">
-                            <p class="break-words">@message.Content</p>
-                        </div>
-                        <div class="flex @(isSentByMe ? "justify-end" : "justify-start") gap-2 mt-1 px-2">
-                            <span class="text-xs text-gray-500">
-                                @message.SentAt.ToString("MMM dd, HH:mm")
-                            </span>
-                            @if (isSentByMe)
+                    <div class="flex @alignmentClass mb-4 message-item">
+                        @if (!isSentByMe)
+                        {
+                            @if (!string.IsNullOrEmpty(otherUser?.Avatar))
                             {
-                                @if (message.IsRead)
-                                {
-                                    <span class="text-xs text-blue-600">
-                                        <i class="fas fa-check-double"></i>
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="text-xs text-gray-400">
-                                        <i class="fas fa-check"></i>
-                                    </span>
-                                }
+                                <img src="@otherUser.Avatar" alt="@otherUser.UserName" class="w-8 h-8 rounded-full object-cover mr-2 flex-shrink-0">
                             }
+                            else
+                            {
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold mr-2 flex-shrink-0">
+                                    @(otherUser?.UserName?.Substring(0, 1).ToUpper())
+                                </div>
+                            }
+                        }
+                        
+                        <div class="max-w-[70%]">
+                            <div class="@bgClass @roundingClass rounded-2xl px-4 py-3 shadow">
+                                <p class="break-words">@message.Content</p>
+                            </div>
+                            <div class="flex @(isSentByMe ? "justify-end" : "justify-start") gap-2 mt-1 px-2">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">
+                                    @message.SentAt.ToString("MMM dd, HH:mm")
+                                </span>
+                                @if (isSentByMe)
+                                {
+                                    @if (message.IsRead)
+                                    {
+                                        <span class="text-xs text-blue-600">
+                                            <i class="fas fa-check-double"></i>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-xs text-gray-400">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                    }
+                                }
+                            </div>
                         </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="flex items-center justify-center h-full" id="emptyState">
+                    <div class="text-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-comments text-4xl mb-3"></i>
+                        <p>No messages yet. Start the conversation!</p>
                     </div>
                 </div>
             }
-        }
-        else
-        {
-            <div class="flex items-center justify-center h-full">
-                <div class="text-center text-gray-500">
-                    <i class="fas fa-comments text-4xl mb-3"></i>
-                    <p>No messages yet. Start the conversation!</p>
+        </div>
+        
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="flex justify-start mb-4 hidden">
+            <div class="max-w-[70%]">
+                <div class="bg-gray-200 dark:bg-gray-700 rounded-2xl rounded-bl-none px-4 py-3 shadow">
+                    <div class="flex gap-1">
+                        <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0ms;"></span>
+                        <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 150ms;"></span>
+                        <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 300ms;"></span>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 px-2">
+                    @otherUser?.UserName is typing...
                 </div>
             </div>
-        }
+        </div>
     </div>
 
     <!-- Send Message Form -->
-    <div class="bg-white rounded-lg shadow-md p-4">
-        <form asp-action="Send" method="post" class="flex gap-3">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+        <form id="messageForm" asp-action="Send" method="post" class="flex gap-3">
             @Html.AntiForgeryToken()
             <input type="hidden" name="receiverId" value="@otherUserId" />
             
             <input type="text" 
                    name="content" 
                    id="messageInput"
-                   class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                   class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
                    placeholder="Type your message..." 
                    required 
                    autocomplete="off">
@@ -91,22 +133,107 @@
             <button type="submit" 
                     class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition flex items-center gap-2">
                 <i class="fas fa-paper-plane"></i>
-                Send
+                <span class="hidden sm:inline">Send</span>
             </button>
         </form>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     <script>
-        // Auto-scroll to bottom on page load
+        const currentUserId = '@currentUserId';
+        const otherUserId = '@otherUserId';
         const container = document.getElementById('messagesContainer');
-        if (container) {
-            container.scrollTop = container.scrollHeight;
+        const messagesList = document.getElementById('messagesList');
+        const messageInput = document.getElementById('messageInput');
+        let connection = null;
+
+        // Initialize SignalR
+        async function startSignalR() {
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/chatHub")
+                .withAutomaticReconnect()
+                .build();
+
+            // Receive messages
+            connection.on("ReceiveMessage", function (data) {
+                console.log('Message received:', data);
+                
+                // Only display if from the correct user
+                if (data.senderId === otherUserId) {
+                    addMessageToUI(data);
+                    scrollToBottom();
+                    
+                    // Remove empty state if exists
+                    const emptyState = document.getElementById('emptyState');
+                    if (emptyState) emptyState.remove();
+                }
+            });
+
+            try {
+                await connection.start();
+                console.log('SignalR Connected');
+            } catch (err) {
+                console.error('SignalR Error:', err);
+                setTimeout(startSignalR, 5000);
+            }
         }
 
-        // Focus on message input
-        document.getElementById('messageInput')?.focus();
+        // Add message to UI
+        function addMessageToUI(data) {
+            const messageTime = new Date(data.timestamp).toLocaleString('en-US', { 
+                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+            });
+
+            let avatarHtml = '';
+            if (data.senderAvatar) {
+                avatarHtml = `<img src="${data.senderAvatar}" alt="${data.senderName}" class="w-8 h-8 rounded-full object-cover mr-2">`;
+            } else {
+                const initial = data.senderName ? data.senderName.charAt(0).toUpperCase() : '?';
+                avatarHtml = `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold mr-2">${initial}</div>`;
+            }
+
+            const messageHtml = `
+                <div class="flex justify-start mb-4 message-item">
+                    ${avatarHtml}
+                    <div class="max-w-[70%]">
+                        <div class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-2xl rounded-bl-none px-4 py-3 shadow">
+                            <p class="break-words">${escapeHtml(data.message)}</p>
+                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 px-2">${messageTime}</div>
+                    </div>
+                </div>
+            `;
+
+            messagesList.insertAdjacentHTML('beforeend', messageHtml);
+        }
+
+        // XSS Protection
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Scroll to bottom
+        function scrollToBottom() {
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            scrollToBottom();
+            messageInput?.focus();
+            startSignalR();
+        });
+
+        // Cleanup
+        window.addEventListener('beforeunload', function() {
+            if (connection) connection.stop();
+        });
     </script>
 }
 

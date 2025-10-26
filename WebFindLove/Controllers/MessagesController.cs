@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using WebFindLove.Models;
 using WebFindLove.Models.Services;
 using WebFindLove.Models.Services.MessageService;
 using WebFindLove.Models.Services.UserService.Dto;
+using WebFindLove.Hubs;
 
 namespace WebFindLove.Controllers
 {
@@ -12,15 +14,18 @@ namespace WebFindLove.Controllers
     {
         private readonly IMessageService _messageService;
         private readonly IUserService _userService;
+        private readonly IHubContext<ChatHub> _hubContext;
         private readonly ILogger<MessagesController> _logger;
 
         public MessagesController(
             IMessageService messageService,
             IUserService userService,
+            IHubContext<ChatHub> hubContext,
             ILogger<MessagesController> logger)
         {
             _messageService = messageService;
             _userService = userService;
+            _hubContext = hubContext;
             _logger = logger;
             Logger = logger;
             _logger.LogInformation("MessagesController initialized");
@@ -107,6 +112,36 @@ namespace WebFindLove.Controllers
             {
                 _logger.LogInformation("Message sent successfully: {MessageId}", response.Data?.Id);
                 TempData["SuccessMessage"] = "Message sent successfully!";
+
+                // Send real-time notification via SignalR
+                try
+                {
+                    // Get sender info
+                    var senderInfo = await _userService.GetByIdAsync(UserId!.Value);
+                    
+                    var messageData = new
+                    {
+                        senderId = UserId.ToString(),
+                        senderName = senderInfo.Data?.UserName ?? CurrentUser?.UserName ?? "Unknown",
+                        senderAvatar = senderInfo.Data?.Avatar ?? "",
+                        message = content,
+                        timestamp = DateTime.UtcNow,
+                        messageId = response.Data?.Id
+                    };
+                    
+                    _logger.LogInformation("Sending SignalR message to user: {ReceiverId}", receiverId);
+                    
+                    // Send via ChatHub
+                    await _hubContext.Clients.User(receiverId.ToString())
+                        .SendAsync("ReceiveMessage", messageData);
+                    
+                    _logger.LogInformation("SignalR message sent successfully");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send SignalR notification");
+                    // Don't fail the request if SignalR fails
+                }
             }
 
             return RedirectToAction(nameof(Conversation), new { userId = receiverId });

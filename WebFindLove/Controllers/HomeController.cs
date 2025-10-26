@@ -1,27 +1,71 @@
 using System.Diagnostics;
 using WebFindLove.Models;
 using Microsoft.AspNetCore.Mvc;
+using WebFindLove.Models.Services;
+using WebFindLove.Models.Services.UserService.Dto;
 
 namespace WebFindLove.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IUserService _userService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IUserService userService)
         {
             _logger = logger;
+            _userService = userService;
             _logger.LogInformation("HomeController initialized");
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string searchQuery)
         {
             var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
             var userName = User.Identity?.Name;
             var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
             
-            _logger.LogInformation("GET Home Index - IsAuthenticated: {IsAuthenticated}, User: {Username}, Role: {Role}", 
-                isAuthenticated, userName, userRole);
+            _logger.LogInformation("GET Home Index - IsAuthenticated: {IsAuthenticated}, User: {Username}, Role: {Role}, SearchQuery: {SearchQuery}", 
+                isAuthenticated, userName, userRole, searchQuery);
+            
+            ViewBag.SearchQuery = searchQuery;
+            
+            // If user is authenticated and there's a search query, search for users
+            if (isAuthenticated && !string.IsNullOrWhiteSpace(searchQuery))
+            {
+                var search = new UserSearch 
+                { 
+                    Query = searchQuery,
+                    IsActive = true,
+                    PageSize = 20
+                };
+                
+                var response = await _userService.GetAllAsync(search);
+                
+                if (response.Success && response.Data != null)
+                {
+                    // Filter out current user from results
+                    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                    if (Guid.TryParse(currentUserId, out var userId))
+                    {
+                        ViewBag.SearchResults = response.Data.Where(u => u.Id != userId).ToList();
+                    }
+                    else
+                    {
+                        ViewBag.SearchResults = response.Data;
+                    }
+                    
+                    //_logger.LogInformation("Search returned {Count} users for query: {Query}", ViewBag.SearchResults.Count, searchQuery);
+                }
+                else
+                {
+                    ViewBag.SearchResults = new List<User>();
+                    _logger.LogWarning("User search failed: {Message}", response.Message);
+                }
+            }
+            else
+            {
+                ViewBag.SearchResults = new List<User>();
+            }
             
             return View();
         }

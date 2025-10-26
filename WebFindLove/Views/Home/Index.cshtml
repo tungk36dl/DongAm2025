@@ -1,5 +1,8 @@
-﻿@{
+﻿@model List<WebFindLove.Models.User>
+@{
     ViewData["Title"] = "Trang chủ";
+    var searchResults = ViewBag.SearchResults as List<WebFindLove.Models.User> ?? new List<WebFindLove.Models.User>();
+    var searchQuery = ViewBag.SearchQuery as string ?? "";
 }
 
 <div class="min-h-[80vh]">
@@ -11,9 +14,26 @@
             <p class="text-xl text-pink-100 mb-8">Hành trình tìm kiếm tình yêu của bạn bắt đầu từ đây</p>
             @if (User.Identity?.IsAuthenticated == true)
             {
-                <div class="bg-white/20 backdrop-blur-sm rounded-lg p-6 max-w-md mx-auto">
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg p-6 max-w-md mx-auto mb-6">
                     <p class="text-lg mb-4">Chào mừng trở lại, <strong>@User.Identity.Name</strong>!</p>
                     <p class="text-pink-100">Bạn đang đăng nhập với vai trò <strong>@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</strong></p>
+                </div>
+                
+                <!-- Search Form -->
+                <div class="max-w-2xl mx-auto">
+                    <form method="get" asp-controller="Home" asp-action="Index" class="flex gap-2">
+                        <div class="flex-1 relative">
+                            <input type="text" 
+                                   name="searchQuery" 
+                                   value="@searchQuery"
+                                   placeholder="Tìm kiếm người dùng theo tên, email..." 
+                                   class="w-full px-6 py-3 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-white/50 pl-12">
+                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                        </div>
+                        <button type="submit" class="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-pink-50 transition transform hover:scale-105">
+                            <i class="fas fa-search mr-2"></i>Tìm kiếm
+                        </button>
+                    </form>
                 </div>
             }
             else
@@ -29,6 +49,85 @@
             }
         </div>
     </div>
+
+    @if (User.Identity?.IsAuthenticated == true && !string.IsNullOrWhiteSpace(searchQuery))
+    {
+        <!-- Search Results Section -->
+        <div class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100">
+                    <i class="fas fa-users text-primary mr-2"></i>Kết quả tìm kiếm
+                </h2>
+                <span class="text-gray-600 dark:text-gray-400">Tìm thấy @searchResults.Count người dùng</span>
+            </div>
+            
+            @if (searchResults.Any())
+            {
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach (var user in searchResults)
+                    {
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition p-6">
+                            <div class="flex items-start gap-4">
+                                <!-- Avatar -->
+                                <div class="flex-shrink-0">
+                                    @if (!string.IsNullOrEmpty(user.Avatar))
+                                    {
+                                        <img src="@user.Avatar" alt="@user.UserName" class="w-16 h-16 rounded-full object-cover border-2 border-primary">
+                                    }
+                                    else
+                                    {
+                                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                                            <i class="fas fa-user text-2xl text-white"></i>
+                                        </div>
+                                    }
+                                </div>
+                                
+                                <!-- User Info -->
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 truncate">
+                                        @(user.FullName ?? user.UserName)
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 truncate">@@@user.UserName</p>
+                                    
+                                    @if (!string.IsNullOrEmpty(user.Bio))
+                                    {
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">@user.Bio</p>
+                                    }
+                                    
+                                    @if (!string.IsNullOrEmpty(user.Location))
+                                    {
+                                        <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                            <i class="fas fa-map-marker-alt mr-1"></i>@user.Location
+                                        </p>
+                                    }
+                                    
+                                    <!-- Action Buttons -->
+                                    <div class="flex gap-2 mt-4">
+                                        <a asp-controller="Users" asp-action="Details" asp-route-id="@user.Id" 
+                                           class="flex-1 text-center bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm">
+                                            <i class="fas fa-user mr-1"></i>Xem
+                                        </a>
+                                        <a asp-controller="Messages" asp-action="Conversation" asp-route-userId="@user.Id" 
+                                           class="flex-1 text-center bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg hover:opacity-90 transition text-sm font-semibold">
+                                            <i class="fas fa-comments mr-1"></i>Nhắn tin
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-12 text-center">
+                    <i class="fas fa-search text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">Không tìm thấy kết quả</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Không có người dùng nào phù hợp với từ khóa "<strong>@searchQuery</strong>"</p>
+                </div>
+            }
+        </div>
+    }
 
     <!-- Features Section -->
     <div class="mb-12">
