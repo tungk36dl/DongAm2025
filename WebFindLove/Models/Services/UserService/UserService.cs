@@ -320,6 +320,8 @@ namespace WebFindLove.Models.Services.UserService
                 user.Hometown = model.Hometown;
                 user.Bio = model.Bio;
                 user.Interests = model.Interests;
+                user.PersonalityType = model.PersonalityType;
+                user.PersonalityText = model.PersonalityText;
 
                 // Handle avatar upload using FileUploadService
                 if (model.AvatarFile != null && model.AvatarFile.Length > 0)

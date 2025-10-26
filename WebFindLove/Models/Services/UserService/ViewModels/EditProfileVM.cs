@@ -46,6 +46,15 @@ namespace WebFindLove.Models.Services.UserService.ViewModels
         [Display(Name = "Interests (comma-separated)")]
         public string? Interests { get; set; }
 
+        [StringLength(50, ErrorMessage = "Personality type cannot exceed 50 characters")]
+        [Display(Name = "Personality Type")]
+        public string? PersonalityType { get; set; }
+
+        [StringLength(1000, ErrorMessage = "Personality description cannot exceed 1000 characters")]
+        [DataType(DataType.MultilineText)]
+        [Display(Name = "Personality Description")]
+        public string? PersonalityText { get; set; }
+
         [Display(Name = "Current Avatar")]
         public string? Avatar { get; set; }
 

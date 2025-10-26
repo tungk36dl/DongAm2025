@@ -330,6 +330,8 @@ namespace WebFindLove.Controllers
                 Hometown = resp.Data.Hometown,
                 Bio = resp.Data.Bio,
                 Interests = resp.Data.Interests,
+                PersonalityType = resp.Data.PersonalityType,
+                PersonalityText = resp.Data.PersonalityText,
                 Avatar = resp.Data.Avatar
             };
 

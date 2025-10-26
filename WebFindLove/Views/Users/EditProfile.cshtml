@@ -206,6 +206,63 @@
                             Ví dụ: Đọc sách, Du lịch, Âm nhạc, Thể thao
                         </p>
                     </div>
+
+                    <div>
+                        <label asp-for="PersonalityType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-brain mr-1"></i> Nhóm Tính Cách
+                        </label>
+                        <select asp-for="PersonalityType" 
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition">
+                            <option value="">Chọn nhóm tính cách của bạn</option>
+                            <optgroup label="Nhà Phân Tích">
+                                <option value="INTJ">INTJ - Kiến Trúc Sư</option>
+                                <option value="INTP">INTP - Nhà Logic</option>
+                                <option value="ENTJ">ENTJ - Chỉ Huy</option>
+                                <option value="ENTP">ENTP - Nhà Tranh Luận</option>
+                            </optgroup>
+                            <optgroup label="Nhà Ngoại Giao">
+                                <option value="INFJ">INFJ - Người Ủng Hộ</option>
+                                <option value="INFP">INFP - Nhà Hòa Giải</option>
+                                <option value="ENFJ">ENFJ - Người Chủ Đạo</option>
+                                <option value="ENFP">ENFP - Người Vận Động</option>
+                            </optgroup>
+                            <optgroup label="Người Bảo Vệ">
+                                <option value="ISTJ">ISTJ - Nhà Hậu Cần</option>
+                                <option value="ISFJ">ISFJ - Người Bảo Vệ</option>
+                                <option value="ESTJ">ESTJ - Giám Đốc</option>
+                                <option value="ESFJ">ESFJ - Lãnh Sự</option>
+                            </optgroup>
+                            <optgroup label="Nhà Thám Hiểm">
+                                <option value="ISTP">ISTP - Nhà Kỹ Thuật</option>
+                                <option value="ISFP">ISFP - Nhà Phiêu Lưu</option>
+                                <option value="ESTP">ESTP - Doanh Nhân</option>
+                                <option value="ESFP">ESFP - Nghệ Sĩ</option>
+                            </optgroup>
+                        </select>
+                        <span asp-validation-for="PersonalityType" class="text-red-500 text-sm mt-1"></span>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Chưa biết nhóm của bạn? 
+                            <a href="https://www.16personalities.com/free-personality-test" target="_blank" class="text-primary hover:underline">
+                                Làm bài test <i class="fas fa-external-link-alt text-xs"></i>
+                            </a>
+                        </p>
+                    </div>
+
+                    <div>
+                        <label asp-for="PersonalityText" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-quote-left mr-1"></i> Mô Tả Tính Cách
+                        </label>
+                        <textarea asp-for="PersonalityText" 
+                                  rows="4" 
+                                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition resize-none" 
+                                  placeholder="Nhập tính cách bằng các tính từ chỉ tính cách, cách nhau bởi dấu phẩy"></textarea>
+                        <span asp-validation-for="PersonalityText" class="text-red-500 text-sm mt-1"></span>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Mô tả tính cách của bạn bằng lời của chính bạn (tùy chọn)
+                        </p>
+                    </div>
                 </div>
 
                 <hr class="border-gray-300 dark:border-gray-600" />

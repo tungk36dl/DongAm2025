@@ -7715,3 +7715,141 @@ Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
 [2025-10-26 13:45:54.351 +07:00 INF] PersonalityTraitsController initialized {"SourceContext":"WebFindLove.Controllers.PersonalityTraitsController","ActionId":"426817d1-34e7-4984-9e60-d1248ed46f8a","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Index (WebFindLove)","RequestId":"0HNGKATTAR9PD:00000031","RequestPath":"/PersonalityTraits","ConnectionId":"0HNGKATTAR9PD","Application":"WebFindLove"}
 [2025-10-26 13:45:54.360 +07:00 INF] GET Personality Traits - User: test {"SourceContext":"WebFindLove.Controllers.PersonalityTraitsController","ActionId":"426817d1-34e7-4984-9e60-d1248ed46f8a","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Index (WebFindLove)","RequestId":"0HNGKATTAR9PD:00000031","RequestPath":"/PersonalityTraits","ConnectionId":"0HNGKATTAR9PD","Application":"WebFindLove"}
 [2025-10-26 13:45:54.375 +07:00 INF] Getting personality trait for user: "3fe47b93-1f29-4f73-a23e-7dbdc57a0106" {"SourceContext":"WebFindLove.Models.Services.PersonalityTraitService.PersonalityTraitService","ActionId":"426817d1-34e7-4984-9e60-d1248ed46f8a","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Index (WebFindLove)","RequestId":"0HNGKATTAR9PD:00000031","RequestPath":"/PersonalityTraits","ConnectionId":"0HNGKATTAR9PD","Application":"WebFindLove"}
+[2025-10-26 13:56:04.658 +07:00 INF] Starting WebFindLove application {"Application":"WebFindLove"}
+[2025-10-26 13:56:06.155 +07:00 INF] Database configured with connection string {"Application":"WebFindLove"}
+[2025-10-26 13:56:06.165 +07:00 INF] Authentication configured {"Application":"WebFindLove"}
+[2025-10-26 13:56:06.214 +07:00 INF] SignalR configured {"Application":"WebFindLove"}
+[2025-10-26 13:56:06.221 +07:00 INF] Services registered successfully {"Application":"WebFindLove"}
+[2025-10-26 13:56:06.453 +07:00 INF] Application built successfully {"Application":"WebFindLove"}
+[2025-10-26 13:56:06.462 +07:00 INF] Development environment configured {"Application":"WebFindLove"}
+[2025-10-26 13:56:10.357 +07:00 INF] SignalR ChatHub mapped to /chatHub {"Application":"WebFindLove"}
+[2025-10-26 13:56:10.362 +07:00 INF] Application starting... {"Application":"WebFindLove"}
+[2025-10-26 13:56:10.366 +07:00 INF] Environment: Development {"Application":"WebFindLove"}
+[2025-10-26 13:56:10.374 +07:00 INF] Listening on:  {"Application":"WebFindLove"}
+[2025-10-26 13:56:11.055 +07:00 INF] Now listening on: https://localhost:7092 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 13:56:11.065 +07:00 INF] Now listening on: http://localhost:5149 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 13:56:11.385 +07:00 INF] Application started. Press Ctrl+C to shut down. {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 13:56:11.389 +07:00 INF] Hosting environment: Development {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 13:56:11.395 +07:00 INF] Content root path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 13:56:12.175 +07:00 INF] FileUploadService initialized with base path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\wwwroot\uploads {"SourceContext":"WebFindLove.Models.Services.FileUploadService.FileUploadService","ActionId":"3cbfe406-e680-4aa3-b45b-22bc17424757","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGKBIVJHPIH:00000001","RequestPath":"/","ConnectionId":"0HNGKBIVJHPIH","Application":"WebFindLove"}
+[2025-10-26 13:56:12.191 +07:00 INF] HomeController initialized {"SourceContext":"WebFindLove.Controllers.HomeController","ActionId":"3cbfe406-e680-4aa3-b45b-22bc17424757","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGKBIVJHPIH:00000001","RequestPath":"/","ConnectionId":"0HNGKBIVJHPIH","Application":"WebFindLove"}
+[2025-10-26 13:56:12.255 +07:00 INF] GET Home Index - IsAuthenticated: true, User: admin, Role: Admin, SearchQuery: null {"SourceContext":"WebFindLove.Controllers.HomeController","ActionId":"3cbfe406-e680-4aa3-b45b-22bc17424757","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGKBIVJHPIH:00000001","RequestPath":"/","ConnectionId":"0HNGKBIVJHPIH","Application":"WebFindLove"}
+[2025-10-26 13:58:37.511 +07:00 INF] PersonalityTraitsController initialized {"SourceContext":"WebFindLove.Controllers.PersonalityTraitsController","ActionId":"089c1899-989c-4d62-b584-6cc6be6fc822","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Index (WebFindLove)","RequestId":"0HNGKBIVJHPIK:00000001","RequestPath":"/PersonalityTraits","ConnectionId":"0HNGKBIVJHPIK","Application":"WebFindLove"}
+[2025-10-26 13:58:37.527 +07:00 INF] GET Personality Traits - User: test {"SourceContext":"WebFindLove.Controllers.PersonalityTraitsController","ActionId":"089c1899-989c-4d62-b584-6cc6be6fc822","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Index (WebFindLove)","RequestId":"0HNGKBIVJHPIK:00000001","RequestPath":"/PersonalityTraits","ConnectionId":"0HNGKBIVJHPIK","Application":"WebFindLove"}
+[2025-10-26 13:58:37.539 +07:00 INF] Getting personality trait for user: "3fe47b93-1f29-4f73-a23e-7dbdc57a0106" {"SourceContext":"WebFindLove.Models.Services.PersonalityTraitService.PersonalityTraitService","ActionId":"089c1899-989c-4d62-b584-6cc6be6fc822","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Index (WebFindLove)","RequestId":"0HNGKBIVJHPIK:00000001","RequestPath":"/PersonalityTraits","ConnectionId":"0HNGKBIVJHPIK","Application":"WebFindLove"}
+[2025-10-26 13:58:49.038 +07:00 INF] PersonalityTraitsController initialized {"SourceContext":"WebFindLove.Controllers.PersonalityTraitsController","ActionId":"cba051e9-b76f-4f89-8a32-c370c5beed92","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Edit (WebFindLove)","RequestId":"0HNGKBIVJHPIK:00000009","RequestPath":"/PersonalityTraits/Edit","ConnectionId":"0HNGKBIVJHPIK","Application":"WebFindLove"}
+[2025-10-26 13:58:49.048 +07:00 INF] GET Edit Personality Traits - User: test {"SourceContext":"WebFindLove.Controllers.PersonalityTraitsController","ActionId":"cba051e9-b76f-4f89-8a32-c370c5beed92","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Edit (WebFindLove)","RequestId":"0HNGKBIVJHPIK:00000009","RequestPath":"/PersonalityTraits/Edit","ConnectionId":"0HNGKBIVJHPIK","Application":"WebFindLove"}
+[2025-10-26 13:58:49.060 +07:00 INF] Getting personality trait for user: "3fe47b93-1f29-4f73-a23e-7dbdc57a0106" {"SourceContext":"WebFindLove.Models.Services.PersonalityTraitService.PersonalityTraitService","ActionId":"cba051e9-b76f-4f89-8a32-c370c5beed92","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Edit (WebFindLove)","RequestId":"0HNGKBIVJHPIK:00000009","RequestPath":"/PersonalityTraits/Edit","ConnectionId":"0HNGKBIVJHPIK","Application":"WebFindLove"}
+[2025-10-26 13:59:24.225 +07:00 INF] PersonalityTraitsController initialized {"SourceContext":"WebFindLove.Controllers.PersonalityTraitsController","ActionId":"089c1899-989c-4d62-b584-6cc6be6fc822","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Index (WebFindLove)","RequestId":"0HNGKBIVJHPIK:0000000F","RequestPath":"/PersonalityTraits","ConnectionId":"0HNGKBIVJHPIK","Application":"WebFindLove"}
+[2025-10-26 13:59:24.233 +07:00 INF] GET Personality Traits - User: test {"SourceContext":"WebFindLove.Controllers.PersonalityTraitsController","ActionId":"089c1899-989c-4d62-b584-6cc6be6fc822","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Index (WebFindLove)","RequestId":"0HNGKBIVJHPIK:0000000F","RequestPath":"/PersonalityTraits","ConnectionId":"0HNGKBIVJHPIK","Application":"WebFindLove"}
+[2025-10-26 13:59:24.240 +07:00 INF] Getting personality trait for user: "3fe47b93-1f29-4f73-a23e-7dbdc57a0106" {"SourceContext":"WebFindLove.Models.Services.PersonalityTraitService.PersonalityTraitService","ActionId":"089c1899-989c-4d62-b584-6cc6be6fc822","ActionName":"WebFindLove.Controllers.PersonalityTraitsController.Index (WebFindLove)","RequestId":"0HNGKBIVJHPIK:0000000F","RequestPath":"/PersonalityTraits","ConnectionId":"0HNGKBIVJHPIK","Application":"WebFindLove"}
+[2025-10-26 14:15:39.824 +07:00 INF] Starting WebFindLove application {"Application":"WebFindLove"}
+[2025-10-26 14:15:40.080 +07:00 INF] Database configured with connection string {"Application":"WebFindLove"}
+[2025-10-26 14:15:40.083 +07:00 INF] Authentication configured {"Application":"WebFindLove"}
+[2025-10-26 14:15:40.090 +07:00 INF] SignalR configured {"Application":"WebFindLove"}
+[2025-10-26 14:15:40.091 +07:00 INF] Services registered successfully {"Application":"WebFindLove"}
+[2025-10-26 14:15:40.133 +07:00 FTL] Application terminated unexpectedly {"Application":"WebFindLove"}
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at System.Diagnostics.DiagnosticSource.Write[T](String name, T value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\Program.cs:line 89
+[2025-10-26 14:15:51.721 +07:00 INF] Starting WebFindLove application {"Application":"WebFindLove"}
+[2025-10-26 14:15:51.848 +07:00 INF] Database configured with connection string {"Application":"WebFindLove"}
+[2025-10-26 14:15:51.849 +07:00 INF] Authentication configured {"Application":"WebFindLove"}
+[2025-10-26 14:15:51.851 +07:00 INF] SignalR configured {"Application":"WebFindLove"}
+[2025-10-26 14:15:51.852 +07:00 INF] Services registered successfully {"Application":"WebFindLove"}
+[2025-10-26 14:15:51.878 +07:00 FTL] Application terminated unexpectedly {"Application":"WebFindLove"}
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at System.Diagnostics.DiagnosticSource.Write[T](String name, T value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\Program.cs:line 89
+[2025-10-26 14:16:09.154 +07:00 INF] Starting WebFindLove application {"Application":"WebFindLove"}
+[2025-10-26 14:16:10.057 +07:00 INF] Database configured with connection string {"Application":"WebFindLove"}
+[2025-10-26 14:16:10.064 +07:00 INF] Authentication configured {"Application":"WebFindLove"}
+[2025-10-26 14:16:10.090 +07:00 INF] SignalR configured {"Application":"WebFindLove"}
+[2025-10-26 14:16:10.095 +07:00 INF] Services registered successfully {"Application":"WebFindLove"}
+[2025-10-26 14:16:10.246 +07:00 INF] Application built successfully {"Application":"WebFindLove"}
+[2025-10-26 14:16:10.248 +07:00 INF] Development environment configured {"Application":"WebFindLove"}
+[2025-10-26 14:16:13.729 +07:00 INF] SignalR ChatHub mapped to /chatHub {"Application":"WebFindLove"}
+[2025-10-26 14:16:13.735 +07:00 INF] Application starting... {"Application":"WebFindLove"}
+[2025-10-26 14:16:13.741 +07:00 INF] Environment: Development {"Application":"WebFindLove"}
+[2025-10-26 14:16:13.746 +07:00 INF] Listening on:  {"Application":"WebFindLove"}
+[2025-10-26 14:16:14.320 +07:00 INF] Now listening on: https://localhost:7092 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 14:16:14.335 +07:00 INF] Now listening on: http://localhost:5149 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 14:16:14.489 +07:00 INF] Application started. Press Ctrl+C to shut down. {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 14:16:14.500 +07:00 INF] Hosting environment: Development {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 14:16:14.505 +07:00 INF] Content root path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 14:16:15.088 +07:00 INF] FileUploadService initialized with base path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\wwwroot\uploads {"SourceContext":"WebFindLove.Models.Services.FileUploadService.FileUploadService","ActionId":"939a7282-3b31-4924-b515-eca9f5da1570","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGKBU668VI5:00000001","RequestPath":"/","ConnectionId":"0HNGKBU668VI5","Application":"WebFindLove"}
+[2025-10-26 14:16:15.101 +07:00 INF] HomeController initialized {"SourceContext":"WebFindLove.Controllers.HomeController","ActionId":"939a7282-3b31-4924-b515-eca9f5da1570","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGKBU668VI5:00000001","RequestPath":"/","ConnectionId":"0HNGKBU668VI5","Application":"WebFindLove"}
+[2025-10-26 14:16:15.147 +07:00 INF] GET Home Index - IsAuthenticated: true, User: admin, Role: Admin, SearchQuery: null {"SourceContext":"WebFindLove.Controllers.HomeController","ActionId":"939a7282-3b31-4924-b515-eca9f5da1570","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGKBU668VI5:00000001","RequestPath":"/","ConnectionId":"0HNGKBU668VI5","Application":"WebFindLove"}
+[2025-10-26 14:16:21.506 +07:00 INF] FileUploadService initialized with base path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\wwwroot\uploads {"SourceContext":"WebFindLove.Models.Services.FileUploadService.FileUploadService","ActionId":"c282ce36-29fe-4f72-8f0b-7581a2be7eff","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKBU668VI5:00000007","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKBU668VI5","Application":"WebFindLove"}
+[2025-10-26 14:16:21.523 +07:00 INF] RoleService initialized with IRoleRepository {"SourceContext":"WebFindLove.Models.Services.RoleService.RoleService","ActionId":"c282ce36-29fe-4f72-8f0b-7581a2be7eff","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKBU668VI5:00000007","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKBU668VI5","Application":"WebFindLove"}
+[2025-10-26 14:16:21.535 +07:00 INF] UsersController initialized {"SourceContext":"WebFindLove.Controllers.UsersController","ActionId":"c282ce36-29fe-4f72-8f0b-7581a2be7eff","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKBU668VI5:00000007","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKBU668VI5","Application":"WebFindLove"}
+[2025-10-26 14:16:21.563 +07:00 INF] GET EditProfile - UserId: "00000000-0000-0000-0000-000000000001", Requested by: admin {"SourceContext":"WebFindLove.Controllers.UsersController","ActionId":"c282ce36-29fe-4f72-8f0b-7581a2be7eff","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKBU668VI5:00000007","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKBU668VI5","Application":"WebFindLove"}
+[2025-10-26 14:21:03.463 +07:00 INF] Starting WebFindLove application {"Application":"WebFindLove"}
+[2025-10-26 14:21:03.639 +07:00 INF] Database configured with connection string {"Application":"WebFindLove"}
+[2025-10-26 14:21:03.640 +07:00 INF] Authentication configured {"Application":"WebFindLove"}
+[2025-10-26 14:21:03.643 +07:00 INF] SignalR configured {"Application":"WebFindLove"}
+[2025-10-26 14:21:03.644 +07:00 INF] Services registered successfully {"Application":"WebFindLove"}
+[2025-10-26 14:21:03.671 +07:00 FTL] Application terminated unexpectedly {"Application":"WebFindLove"}
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at System.Diagnostics.DiagnosticSource.Write[T](String name, T value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\Program.cs:line 89
+[2025-10-26 14:21:09.544 +07:00 INF] Starting WebFindLove application {"Application":"WebFindLove"}
+[2025-10-26 14:21:09.687 +07:00 INF] Database configured with connection string {"Application":"WebFindLove"}
+[2025-10-26 14:21:09.689 +07:00 INF] Authentication configured {"Application":"WebFindLove"}
+[2025-10-26 14:21:09.691 +07:00 INF] SignalR configured {"Application":"WebFindLove"}
+[2025-10-26 14:21:09.692 +07:00 INF] Services registered successfully {"Application":"WebFindLove"}
+[2025-10-26 14:21:09.743 +07:00 FTL] Application terminated unexpectedly {"Application":"WebFindLove"}
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at System.Diagnostics.DiagnosticSource.Write[T](String name, T value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\Program.cs:line 89
+[2025-10-26 14:21:15.446 +07:00 INF] Starting WebFindLove application {"Application":"WebFindLove"}
+[2025-10-26 14:21:16.229 +07:00 INF] Database configured with connection string {"Application":"WebFindLove"}
+[2025-10-26 14:21:16.235 +07:00 INF] Authentication configured {"Application":"WebFindLove"}
+[2025-10-26 14:21:16.260 +07:00 INF] SignalR configured {"Application":"WebFindLove"}
+[2025-10-26 14:21:16.267 +07:00 INF] Services registered successfully {"Application":"WebFindLove"}
+[2025-10-26 14:21:16.396 +07:00 INF] Application built successfully {"Application":"WebFindLove"}
+[2025-10-26 14:21:16.399 +07:00 INF] Development environment configured {"Application":"WebFindLove"}
+[2025-10-26 14:21:19.738 +07:00 INF] SignalR ChatHub mapped to /chatHub {"Application":"WebFindLove"}
+[2025-10-26 14:21:19.747 +07:00 INF] Application starting... {"Application":"WebFindLove"}
+[2025-10-26 14:21:19.753 +07:00 INF] Environment: Development {"Application":"WebFindLove"}
+[2025-10-26 14:21:19.760 +07:00 INF] Listening on:  {"Application":"WebFindLove"}
+[2025-10-26 14:21:20.221 +07:00 INF] Now listening on: https://localhost:7092 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 14:21:20.235 +07:00 INF] Now listening on: http://localhost:5149 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 14:21:20.383 +07:00 INF] Application started. Press Ctrl+C to shut down. {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 14:21:20.391 +07:00 INF] Hosting environment: Development {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 14:21:20.395 +07:00 INF] Content root path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-26 14:21:21.100 +07:00 INF] FileUploadService initialized with base path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\wwwroot\uploads {"SourceContext":"WebFindLove.Models.Services.FileUploadService.FileUploadService","ActionId":"d97212fc-5888-4398-8af7-9267fff089d9","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGKC11DV352:00000001","RequestPath":"/","ConnectionId":"0HNGKC11DV352","Application":"WebFindLove"}
+[2025-10-26 14:21:21.119 +07:00 INF] HomeController initialized {"SourceContext":"WebFindLove.Controllers.HomeController","ActionId":"d97212fc-5888-4398-8af7-9267fff089d9","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGKC11DV352:00000001","RequestPath":"/","ConnectionId":"0HNGKC11DV352","Application":"WebFindLove"}
+[2025-10-26 14:21:21.179 +07:00 INF] GET Home Index - IsAuthenticated: true, User: admin, Role: Admin, SearchQuery: null {"SourceContext":"WebFindLove.Controllers.HomeController","ActionId":"d97212fc-5888-4398-8af7-9267fff089d9","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGKC11DV352:00000001","RequestPath":"/","ConnectionId":"0HNGKC11DV352","Application":"WebFindLove"}
+[2025-10-26 14:21:27.804 +07:00 INF] FileUploadService initialized with base path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\wwwroot\uploads {"SourceContext":"WebFindLove.Models.Services.FileUploadService.FileUploadService","ActionId":"87619fad-0d54-472f-b4c5-1ba2fdb19274","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKC11DV352:00000007","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKC11DV352","Application":"WebFindLove"}
+[2025-10-26 14:21:27.817 +07:00 INF] RoleService initialized with IRoleRepository {"SourceContext":"WebFindLove.Models.Services.RoleService.RoleService","ActionId":"87619fad-0d54-472f-b4c5-1ba2fdb19274","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKC11DV352:00000007","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKC11DV352","Application":"WebFindLove"}
+[2025-10-26 14:21:27.828 +07:00 INF] UsersController initialized {"SourceContext":"WebFindLove.Controllers.UsersController","ActionId":"87619fad-0d54-472f-b4c5-1ba2fdb19274","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKC11DV352:00000007","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKC11DV352","Application":"WebFindLove"}
+[2025-10-26 14:21:27.841 +07:00 INF] GET EditProfile - UserId: "00000000-0000-0000-0000-000000000001", Requested by: admin {"SourceContext":"WebFindLove.Controllers.UsersController","ActionId":"87619fad-0d54-472f-b4c5-1ba2fdb19274","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKC11DV352:00000007","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKC11DV352","Application":"WebFindLove"}
+[2025-10-26 14:23:22.976 +07:00 INF] FileUploadService initialized with base path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\wwwroot\uploads {"SourceContext":"WebFindLove.Models.Services.FileUploadService.FileUploadService","ActionId":"95c22337-a219-4201-937c-7fedb72aceca","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKC11DV353:00000001","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKC11DV353","Application":"WebFindLove"}
+[2025-10-26 14:23:22.985 +07:00 INF] RoleService initialized with IRoleRepository {"SourceContext":"WebFindLove.Models.Services.RoleService.RoleService","ActionId":"95c22337-a219-4201-937c-7fedb72aceca","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKC11DV353:00000001","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKC11DV353","Application":"WebFindLove"}
+[2025-10-26 14:23:22.991 +07:00 INF] UsersController initialized {"SourceContext":"WebFindLove.Controllers.UsersController","ActionId":"95c22337-a219-4201-937c-7fedb72aceca","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKC11DV353:00000001","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKC11DV353","Application":"WebFindLove"}
+[2025-10-26 14:23:23.001 +07:00 INF] GET EditProfile - UserId: "00000000-0000-0000-0000-000000000001", Requested by: admin {"SourceContext":"WebFindLove.Controllers.UsersController","ActionId":"95c22337-a219-4201-937c-7fedb72aceca","ActionName":"WebFindLove.Controllers.UsersController.EditProfile (WebFindLove)","RequestId":"0HNGKC11DV353:00000001","RequestPath":"/Users/EditProfile","ConnectionId":"0HNGKC11DV353","Application":"WebFindLove"}

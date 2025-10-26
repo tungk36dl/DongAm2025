@@ -53,6 +53,12 @@ namespace WebFindLove.Models
         [StringLength(500)]
         public string? Avatar { get; set; }  // Path to avatar image
 
+        [StringLength(50)]
+        public string? PersonalityType { get; set; }  // MBTI hoặc các loại tính cách khác
+
+        [StringLength(1000)]
+        public string? PersonalityText { get; set; }  // Mô tả tính cách tự do
+
         // ============================
         // Role Relationship
         // ============================
