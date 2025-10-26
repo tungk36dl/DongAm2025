@@ -1,0 +1,283 @@
+@model List<WebFindLove.Models.MatchResult>
+@{
+    ViewData["Title"] = "Người Phù Hợp Hai Chiều";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <a asp-action="Index" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>Quay Lại
+        </a>
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-heart-circle text-purple-500 mr-3"></i>Người Phù Hợp Hai Chiều
+            </h1>
+            <p class="text-gray-600 text-lg">Những người cũng quan tâm đến bạn - Kết nối cao nhất!</p>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span>@TempData["SuccessMessage"]</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span>@TempData["ErrorMessage"]</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    }
+
+    <!-- Stats -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-md p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 mb-1">Kết Nối Hai Chiều</p>
+                        <p class="text-3xl font-bold">@Model.Count</p>
+                    </div>
+                    <div class="text-5xl opacity-20">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-pink-500 to-pink-600 rounded-lg shadow-md p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-pink-100 mb-1">Điểm Trung Bình</p>
+                        <p class="text-3xl font-bold">@Model.Average(m => m.MatchScore ?? 0).ToString("F1")</p>
+                    </div>
+                    <div class="text-5xl opacity-20">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg shadow-md p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-indigo-100 mb-1">Điểm Cao Nhất</p>
+                        <p class="text-3xl font-bold">@Model.Max(m => m.MatchScore ?? 0).ToString("F1")</p>
+                    </div>
+                    <div class="text-5xl opacity-20">
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Banner -->
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-500 p-4 rounded-lg mb-8">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-purple-600 text-xl mr-3 mt-1"></i>
+                <div>
+                    <h3 class="font-semibold text-purple-800 mb-1">Kết Nối Hai Chiều Là Gì?</h3>
+                    <p class="text-purple-700 text-sm">
+                        Đây là những người mà bạn thích họ và họ cũng thích bạn! 
+                        Kết nối hai chiều có khả năng thành công cao hơn rất nhiều. 
+                        Hãy chủ động nhắn tin để bắt đầu kết nối nhé! 💕
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matches List -->
+        <div class="space-y-6">
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var match = Model[i];
+                var matchedUser = match.MatchedUser;
+                var age = matchedUser?.DateOfBirth.HasValue == true 
+                    ? DateTime.UtcNow.Year - matchedUser.DateOfBirth.Value.Year 
+                    : (int?)null;
+                var score = match.MatchScore ?? 0;
+                var scoreColor = score >= 80 ? "text-green-600 bg-green-100" : 
+                                score >= 60 ? "text-blue-600 bg-blue-100" : 
+                                "text-gray-600 bg-gray-100";
+
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition border-2 border-purple-200">
+                    <!-- Badge cho top matches -->
+                    @if (i < 3)
+                    {
+                        var badgeInfo = i == 0 ? ("🥇", "from-yellow-400 to-yellow-500", "Top 1") :
+                                       i == 1 ? ("🥈", "from-gray-300 to-gray-400", "Top 2") :
+                                       ("🥉", "from-orange-400 to-orange-500", "Top 3");
+                        <div class="bg-gradient-to-r @badgeInfo.Item2 text-white text-center py-1 text-sm font-bold">
+                            @badgeInfo.Item1 @badgeInfo.Item3 - Kết Nối Tốt Nhất
+                        </div>
+                    }
+
+                    <div class="p-6">
+                        <div class="flex items-start gap-6">
+                            <!-- Avatar with Badge -->
+                            <div class="flex-shrink-0 relative">
+                                @if (!string.IsNullOrEmpty(matchedUser?.Avatar))
+                                {
+                                    <img src="@matchedUser.Avatar" alt="@matchedUser.FullName" 
+                                         class="w-28 h-28 rounded-full object-cover border-4 border-purple-300 shadow-lg">
+                                }
+                                else
+                                {
+                                    <div class="w-28 h-28 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                                        @matchedUser?.FullName?.Substring(0, 1).ToUpper()
+                                    </div>
+                                }
+                                <!-- Mutual Badge -->
+                                <div class="absolute -bottom-2 -right-2 bg-purple-600 text-white rounded-full p-2 shadow-lg">
+                                    <i class="fas fa-handshake text-lg"></i>
+                                </div>
+                            </div>
+
+                            <!-- Info -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-gray-800">
+                                            @matchedUser?.FullName ?? "Người dùng"
+                                            <span class="text-sm text-purple-600 ml-2">
+                                                <i class="fas fa-heart-circle"></i> Mutual
+                                            </span>
+                                        </h3>
+                                        <div class="flex items-center gap-4 text-gray-600 text-sm mt-1">
+                                            @if (age.HasValue)
+                                            {
+                                                <span><i class="fas fa-birthday-cake mr-1"></i>@age tuổi</span>
+                                            }
+                                            @if (matchedUser?.Height.HasValue == true)
+                                            {
+                                                <span><i class="fas fa-ruler-vertical mr-1"></i>@matchedUser.Height cm</span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(matchedUser?.Location))
+                                            {
+                                                <span><i class="fas fa-map-marker-alt mr-1"></i>@matchedUser.Location</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Match Score -->
+                                    <div class="text-center">
+                                        <div class="@scoreColor px-4 py-2 rounded-full font-bold text-xl mb-1">
+                                            @score.ToString("F1")%
+                                        </div>
+                                        <span class="text-xs text-gray-500">Độ Tương Thích</span>
+                                    </div>
+                                </div>
+
+                                <!-- Bio -->
+                                @if (!string.IsNullOrEmpty(matchedUser?.Bio))
+                                {
+                                    <p class="text-gray-600 mb-3">
+                                        <i class="fas fa-quote-left text-gray-400 mr-1"></i>
+                                        @matchedUser.Bio
+                                    </p>
+                                }
+
+                                <!-- Occupation & Personality -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+                                    @if (!string.IsNullOrEmpty(matchedUser?.Occupation))
+                                    {
+                                        <div class="text-sm">
+                                            <i class="fas fa-briefcase text-purple-500 mr-1"></i>
+                                            <span class="text-gray-500">Nghề nghiệp:</span>
+                                            <span class="text-gray-700 font-medium">@matchedUser.Occupation</span>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(matchedUser?.PersonalityType))
+                                    {
+                                        <div class="text-sm">
+                                            <i class="fas fa-brain text-purple-500 mr-1"></i>
+                                            <span class="text-gray-500">MBTI:</span>
+                                            <span class="text-gray-700 font-medium">@matchedUser.PersonalityType</span>
+                                        </div>
+                                    }
+                                </div>
+
+                                <!-- Interests -->
+                                @if (!string.IsNullOrEmpty(matchedUser?.Interests))
+                                {
+                                    <div class="mb-3">
+                                        <span class="text-sm text-gray-500 mr-2">
+                                            <i class="fas fa-heart mr-1"></i>Sở thích:
+                                        </span>
+                                        <span class="text-sm text-gray-700">@matchedUser.Interests</span>
+                                    </div>
+                                }
+
+                                <!-- AI Reasoning -->
+                                @if (!string.IsNullOrEmpty(match.AiReasoning))
+                                {
+                                    <div class="bg-purple-50 border-l-4 border-purple-400 p-3 rounded mb-4">
+                                        <p class="text-sm text-purple-800">
+                                            <i class="fas fa-robot mr-2"></i>
+                                            <strong>Phân tích AI:</strong> @match.AiReasoning
+                                        </p>
+                                    </div>
+                                }
+
+                                <!-- Actions -->
+                                <div class="flex gap-3">
+                                    <a asp-controller="Messages" asp-action="Conversation" asp-route-userId="@matchedUser?.Id"
+                                       class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-center py-3 px-4 rounded-lg transition font-bold shadow-lg">
+                                        <i class="fas fa-comment mr-2"></i>Nhắn Tin Ngay
+                                    </a>
+                                    <a asp-controller="Users" asp-action="Details" asp-route-id="@matchedUser?.Id"
+                                       class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-center py-3 px-4 rounded-lg transition font-bold">
+                                        <i class="fas fa-user mr-2"></i>Xem Hồ Sơ
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div class="bg-white rounded-lg shadow-md p-12 text-center max-w-2xl mx-auto">
+            <div class="mb-6">
+                <i class="fas fa-heart-broken text-purple-300 text-6xl mb-4"></i>
+                <h3 class="text-2xl font-semibold text-gray-700 mb-2">Chưa Có Kết Nối Hai Chiều</h3>
+                <p class="text-gray-500 mb-4">
+                    Hiện tại chưa có ai cũng chọn bạn là người phù hợp. Đừng lo lắng!
+                </p>
+                <p class="text-gray-600 mb-6">
+                    💡 <strong>Mẹo:</strong> Hãy chủ động nhắn tin với những người bạn thấy phù hợp. 
+                    Một tin nhắn đầu tiên có thể tạo nên kết nối tuyệt vời!
+                </p>
+            </div>
+            
+            <div class="flex gap-4 justify-center">
+                <a asp-action="FindMatches"
+                   class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg transition font-medium">
+                    <i class="fas fa-search mr-2"></i>Xem Người Phù Hợp
+                </a>
+                <a asp-controller="Messages" asp-action="Index"
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition font-medium">
+                    <i class="fas fa-comment mr-2"></i>Tin Nhắn
+                </a>
+            </div>
+        </div>
+    }
+</div>
+

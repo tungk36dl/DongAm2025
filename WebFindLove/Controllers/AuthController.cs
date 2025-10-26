@@ -54,6 +54,8 @@ namespace WebFindLove.Controllers
             model.PasswordHash = _passwordHasher.HashPassword(model, password);
             _logger.LogDebug("Password hashed successfully for username: {Username}", model.UserName);
 
+            model.RoleId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+            model.RoleName = "User";
             var op = await _userService.AddAsync(model);
 
             var isAjax = Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest";

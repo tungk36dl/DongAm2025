@@ -1,0 +1,234 @@
+@model List<WebFindLove.Models.MatchResult>
+@{
+    ViewData["Title"] = "Người Phù Hợp Với Bạn";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <a asp-action="Index" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>Quay Lại
+        </a>
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-heart text-pink-500 mr-3"></i>Người Phù Hợp Với Bạn
+            </h1>
+            <p class="text-gray-600 text-lg">Những người được AI gợi ý dựa trên sở thích của bạn</p>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span>@TempData["SuccessMessage"]</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span>@TempData["ErrorMessage"]</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    }
+
+    <!-- Stats -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-md p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 mb-1">Tổng Số Người Phù Hợp</p>
+                        <p class="text-3xl font-bold">@Model.Count</p>
+                    </div>
+                    <div class="text-5xl opacity-20">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-md p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 mb-1">Điểm Trung Bình</p>
+                        <p class="text-3xl font-bold">@Model.Average(m => m.MatchScore ?? 0).ToString("F1")</p>
+                    </div>
+                    <div class="text-5xl opacity-20">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-pink-500 to-pink-600 rounded-lg shadow-md p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-pink-100 mb-1">Điểm Cao Nhất</p>
+                        <p class="text-3xl font-bold">@Model.Max(m => m.MatchScore ?? 0).ToString("F1")</p>
+                    </div>
+                    <div class="text-5xl opacity-20">
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matches List -->
+        <div class="space-y-6">
+            @foreach (var match in Model)
+            {
+                var matchedUser = match.MatchedUser;
+                var age = matchedUser?.DateOfBirth.HasValue == true 
+                    ? DateTime.UtcNow.Year - matchedUser.DateOfBirth.Value.Year 
+                    : (int?)null;
+                var score = match.MatchScore ?? 0;
+                var scoreColor = score >= 80 ? "text-green-600 bg-green-100" : 
+                                score >= 60 ? "text-blue-600 bg-blue-100" : 
+                                "text-gray-600 bg-gray-100";
+
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                    <div class="p-6">
+                        <div class="flex items-start gap-6">
+                            <!-- Avatar -->
+                            <div class="flex-shrink-0">
+                                @if (!string.IsNullOrEmpty(matchedUser?.Avatar))
+                                {
+                                    <img src="@matchedUser.Avatar" alt="@matchedUser.FullName" 
+                                         class="w-24 h-24 rounded-full object-cover border-4 border-pink-200">
+                                }
+                                else
+                                {
+                                    <div class="w-24 h-24 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                                        @matchedUser?.FullName?.Substring(0, 1).ToUpper()
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Info -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-800">
+                                            @matchedUser?.FullName ?? "Người dùng"
+                                        </h3>
+                                        <div class="flex items-center gap-4 text-gray-600 text-sm mt-1">
+                                            @if (age.HasValue)
+                                            {
+                                                <span><i class="fas fa-birthday-cake mr-1"></i>@age tuổi</span>
+                                            }
+                                            @if (matchedUser?.Height.HasValue == true)
+                                            {
+                                                <span><i class="fas fa-ruler-vertical mr-1"></i>@matchedUser.Height cm</span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(matchedUser?.Location))
+                                            {
+                                                <span><i class="fas fa-map-marker-alt mr-1"></i>@matchedUser.Location</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Match Score -->
+                                    <div class="text-center">
+                                        <div class="@scoreColor px-4 py-2 rounded-full font-bold text-lg mb-1">
+                                            @score.ToString("F1")%
+                                        </div>
+                                        <span class="text-xs text-gray-500">Độ Tương Thích</span>
+                                    </div>
+                                </div>
+
+                                <!-- Bio -->
+                                @if (!string.IsNullOrEmpty(matchedUser?.Bio))
+                                {
+                                    <p class="text-gray-600 mb-3">
+                                        <i class="fas fa-quote-left text-gray-400 mr-1"></i>
+                                        @matchedUser.Bio
+                                    </p>
+                                }
+
+                                <!-- Interests -->
+                                @if (!string.IsNullOrEmpty(matchedUser?.Interests))
+                                {
+                                    <div class="mb-3">
+                                        <span class="text-sm text-gray-500 mr-2">
+                                            <i class="fas fa-heart mr-1"></i>Sở thích:
+                                        </span>
+                                        <span class="text-sm text-gray-700">@matchedUser.Interests</span>
+                                    </div>
+                                }
+
+                                <!-- AI Reasoning -->
+                                @if (!string.IsNullOrEmpty(match.AiReasoning))
+                                {
+                                    <div class="bg-blue-50 border-l-4 border-blue-400 p-3 rounded mb-4">
+                                        <p class="text-sm text-blue-800">
+                                            <i class="fas fa-robot mr-2"></i>
+                                            <strong>Phân tích AI:</strong> @match.AiReasoning
+                                        </p>
+                                    </div>
+                                }
+
+                                <!-- Actions -->
+                                <div class="flex gap-3">
+                                    <a asp-controller="Messages" asp-action="Conversation" asp-route-userId="@matchedUser?.Id"
+                                       class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-4 rounded-lg transition font-medium">
+                                        <i class="fas fa-comment mr-2"></i>Nhắn Tin
+                                    </a>
+                                    <a asp-controller="Users" asp-action="Details" asp-route-id="@matchedUser?.Id"
+                                       class="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-center py-2 px-4 rounded-lg transition font-medium">
+                                        <i class="fas fa-user mr-2"></i>Xem Hồ Sơ
+                                    </a>
+                                    <form asp-action="DeleteMatch" method="post" class="flex-shrink-0"
+                                          onsubmit="return confirm('Bạn có chắc muốn xóa người này khỏi danh sách?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@match.Id" />
+                                        <button type="submit" 
+                                                class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div class="bg-white rounded-lg shadow-md p-12 text-center max-w-2xl mx-auto">
+            <div class="mb-6">
+                <i class="fas fa-heart-broken text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-2xl font-semibold text-gray-700 mb-2">Chưa Tìm Thấy Người Phù Hợp</h3>
+                <p class="text-gray-500 mb-6">
+                    Hãy đảm bảo bạn đã hoàn thiện hồ sơ và thiết lập sở thích để có kết quả tốt nhất!
+                </p>
+            </div>
+            
+            <div class="flex gap-4 justify-center">
+                <a asp-controller="Users" asp-action="EditProfile"
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition font-medium">
+                    <i class="fas fa-user-edit mr-2"></i>Chỉnh Sửa Hồ Sơ
+                </a>
+                <a asp-controller="UserPreferences" asp-action="Edit"
+                   class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition font-medium">
+                    <i class="fas fa-sliders-h mr-2"></i>Thiết Lập Sở Thích
+                </a>
+            </div>
+        </div>
+    }
+</div>
+

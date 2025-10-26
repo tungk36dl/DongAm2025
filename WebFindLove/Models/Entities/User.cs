@@ -17,8 +17,6 @@ namespace WebFindLove.Models
         [EmailAddress]
         [StringLength(100)]
         public string? Email { get; set; }
-
-        [StringLength(255)]
         public string? PasswordHash { get; set; }
 
         [StringLength(100)]

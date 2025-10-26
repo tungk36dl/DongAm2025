@@ -52,7 +52,7 @@
                     </a>
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="MatchResults" asp-action="Index">
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Matching" asp-action="Index">
                             <i class="fas fa-heart text-pink-500 mr-1"></i>Ghép đôi
                         </a>
                         <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Messages" asp-action="Index">
@@ -127,7 +127,7 @@
                     </a>
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="MatchResults" asp-action="Index">
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Matching" asp-action="Index">
                             <i class="fas fa-heart text-pink-500 mr-1"></i>Ghép đôi
                         </a>
                         <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Messages" asp-action="Index">

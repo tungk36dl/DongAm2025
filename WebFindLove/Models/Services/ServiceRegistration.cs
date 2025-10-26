@@ -8,6 +8,7 @@ using WebFindLove.Models.Services.MessageService;
 using WebFindLove.Models.Services.ConversationService;
 using WebFindLove.Models.Services.FileUploadService;
 using WebFindLove.Models.Services.EmbeddingService;
+using WebFindLove.Models.Services.MatchingService;
 
 namespace WebFindLove.Models.Services
 {
@@ -30,6 +31,7 @@ namespace WebFindLove.Models.Services
 
             // Matching & Communication services
             services.AddScoped<IMatchResultService, MatchResultService.MatchResultService>();
+            services.AddScoped<IMatchingService, MatchingService.MatchingService>();
             services.AddScoped<IPhotoService, PhotoService.PhotoService>();
             services.AddScoped<IMessageService, MessageService.MessageService>();
             services.AddScoped<IConversationService, ConversationService.ConversationService>();
