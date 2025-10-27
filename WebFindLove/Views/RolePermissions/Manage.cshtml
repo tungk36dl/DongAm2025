@@ -1,0 +1,265 @@
+@model WebFindLove.Models.Services.RolePermissionService.ViewModels.ManageRolePermissionsVM
+@{
+    ViewData["Title"] = $"Quản lý quyền - {Model.RoleName}";
+}
+
+<div class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-8">
+    <div class="container mx-auto px-4 max-w-6xl">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                        Quản lý quyền: <span class="text-purple-600">@Model.RoleName</span>
+                    </h1>
+                    @if (!string.IsNullOrEmpty(Model.RoleDescription))
+                    {
+                        <p class="text-gray-600">@Model.RoleDescription</p>
+                    }
+                </div>
+                <a href="@Url.Action("Index", "Roles")" class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition duration-200">
+                    <i class="fas fa-arrow-left mr-2"></i>Quay lại
+                </a>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+            </div>
+        }
+
+        <!-- Form -->
+        <form id="permissionsForm" asp-action="Update" asp-controller="RolePermissions" method="post" class="space-y-6">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="roleId" value="@Model.RoleId" />
+
+            <!-- Summary Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm mb-1">Tổng số module</p>
+                            <p class="text-2xl font-bold text-gray-800">@Model.Modules.Count</p>
+                        </div>
+                        <div class="text-purple-500">
+                            <i class="fas fa-cubes text-3xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm mb-1">Tổng số quyền</p>
+                            <p class="text-2xl font-bold text-gray-800" id="totalPermissions">
+                                @Model.Modules.Sum(m => m.Permissions.Count)
+                            </p>
+                        </div>
+                        <div class="text-blue-500">
+                            <i class="fas fa-key text-3xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm mb-1">Đã cấp quyền</p>
+                            <p class="text-2xl font-bold text-gray-800" id="assignedCount">
+                                @Model.Modules.Sum(m => m.Permissions.Count(p => p.IsAssigned))
+                            </p>
+                        </div>
+                        <div class="text-green-500">
+                            <i class="fas fa-check-circle text-3xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-800">Thao tác nhanh</h3>
+                    <div class="space-x-2">
+                        <button type="button" onclick="selectAll()" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition duration-200">
+                            <i class="fas fa-check-double mr-2"></i>Chọn tất cả
+                        </button>
+                        <button type="button" onclick="deselectAll()" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition duration-200">
+                            <i class="fas fa-times mr-2"></i>Bỏ chọn tất cả
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modules -->
+            <div class="space-y-4">
+                @foreach (var module in Model.Modules.OrderBy(m => m.ModuleName))
+                {
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <!-- Module Header -->
+                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-cube text-white text-xl"></i>
+                                    <h3 class="text-xl font-bold text-white">@module.ModuleName</h3>
+                                    <span class="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
+                                        @module.Permissions.Count quyền
+                                    </span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="checkbox" 
+                                               class="module-checkbox form-checkbox h-5 w-5 text-white border-white rounded focus:ring-white mr-2" 
+                                               data-module="@module.ModuleName"
+                                               @(module.AllSelected ? "checked" : "")
+                                               onchange="toggleModule(this)" />
+                                        <span class="text-white font-semibold">Chọn tất cả</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Permissions Grid -->
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                @foreach (var permission in module.Permissions.OrderBy(p => p.Action))
+                                {
+                                    <div class="permission-item border rounded-lg p-4 hover:bg-purple-50 transition duration-200 @(permission.IsAssigned ? "bg-purple-50 border-purple-300" : "border-gray-200")">
+                                        <label class="flex items-start cursor-pointer">
+                                            <input type="checkbox" 
+                                                   name="permissionIds" 
+                                                   value="@permission.Id" 
+                                                   class="permission-checkbox form-checkbox h-5 w-5 text-purple-600 rounded focus:ring-purple-500 mt-1 mr-3"
+                                                   data-module="@module.ModuleName"
+                                                   @(permission.IsAssigned ? "checked" : "")
+                                                   onchange="updateCounts()" />
+                                            <div class="flex-1">
+                                                <div class="font-semibold text-gray-800">@permission.Action</div>
+                                                <div class="text-sm text-gray-500 mt-1">@permission.Name</div>
+                                                @if (!string.IsNullOrEmpty(permission.Description))
+                                                {
+                                                    <div class="text-xs text-gray-400 mt-1">@permission.Description</div>
+                                                }
+                                            </div>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex items-center justify-between bg-white rounded-lg shadow-md p-6">
+                <div class="text-gray-600">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Nhấn "Lưu thay đổi" để cập nhật quyền cho vai trò
+                </div>
+                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg shadow-lg transition duration-200">
+                    <i class="fas fa-save mr-2"></i>Lưu thay đổi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle all permissions in a module
+        function toggleModule(checkbox) {
+            const moduleName = checkbox.dataset.module;
+            const moduleCheckboxes = document.querySelectorAll(`.permission-checkbox[data-module="${moduleName}"]`);
+            
+            moduleCheckboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                updateItemStyle(cb);
+            });
+            
+            updateCounts();
+        }
+
+        // Update permission item style based on checked state
+        function updateItemStyle(checkbox) {
+            const item = checkbox.closest('.permission-item');
+            if (checkbox.checked) {
+                item.classList.add('bg-purple-50', 'border-purple-300');
+                item.classList.remove('border-gray-200');
+            } else {
+                item.classList.remove('bg-purple-50', 'border-purple-300');
+                item.classList.add('border-gray-200');
+            }
+        }
+
+        // Update module checkbox based on its permissions
+        function updateModuleCheckbox(moduleName) {
+            const moduleCheckboxes = document.querySelectorAll(`.permission-checkbox[data-module="${moduleName}"]`);
+            const moduleHeaderCheckbox = document.querySelector(`.module-checkbox[data-module="${moduleName}"]`);
+            
+            const allChecked = Array.from(moduleCheckboxes).every(cb => cb.checked);
+            moduleHeaderCheckbox.checked = allChecked;
+        }
+
+        // Update counts
+        function updateCounts() {
+            const total = document.querySelectorAll('.permission-checkbox').length;
+            const checked = document.querySelectorAll('.permission-checkbox:checked').length;
+            
+            document.getElementById('assignedCount').textContent = checked;
+
+            // Update module checkboxes
+            const modules = new Set();
+            document.querySelectorAll('.permission-checkbox').forEach(cb => {
+                modules.add(cb.dataset.module);
+            });
+            
+            modules.forEach(moduleName => {
+                updateModuleCheckbox(moduleName);
+            });
+
+            // Update permission item styles
+            document.querySelectorAll('.permission-checkbox').forEach(cb => {
+                updateItemStyle(cb);
+            });
+        }
+
+        // Select all permissions
+        function selectAll() {
+            document.querySelectorAll('.permission-checkbox').forEach(cb => {
+                cb.checked = true;
+            });
+            document.querySelectorAll('.module-checkbox').forEach(cb => {
+                cb.checked = true;
+            });
+            updateCounts();
+        }
+
+        // Deselect all permissions
+        function deselectAll() {
+            document.querySelectorAll('.permission-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            document.querySelectorAll('.module-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            updateCounts();
+        }
+
+        // Add change event to all permission checkboxes
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.permission-checkbox').forEach(cb => {
+                cb.addEventListener('change', function() {
+                    updateCounts();
+                });
+            });
+        });
+    </script>
+}
+

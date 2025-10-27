@@ -108,16 +108,25 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-between items-center pt-4 border-t border-gray-200">
-                            <a asp-action="Details" asp-route-id="@role.Id" class="text-blue-600 hover:text-blue-800 font-medium">
-                                <i class="fas fa-eye mr-1"></i>View
+                        <div class="space-y-2 pt-4 border-t border-gray-200">
+                            <!-- Permission Management Button -->
+                            <a asp-controller="RolePermissions" asp-action="Manage" asp-route-roleId="@role.Id" 
+                               class="block w-full text-center bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                                <i class="fas fa-key mr-2"></i>Quản lý quyền
                             </a>
-                            <a asp-action="Edit" asp-route-id="@role.Id" class="text-green-600 hover:text-green-800 font-medium">
-                                <i class="fas fa-edit mr-1"></i>Edit
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@role.Id" class="text-red-600 hover:text-red-800 font-medium">
-                                <i class="fas fa-trash mr-1"></i>Delete
-                            </a>
+                            
+                            <!-- Other Actions -->
+                            <div class="flex justify-between items-center">
+                                <a asp-action="Details" asp-route-id="@role.Id" class="text-blue-600 hover:text-blue-800 font-medium">
+                                    <i class="fas fa-eye mr-1"></i>View
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@role.Id" class="text-green-600 hover:text-green-800 font-medium">
+                                    <i class="fas fa-edit mr-1"></i>Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@role.Id" class="text-red-600 hover:text-red-800 font-medium">
+                                    <i class="fas fa-trash mr-1"></i>Delete
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

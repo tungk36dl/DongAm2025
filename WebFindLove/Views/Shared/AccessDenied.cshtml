@@ -1,0 +1,135 @@
+@{
+    ViewData["Title"] = "Truy cập bị từ chối";
+    var requiredPermissions = ViewData["RequiredPermissions"] as string;
+    var userPermissions = ViewData["UserPermissions"] as string;
+}
+
+<div class="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-pink-50 flex items-center justify-center py-12 px-4">
+    <div class="max-w-2xl w-full">
+        <!-- Error Card -->
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-red-500 to-pink-500 p-8 text-center">
+                <div class="inline-block p-6 bg-white/20 rounded-full mb-4">
+                    <i class="fas fa-shield-alt text-6xl text-white"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-white mb-2">403</h1>
+                <p class="text-xl text-white/90">Truy cập bị từ chối</p>
+            </div>
+
+            <!-- Content -->
+            <div class="p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-3">
+                        Bạn không có quyền truy cập
+                    </h2>
+                    <p class="text-gray-600">
+                        Tài khoản của bạn không có quyền truy cập vào trang này. 
+                        Vui lòng liên hệ quản trị viên nếu bạn cần được cấp quyền.
+                    </p>
+                </div>
+
+                <!-- Permission Details (Development Only) -->
+                @if (!string.IsNullOrEmpty(requiredPermissions))
+                {
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                            <i class="fas fa-key text-red-500 mr-2"></i>
+                            Chi tiết quyền truy cập
+                        </h3>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 uppercase block mb-1">
+                                    Quyền yêu cầu:
+                                </label>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach (var perm in requiredPermissions.Split(',').Select(p => p.Trim()))
+                                    {
+                                        <span class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">
+                                            <i class="fas fa-times-circle mr-1"></i>
+                                            @perm
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(userPermissions))
+                            {
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-500 uppercase block mb-1">
+                                        Quyền hiện tại:
+                                    </label>
+                                    @if (string.IsNullOrWhiteSpace(userPermissions))
+                                    {
+                                        <span class="text-gray-400 text-sm italic">Không có quyền nào</span>
+                                    }
+                                    else
+                                    {
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach (var perm in userPermissions.Split(',').Select(p => p.Trim()))
+                                            {
+                                                <span class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                                                    <i class="fas fa-check-circle mr-1 text-gray-400"></i>
+                                                    @perm
+                                                </span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="javascript:history.back()" 
+                       class="inline-flex items-center justify-center px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition duration-200">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Quay lại
+                    </a>
+                    <a href="@Url.Action("Index", "Home")" 
+                       class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition duration-200">
+                        <i class="fas fa-home mr-2"></i>
+                        Về trang chủ
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-gray-50 px-8 py-4 text-center border-t border-gray-200">
+                <p class="text-sm text-gray-600">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Nếu bạn cho rằng đây là lỗi, vui lòng liên hệ 
+                    <a href="mailto:admin@webfindlove.com" class="text-purple-600 hover:text-purple-700 font-semibold">
+                        quản trị viên
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Help Card -->
+        <div class="mt-6 bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                <i class="fas fa-question-circle text-blue-500 mr-2"></i>
+                Làm thế nào để được cấp quyền?
+            </h3>
+            <ul class="space-y-2 text-gray-600">
+                <li class="flex items-start">
+                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                    <span>Liên hệ với quản trị viên hệ thống</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                    <span>Gửi yêu cầu cấp quyền thông qua email hoặc hệ thống ticket</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                    <span>Đợi quản trị viên xem xét và cấp quyền phù hợp với vai trò của bạn</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+

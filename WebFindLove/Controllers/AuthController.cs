@@ -5,21 +5,58 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WebFindLove.Models;
 using WebFindLove.Models.Services;
+using WebFindLove.Models.Services.RolePermissionService;
 
 namespace WebFindLove.Controllers
 {
     public class AuthController : Controller
     {
         private readonly IUserService _userService;
+        private readonly IRolePermissionService _rolePermissionService;
         private readonly PasswordHasher<User> _passwordHasher;
         private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IUserService userService, ILogger<AuthController> logger)
+        public AuthController(
+            IUserService userService, 
+            IRolePermissionService rolePermissionService,
+            ILogger<AuthController> logger)
         {
             _userService = userService;
+            _rolePermissionService = rolePermissionService;
             _passwordHasher = new PasswordHasher<User>();
             _logger = logger;
             _logger.LogInformation("AuthController initialized");
+        }
+
+        /// <summary>
+        /// Helper method to create claims with permissions for authentication
+        /// </summary>
+        private async Task<List<Claim>> CreateUserClaimsAsync(User user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
+                new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+                new Claim(ClaimTypes.Role, user.Role?.Name ?? user.RoleName ?? "User")
+            };
+
+            // Get user permissions and add to claims
+            if (user.RoleId.HasValue)
+            {
+                var permissionsResponse = await _rolePermissionService.GetUserPermissionsAsync(user.Id);
+                if (permissionsResponse.Success && permissionsResponse.Data != null)
+                {
+                    foreach (var permission in permissionsResponse.Data)
+                    {
+                        claims.Add(new Claim("Permission", permission));
+                    }
+                    _logger.LogDebug("Added {Count} permissions to claims for user {Username}", 
+                        permissionsResponse.Data.Count, user.UserName);
+                }
+            }
+
+            return claims;
         }
 
         public IActionResult Register()
@@ -67,14 +104,8 @@ namespace WebFindLove.Controllers
                     _logger.LogInformation("User registered successfully via AJAX - Username: {Username}, Email: {Email}, UserId: {UserId}", 
                         model.UserName, model.Email, model.Id);
 
-                    // Create authentication claims
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, model.Id.ToString()),
-                        new Claim(ClaimTypes.Name, model.UserName ?? string.Empty),
-                        new Claim(ClaimTypes.Email, model.Email ?? string.Empty),
-                        new Claim(ClaimTypes.Role, model.Role?.Name ?? model.RoleName ?? "User")
-                    };
+                    // Create authentication claims with permissions
+                    var claims = await CreateUserClaimsAsync(model);
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var authProperties = new AuthenticationProperties
@@ -115,14 +146,8 @@ namespace WebFindLove.Controllers
                 _logger.LogInformation("User registered successfully - Username: {Username}, Email: {Email}, UserId: {UserId}", 
                     model.UserName, model.Email, model.Id);
 
-                // Create authentication claims
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, model.Id.ToString()),
-                    new Claim(ClaimTypes.Name, model.UserName ?? string.Empty),
-                    new Claim(ClaimTypes.Email, model.Email ?? string.Empty),
-                    new Claim(ClaimTypes.Role, model.Role?.Name ?? model.RoleName ?? "User")
-                };
+                // Create authentication claims with permissions
+                var claims = await CreateUserClaimsAsync(model);
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
@@ -229,14 +254,8 @@ namespace WebFindLove.Controllers
 
             try
             {
-                // Create authentication claims
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
-                    new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-                    new Claim(ClaimTypes.Role, user.Role?.Name ?? user.RoleName ?? "User")
-                };
+                // Create authentication claims with permissions
+                var claims = await CreateUserClaimsAsync(user);
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties

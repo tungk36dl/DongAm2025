@@ -1,5 +1,6 @@
 ﻿using WebFindLove.Models.Repositories.UserRepo;
 using WebFindLove.Models.Repositories.RoleRepo;
+using WebFindLove.Models.Repositories.RolePermissionRepo;
 using WebFindLove.Models.Repositories.UserPreferenceRepo;
 using WebFindLove.Models.Repositories.PersonalityTraitRepo;
 using WebFindLove.Models.Repositories.MatchResultRepo;
@@ -21,6 +22,7 @@ namespace WebFindLove.Models.Repositories
             // Core repositories
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
 
             // Profile & Preference repositories
             services.AddScoped<IUserPreferenceRepository, UserPreferenceRepository>();
