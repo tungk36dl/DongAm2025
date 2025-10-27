@@ -16,7 +16,6 @@ namespace WebFindLove.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserPreference> UserPreferences { get; set; }
-        public DbSet<PersonalityTrait> PersonalityTraits { get; set; }
         public DbSet<MatchResult> MatchResults { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Message> Messages { get; set; }
@@ -48,12 +47,6 @@ namespace WebFindLove.Models
                 entity.HasOne(e => e.Preference)
                     .WithOne(p => p.User)
                     .HasForeignKey<UserPreference>(p => p.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                // User -> PersonalityTrait (1:1)
-                entity.HasOne(e => e.PersonalityTrait)
-                    .WithOne(p => p.User)
-                    .HasForeignKey<PersonalityTrait>(p => p.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
 
                 // User -> Photos (1:many)
@@ -139,15 +132,6 @@ namespace WebFindLove.Models
             // UserPreference Configuration
             // ============================
             modelBuilder.Entity<UserPreference>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.HasIndex(e => e.UserId).IsUnique();
-            });
-
-            // ============================
-            // PersonalityTrait Configuration
-            // ============================
-            modelBuilder.Entity<PersonalityTrait>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.UserId).IsUnique();

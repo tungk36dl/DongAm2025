@@ -2,7 +2,6 @@
 using WebFindLove.Models.Repositories.RoleRepo;
 using WebFindLove.Models.Repositories.RolePermissionRepo;
 using WebFindLove.Models.Repositories.UserPreferenceRepo;
-using WebFindLove.Models.Repositories.PersonalityTraitRepo;
 using WebFindLove.Models.Repositories.MatchResultRepo;
 using WebFindLove.Models.Repositories.PhotoRepo;
 using WebFindLove.Models.Repositories.MessageRepo;
@@ -26,7 +25,6 @@ namespace WebFindLove.Models.Repositories
 
             // Profile & Preference repositories
             services.AddScoped<IUserPreferenceRepository, UserPreferenceRepository>();
-            services.AddScoped<IPersonalityTraitRepository, PersonalityTraitRepository>();
 
             // Matching & Communication repositories
             services.AddScoped<IMatchResultRepository, MatchResultRepository>();

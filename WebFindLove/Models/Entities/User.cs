@@ -78,7 +78,6 @@ namespace WebFindLove.Models
         // Navigation Properties
         // ============================
         public virtual UserPreference? Preference { get; set; }
-        public virtual PersonalityTrait? PersonalityTrait { get; set; }
         public virtual ICollection<Photo>? Photos { get; set; }
         public virtual ICollection<MatchResult>? MatchesAsUser { get; set; }
         public virtual ICollection<MatchResult>? MatchesAsMatchedUser { get; set; }

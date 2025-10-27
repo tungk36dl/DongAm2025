@@ -2,7 +2,6 @@
 using WebFindLove.Models.Services.RoleService;
 using WebFindLove.Models.Services.RolePermissionService;
 using WebFindLove.Models.Services.UserPreferenceService;
-using WebFindLove.Models.Services.PersonalityTraitService;
 using WebFindLove.Models.Services.MatchResultService;
 using WebFindLove.Models.Services.PhotoService;
 using WebFindLove.Models.Services.MessageService;
@@ -29,7 +28,6 @@ namespace WebFindLove.Models.Services
 
             // Profile & Preference services
             services.AddScoped<IUserPreferenceService, UserPreferenceService.UserPreferenceService>();
-            services.AddScoped<IPersonalityTraitService, PersonalityTraitService.PersonalityTraitService>();
 
             // Matching & Communication services
             services.AddScoped<IMatchResultService, MatchResultService.MatchResultService>();
