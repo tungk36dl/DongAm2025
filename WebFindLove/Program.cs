@@ -2,14 +2,15 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using WebFindLove.Helper.Seeder;
 using WebFindLove.HelperServices;
+using WebFindLove.Hubs;
 using WebFindLove.Models;
 using WebFindLove.Models.Repositories;
 using WebFindLove.Models.Services;
 using WebFindLove.Models.Services.RoleService;
 using WebFindLove.Models.Services.UserService;
 using WebFindLove.Models.UnitOfWork;
-using WebFindLove.Hubs;
 
 // 🔹 Cấu hình Serilog trước khi build
 Log.Logger = new LoggerConfiguration()
@@ -42,6 +43,8 @@ try
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
     Log.Information("Database configured with connection string");
+
+ 
 
     // Configure Authentication
     builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -100,6 +103,11 @@ try
     else
     {
         Log.Information("Development environment configured");
+    }
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        PermissionSeeder.SyncPermissions(db);
     }
 
     app.UseHttpsRedirection();

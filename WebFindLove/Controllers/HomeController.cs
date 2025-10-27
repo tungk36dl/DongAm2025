@@ -76,6 +76,34 @@ namespace WebFindLove.Controllers
             return View();
         }
 
+        // Test Notification Toast
+        public IActionResult TestNotifications(string type = "success")
+        {
+            switch (type.ToLower())
+            {
+                case "success":
+                    TempData["SuccessMessage"] = "Đây là thông báo thành công! Mọi thứ đã hoạt động như mong đợi.";
+                    break;
+                case "error":
+                    TempData["ErrorMessage"] = "Đã xảy ra lỗi! Vui lòng thử lại sau.";
+                    break;
+                case "info":
+                    TempData["InfoMessage"] = "Đây là thông tin quan trọng mà bạn cần biết.";
+                    break;
+                case "warning":
+                    TempData["WarningMessage"] = "Cảnh báo! Hãy cẩn thận với hành động này.";
+                    break;
+                case "multiple":
+                    TempData["SuccessMessage"] = "Thao tác thành công!";
+                    TempData["InfoMessage"] = "Hệ thống sẽ tự động lưu sau 5 giây.";
+                    break;
+                default:
+                    TempData["SuccessMessage"] = "Test notification!";
+                    break;
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

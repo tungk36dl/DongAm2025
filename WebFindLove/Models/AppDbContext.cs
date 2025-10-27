@@ -22,6 +22,8 @@ namespace WebFindLove.Models
         public DbSet<Message> Messages { get; set; }
         public DbSet<Conversation> Conversations { get; set; }
         public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -92,6 +94,45 @@ namespace WebFindLove.Models
             {
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.Name).IsUnique();
+            });
+
+            // ============================
+            // Permission Configuration
+            // ============================
+            modelBuilder.Entity<Permission>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Module).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Action).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
+                entity.HasIndex(e => e.Name).IsUnique();
+
+                // Optional: bạn có thể thêm mô tả mặc định
+                entity.Property(e => e.Description).HasMaxLength(255);
+            });
+
+            // ============================
+            // RolePermission Configuration (Many-to-Many)
+            // ============================
+            modelBuilder.Entity<RolePermission>(entity =>
+            {
+                // Composite Primary Key
+                entity.HasKey(e => new { e.RoleId, e.PermissionId });
+
+                // Role relationship
+                entity.HasOne(rp => rp.Role)
+                    .WithMany(r => r.RolePermissions)
+                    .HasForeignKey(rp => rp.RoleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Permission relationship
+                entity.HasOne(rp => rp.Permission)
+                    .WithMany()
+                    .HasForeignKey(rp => rp.PermissionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Tạo index để tìm kiếm nhanh
+                entity.HasIndex(e => e.PermissionId);
             });
 
             // ============================
@@ -216,6 +257,44 @@ namespace WebFindLove.Models
                     CreatedAt = seedDate
                 }
             );
+            // Seed default permissions
+            var permissions = new List<Permission>
+{
+            new Permission
+            {
+                Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                Module = "User",
+                Action = "View",
+                Name = "User.View",
+                Description = "Xem danh sách người dùng"
+            },
+            new Permission
+            {
+                Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                Module = "User",
+                Action = "Create",
+                Name = "User.Create",
+                Description = "Tạo người dùng mới"
+            },
+            new Permission
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                Module = "User",
+                Action = "Edit",
+                Name = "User.Edit",
+                Description = "Chỉnh sửa người dùng"
+            },
+            new Permission
+            {
+                Id = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                Module = "User",
+                Action = "Delete",
+                Name = "User.Delete",
+                Description = "Xóa người dùng"
+            }
+        };
+            modelBuilder.Entity<Permission>().HasData(permissions);
+
         }
     }
 }

@@ -13,11 +13,16 @@ namespace WebFindLove.Models
         [ForeignKey(nameof(User))]
         public Guid UserId { get; set; }
 
+        [Required(ErrorMessage = "Giới tính mong muốn là bắt buộc")]
         [StringLength(20)]
         public string? PreferredGender { get; set; }  // male | female | all
 
+        [Required(ErrorMessage = "Tuổi tối thiểu là bắt buộc")]
+        [Range(18, 100, ErrorMessage = "Tuổi tối thiểu phải từ 18 đến 100")]
         public int? AgeMin { get; set; }
 
+        [Required(ErrorMessage = "Tuổi tối đa là bắt buộc")]
+        [Range(18, 100, ErrorMessage = "Tuổi tối đa phải từ 18 đến 100")]
         public int? AgeMax { get; set; }
 
         public int? MinHeight { get; set; }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using WebFindLove.Models.Entities;
 using WebFindLove.Models.Entity;
 
 namespace WebFindLove.Models
@@ -21,6 +22,8 @@ namespace WebFindLove.Models
         // Navigation Properties
         // ============================
         public virtual ICollection<User> Users { get; set; } = new List<User>();
+        public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+
     }
 }
 

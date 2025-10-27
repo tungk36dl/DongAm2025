@@ -177,33 +177,12 @@
         </nav>
     </header>
 
+    <!-- Notification Toast Component -->
+    @await Html.PartialAsync("_NotificationToast")
+
     <main class="container mx-auto px-4 py-8 min-h-screen">
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 px-4 py-3 rounded-lg mb-4 flex items-center justify-between" role="alert">
-                <div class="flex items-center">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    <span>@TempData["SuccessMessage"]</span>
-                </div>
-                <button onclick="this.parentElement.style.display='none'" class="text-green-700 dark:text-green-200 hover:text-green-900 dark:hover:text-green-100">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        }
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg mb-4 flex items-center justify-between" role="alert">
-                <div class="flex items-center">
-                    <i class="fas fa-exclamation-circle mr-2"></i>
-                    <span>@TempData["ErrorMessage"]</span>
-                </div>
-                <button onclick="this.parentElement.style.display='none'" class="text-red-700 dark:text-red-200 hover:text-red-900 dark:hover:text-red-100">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        }
-            @RenderBody()
-        </main>
+        @RenderBody()
+    </main>
 
     <footer class="bg-white dark:bg-gray-800 border-t dark:border-gray-700 mt-12 transition-colors duration-200">
         <div class="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400">
@@ -234,13 +213,6 @@
         
         themeToggle?.addEventListener('click', toggleDarkMode);
         themeToggleMobile?.addEventListener('click', toggleDarkMode);
-
-        // Auto-hide alerts after 5 seconds
-        setTimeout(function() {
-            document.querySelectorAll('[role="alert"]').forEach(function(alert) {
-                alert.style.display = 'none';
-            });
-        }, 5000);
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

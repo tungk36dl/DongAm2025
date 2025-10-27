@@ -29,6 +29,8 @@ namespace WebFindLove.Controllers
             _logger = logger;
             _logger.LogInformation("UsersController initialized");
         }
+
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index([FromQuery] Models.Services.UserService.Dto.UserSearch? search)
         {
             _logger.LogInformation("GET Users Index - Requested by: {CurrentUser}, Search: {@Search}", CurrentUser?.UserName, search);
@@ -50,19 +52,37 @@ namespace WebFindLove.Controllers
 
         public async Task<IActionResult> Details(Guid id)
         {
-            _logger.LogInformation("GET User Details - UserId: {UserId}, Requested by: {CurrentUser}", id, CurrentUser?.UserName);
-            
-            var resp = await _userService.GetByIdAsync(id);
-            if (!resp.Success || resp.Data == null)
+            if(id == Guid.Empty)
             {
-                _logger.LogWarning("User not found - UserId: {UserId}", id);
-                return NotFound();
+                TempData["ErrorMessage"] = "Id rỗng!";
+                return RedirectToAction("Index", "Home");
+            }
+            try
+            {
+                var userId = UserId;
+                if(id != Guid.Empty && id != userId)
+                {
+                    TempData["ErrorMessage"] = "Bạn không có quyền!";
+                    return RedirectToAction("Index", "Home");
+                }
+                _logger.LogInformation("GET User Details - UserId: {UserId}, Requested by: {CurrentUser}", id, CurrentUser?.UserName);
+
+                var resp = await _userService.GetByIdAsync(id);
+                if (!resp.Success || resp.Data == null)
+                {
+                    _logger.LogWarning("User not found - UserId: {UserId}", id);
+                    return NotFound();
+                }
+
+                _logger.LogDebug("User details retrieved - Username: {Username}, Email: {Email}", resp.Data.UserName, resp.Data.Email);
+                return View(resp.Data);
+            }catch(Exception ex)
+            {
+                return BadRequest();
             }
             
-            _logger.LogDebug("User details retrieved - Username: {Username}, Email: {Email}", resp.Data.UserName, resp.Data.Email);
-            return View(resp.Data);
         }
-
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
             _logger.LogInformation("GET Create User page - Requested by: {CurrentUser}", CurrentUser?.UserName);
@@ -72,6 +92,7 @@ namespace WebFindLove.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(UserCreateVM model)
         {
             _logger.LogInformation("POST Create User - Username: {Username}, Email: {Email}, Role: {Role}, Requested by: {CurrentUser}", 

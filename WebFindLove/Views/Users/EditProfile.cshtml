@@ -97,20 +97,22 @@
 
                         <div>
                             <label asp-for="PhoneNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-phone mr-1"></i> Số Điện Thoại
+                                <i class="fas fa-phone mr-1"></i> Số Điện Thoại <span class="text-red-500">*</span>
                             </label>
                             <input asp-for="PhoneNumber" 
                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition" 
-                                   placeholder="Nhập số điện thoại" />
+                                   placeholder="Nhập số điện thoại"
+                                   required />
                             <span asp-validation-for="PhoneNumber" class="text-red-500 text-sm mt-1"></span>
                         </div>
 
                         <div>
                             <label asp-for="Gender" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-venus-mars mr-1"></i> Giới Tính
+                                <i class="fas fa-venus-mars mr-1"></i> Giới Tính <span class="text-red-500">*</span>
                             </label>
                             <select asp-for="Gender" 
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition">
+                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+                                    required>
                                 <option value="">Chọn giới tính</option>
                                 <option value="male">Nam</option>
                                 <option value="female">Nữ</option>
@@ -121,22 +123,26 @@
 
                         <div>
                             <label asp-for="DateOfBirth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-calendar mr-1"></i> Ngày Sinh
+                                <i class="fas fa-calendar mr-1"></i> Ngày Sinh <span class="text-red-500">*</span>
                             </label>
                             <input asp-for="DateOfBirth" 
                                    type="date" 
-                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition" />
+                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+                                   required />
                             <span asp-validation-for="DateOfBirth" class="text-red-500 text-sm mt-1"></span>
                         </div>
 
                         <div class="md:col-span-2">
                             <label asp-for="Height" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-ruler-vertical mr-1"></i> Chiều Cao (cm)
+                                <i class="fas fa-ruler-vertical mr-1"></i> Chiều Cao (cm) <span class="text-red-500">*</span>
                             </label>
                             <input asp-for="Height" 
                                    type="number" 
+                                   min="100"
+                                   max="250"
                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition" 
-                                   placeholder="Nhập chiều cao" />
+                                   placeholder="Nhập chiều cao"
+                                   required />
                             <span asp-validation-for="Height" class="text-red-500 text-sm mt-1"></span>
                         </div>
                     </div>
@@ -154,21 +160,22 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label asp-for="Location" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-location-arrow mr-1"></i> Địa Chỉ Hiện Tại
+                                <i class="fas fa-location-arrow mr-1"></i> Địa Chỉ Hiện Tại <span class="text-red-500">*</span>
                             </label>
                             <input asp-for="Location" 
                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition" 
-                                   placeholder="Nhập địa chỉ hiện tại" />
+                                   placeholder="Nhập địa chỉ hiện tại"
+                                   required />
                             <span asp-validation-for="Location" class="text-red-500 text-sm mt-1"></span>
                         </div>
 
                         <div>
                             <label asp-for="Hometown" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-home mr-1"></i> Quê Quán
+                                <i class="fas fa-home mr-1"></i> Quê Quán <span class="text-red-500">*</span>
                             </label>
                             <input asp-for="Hometown" 
                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition" 
-                                   placeholder="Nhập quê quán" />
+                                   placeholder="Nhập quê quán" required />
                             <span asp-validation-for="Hometown" class="text-red-500 text-sm mt-1"></span>
                         </div>
                     </div>
@@ -196,11 +203,12 @@
 
                     <div>
                         <label asp-for="Interests" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <i class="fas fa-heart mr-1"></i> Sở Thích
+                            <i class="fas fa-heart mr-1"></i> Sở Thích <span class="text-red-500">*</span>
                         </label>
                         <input asp-for="Interests" 
                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition" 
-                               placeholder="Nhập sở thích (cách nhau bởi dấu phẩy)" />
+                               placeholder="Nhập sở thích (cách nhau bởi dấu phẩy)"
+                               required />
                         <span asp-validation-for="Interests" class="text-red-500 text-sm mt-1"></span>
                         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
                             Ví dụ: Đọc sách, Du lịch, Âm nhạc, Thể thao
@@ -209,10 +217,11 @@
 
                     <div>
                         <label asp-for="PersonalityType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <i class="fas fa-brain mr-1"></i> Nhóm Tính Cách
+                            <i class="fas fa-brain mr-1"></i> Nhóm Tính Cách 
                         </label>
                         <select asp-for="PersonalityType" 
-                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition">
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+                                >
                             <option value="">Chọn nhóm tính cách của bạn</option>
                             <optgroup label="Nhà Phân Tích">
                                 <option value="INTJ">INTJ - Kiến Trúc Sư</option>
@@ -251,12 +260,12 @@
 
                     <div>
                         <label asp-for="PersonalityText" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <i class="fas fa-quote-left mr-1"></i> Mô Tả Tính Cách
+                            <i class="fas fa-quote-left mr-1"></i> Mô Tả Tính Cách <span class="text-red-500">*</span>
                         </label>
                         <textarea asp-for="PersonalityText" 
                                   rows="4" 
                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition resize-none" 
-                                  placeholder="Nhập tính cách bằng các tính từ chỉ tính cách, cách nhau bởi dấu phẩy"></textarea>
+                                  placeholder="Nhập tính cách bằng các tính từ chỉ tính cách, cách nhau bởi dấu phẩy" required></textarea>
                         <span asp-validation-for="PersonalityText" class="text-red-500 text-sm mt-1"></span>
                         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
                             <i class="fas fa-info-circle mr-1"></i>
@@ -306,6 +315,71 @@
                 };
                 reader.readAsDataURL(e.target.files[0]);
             }
+        });
+
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            let isValid = true;
+            let errorMessages = [];
+
+            // Validate Date of Birth (must be at least 18 years old)
+            const dob = document.querySelector('input[name="DateOfBirth"]');
+            if (dob && dob.value) {
+                const birthDate = new Date(dob.value);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                if (age < 18) {
+                    errorMessages.push('Bạn phải từ 18 tuổi trở lên');
+                    dob.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    dob.classList.remove('border-red-500');
+                }
+            }
+
+            // Validate Height
+            const height = document.querySelector('input[name="Height"]');
+            if (height && height.value) {
+                const heightValue = parseInt(height.value);
+                if (heightValue < 100 || heightValue > 250) {
+                    errorMessages.push('Chiều cao phải từ 100 đến 250 cm');
+                    height.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    height.classList.remove('border-red-500');
+                }
+            }
+
+            // Validate Phone Number
+            const phone = document.querySelector('input[name="PhoneNumber"]');
+            if (phone && phone.value) {
+                const phonePattern = /^[0-9+\-\s()]{10,15}$/;
+                if (!phonePattern.test(phone.value)) {
+                    errorMessages.push('Số điện thoại không hợp lệ');
+                    phone.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    phone.classList.remove('border-red-500');
+                }
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Vui lòng kiểm tra lại:\n' + errorMessages.join('\n'));
+                return false;
+            }
+        });
+
+        // Clear error styling on input
+        document.querySelectorAll('input, select, textarea').forEach(element => {
+            element.addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+            });
         });
     </script>
 }

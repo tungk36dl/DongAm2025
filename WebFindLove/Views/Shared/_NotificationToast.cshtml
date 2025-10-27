@@ -1,0 +1,280 @@
+@* Notification Toast Component - Dùng chung cho toàn bộ dự án *@
+
+<div id="notification-container" class="fixed top-4 right-4 z-50 space-y-3 max-w-sm">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="notification-toast success opacity-0 transform translate-x-full transition-all duration-300 ease-out"
+             data-type="success">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border-l-4 border-green-500 overflow-hidden">
+                <div class="p-4 flex items-start">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-500 dark:text-green-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+                            Thành công!
+                        </h3>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                            @TempData["SuccessMessage"]
+                        </p>
+                    </div>
+                    <button onclick="closeNotification(this)" 
+                            class="flex-shrink-0 ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <!-- Progress bar -->
+                <div class="h-1 bg-gray-100 dark:bg-gray-700">
+                    <div class="h-full bg-green-500 progress-bar" style="animation: progress 5s linear;"></div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="notification-toast error opacity-0 transform translate-x-full transition-all duration-300 ease-out"
+             data-type="error">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border-l-4 border-red-500 overflow-hidden">
+                <div class="p-4 flex items-start">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center">
+                            <i class="fas fa-exclamation-circle text-red-500 dark:text-red-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+                            Lỗi!
+                        </h3>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                            @TempData["ErrorMessage"]
+                        </p>
+                    </div>
+                    <button onclick="closeNotification(this)" 
+                            class="flex-shrink-0 ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <!-- Progress bar -->
+                <div class="h-1 bg-gray-100 dark:bg-gray-700">
+                    <div class="h-full bg-red-500 progress-bar" style="animation: progress 5s linear;"></div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="notification-toast info opacity-0 transform translate-x-full transition-all duration-300 ease-out"
+             data-type="info">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border-l-4 border-blue-500 overflow-hidden">
+                <div class="p-4 flex items-start">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                            <i class="fas fa-info-circle text-blue-500 dark:text-blue-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+                            Thông tin
+                        </h3>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                            @TempData["InfoMessage"]
+                        </p>
+                    </div>
+                    <button onclick="closeNotification(this)" 
+                            class="flex-shrink-0 ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <!-- Progress bar -->
+                <div class="h-1 bg-gray-100 dark:bg-gray-700">
+                    <div class="h-full bg-blue-500 progress-bar" style="animation: progress 5s linear;"></div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (TempData["WarningMessage"] != null)
+    {
+        <div class="notification-toast warning opacity-0 transform translate-x-full transition-all duration-300 ease-out"
+             data-type="warning">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border-l-4 border-yellow-500 overflow-hidden">
+                <div class="p-4 flex items-start">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 dark:text-yellow-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+                            Cảnh báo!
+                        </h3>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                            @TempData["WarningMessage"]
+                        </p>
+                    </div>
+                    <button onclick="closeNotification(this)" 
+                            class="flex-shrink-0 ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <!-- Progress bar -->
+                <div class="h-1 bg-gray-100 dark:bg-gray-700">
+                    <div class="h-full bg-yellow-500 progress-bar" style="animation: progress 5s linear;"></div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    @@keyframes progress {
+        from {
+            width: 100%;
+        }
+        to {
+            width: 0%;
+        }
+    }
+
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @@keyframes slideOut {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+    }
+
+    .notification-toast {
+        animation: slideIn 0.3s ease-out forwards;
+    }
+
+    .notification-toast.hiding {
+        animation: slideOut 0.3s ease-out forwards;
+    }
+
+    /* Responsive cho mobile */
+    @@media (max-width: 640px) {
+        #notification-container {
+            left: 1rem;
+            right: 1rem;
+            max-width: calc(100% - 2rem);
+        }
+    }
+</style>
+
+<script>
+    // Hàm đóng thông báo
+    function closeNotification(button) {
+        const toast = button.closest('.notification-toast');
+        toast.classList.add('hiding');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }
+
+    // Tự động hiển thị và ẩn thông báo
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.notification-toast');
+        
+        toasts.forEach((toast, index) => {
+            // Delay hiển thị nếu có nhiều thông báo
+            setTimeout(() => {
+                toast.classList.remove('opacity-0', 'translate-x-full');
+            }, index * 100);
+
+            // Tự động ẩn sau 5 giây
+            setTimeout(() => {
+                closeNotification(toast.querySelector('button'));
+            }, 5000 + (index * 100));
+        });
+    });
+
+    // Hàm để hiển thị thông báo từ JavaScript (có thể dùng trong các trang khác)
+    function showNotification(message, type = 'success') {
+        const container = document.getElementById('notification-container');
+        if (!container) return;
+
+        const icons = {
+            success: { icon: 'fa-check-circle', color: 'green' },
+            error: { icon: 'fa-exclamation-circle', color: 'red' },
+            info: { icon: 'fa-info-circle', color: 'blue' },
+            warning: { icon: 'fa-exclamation-triangle', color: 'yellow' }
+        };
+
+        const titles = {
+            success: 'Thành công!',
+            error: 'Lỗi!',
+            info: 'Thông tin',
+            warning: 'Cảnh báo!'
+        };
+
+        const config = icons[type] || icons.success;
+        const title = titles[type] || titles.success;
+        const color = config.color;
+
+        const toast = document.createElement('div');
+        toast.className = 'notification-toast opacity-0 transform translate-x-full transition-all duration-300 ease-out';
+        toast.setAttribute('data-type', type);
+        
+        toast.innerHTML = `
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border-l-4 border-${color}-500 overflow-hidden">
+                <div class="p-4 flex items-start">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-${color}-100 dark:bg-${color}-900 rounded-full flex items-center justify-center">
+                            <i class="fas ${config.icon} text-${color}-500 dark:text-${color}-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+                            ${title}
+                        </h3>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                            ${message}
+                        </p>
+                    </div>
+                    <button onclick="closeNotification(this)" 
+                            class="flex-shrink-0 ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="h-1 bg-gray-100 dark:bg-gray-700">
+                    <div class="h-full bg-${color}-500 progress-bar" style="animation: progress 5s linear;"></div>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(toast);
+
+        // Hiển thị
+        setTimeout(() => {
+            toast.classList.remove('opacity-0', 'translate-x-full');
+        }, 10);
+
+        // Tự động ẩn
+        setTimeout(() => {
+            closeNotification(toast.querySelector('button'));
+        }, 5000);
+    }
+
+    // Export để sử dụng ở nơi khác
+    window.showNotification = showNotification;
+</script>
+

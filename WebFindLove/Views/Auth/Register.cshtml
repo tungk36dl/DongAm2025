@@ -26,8 +26,12 @@
                            asp-for="UserName"
                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                            placeholder="Chọn tên đăng nhập"
+                           pattern="^[a-zA-Z0-9_]+$"
+                           title="Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới"
                            required />
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Chỉ được sử dụng chữ cái, số và dấu gạch dưới (_)</p>
                     <span asp-validation-for="UserName" class="text-red-500 text-sm"></span>
+                    <span id="userNameError" class="text-red-500 text-sm"></span>
                 </div>
 
                 <div class="mb-5">
@@ -110,13 +114,18 @@
 
                 @if (!ViewData.ModelState.IsValid)
                 {
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
-                        <i class="fas fa-exclamation-circle mr-2"></i>
-                        <div asp-validation-summary="All" class="text-sm"></div>
+                    <div class="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg mb-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-circle mr-2 mt-1"></i>
+                            <div class="flex-1">
+                                <p class="font-semibold mb-1">Có lỗi xảy ra:</p>
+                                <div asp-validation-summary="ModelOnly" class="text-sm"></div>
+                            </div>
+                        </div>
                     </div>
                 }
 
-                <div id="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4 hidden">
+                <div id="errorMessage" class="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg mb-4 hidden">
                     <i class="fas fa-exclamation-circle mr-2"></i>
                     <span id="errorText"></span>
                 </div>
@@ -165,8 +174,26 @@
             }
         }
 
-        // Password confirmation validation
+        // Form validation
         document.getElementById('registerForm').addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            // Validate UserName
+            const userName = document.getElementById('UserName').value;
+            const userNameError = document.getElementById('userNameError');
+            const userNamePattern = /^[a-zA-Z0-9_]+$/;
+            
+            if (!userNamePattern.test(userName)) {
+                e.preventDefault();
+                userNameError.textContent = 'Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới (_)';
+                document.getElementById('UserName').classList.add('border-red-500');
+                isValid = false;
+            } else {
+                userNameError.textContent = '';
+                document.getElementById('UserName').classList.remove('border-red-500');
+            }
+            
+            // Validate password match
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const confirmError = document.getElementById('confirmPasswordError');
@@ -175,24 +202,34 @@
                 e.preventDefault();
                 confirmError.textContent = 'Mật khẩu không khớp';
                 document.getElementById('confirmPassword').classList.add('border-red-500');
-                return false;
+                isValid = false;
             } else {
                 confirmError.textContent = '';
                 document.getElementById('confirmPassword').classList.remove('border-red-500');
             }
 
+            // Validate password length
             if (password.length < 6) {
                 e.preventDefault();
                 document.getElementById('passwordError').textContent = 'Mật khẩu phải có ít nhất 6 ký tự';
                 document.getElementById('password').classList.add('border-red-500');
-                return false;
+                isValid = false;
             } else {
                 document.getElementById('passwordError').textContent = '';
                 document.getElementById('password').classList.remove('border-red-500');
             }
+            
+            if (!isValid) {
+                return false;
+            }
         });
 
         // Clear error on input
+        document.getElementById('UserName').addEventListener('input', function() {
+            document.getElementById('userNameError').textContent = '';
+            this.classList.remove('border-red-500');
+        });
+
         document.getElementById('confirmPassword').addEventListener('input', function() {
             document.getElementById('confirmPasswordError').textContent = '';
             this.classList.remove('border-red-500');

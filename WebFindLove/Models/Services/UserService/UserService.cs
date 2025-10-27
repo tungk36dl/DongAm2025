@@ -107,7 +107,7 @@ namespace WebFindLove.Models.Services.UserService
                     if (existsUserName)
                     {
                         fieldErrors.TryAdd(nameof(user.UserName), new List<string>());
-                        fieldErrors[nameof(user.UserName)].Add("UserName already exists.");
+                        fieldErrors[nameof(user.UserName)].Add("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.");
                     }
                 }
 
@@ -117,7 +117,7 @@ namespace WebFindLove.Models.Services.UserService
                     if (existsEmail)
                     {
                         fieldErrors.TryAdd(nameof(user.Email), new List<string>());
-                        fieldErrors[nameof(user.Email)].Add("Email already exists.");
+                        fieldErrors[nameof(user.Email)].Add("Email đã được sử dụng. Vui lòng sử dụng email khác.");
                     }
                 }
 
@@ -126,7 +126,7 @@ namespace WebFindLove.Models.Services.UserService
                     return new DataResponse<User>
                     {
                         Success = false,
-                        Message = "Validation errors",
+                        Message = "Có lỗi xảy ra khi đăng ký. Vui lòng kiểm tra lại thông tin.",
                         ErrorDetails = System.Text.Json.JsonSerializer.Serialize(fieldErrors)
                     };
                 }
@@ -169,7 +169,7 @@ namespace WebFindLove.Models.Services.UserService
                     if (existsUserName)
                     {
                         fieldErrors.TryAdd(nameof(user.UserName), new List<string>());
-                        fieldErrors[nameof(user.UserName)].Add("UserName already exists.");
+                        fieldErrors[nameof(user.UserName)].Add("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.");
                     }
                 }
 
@@ -179,7 +179,7 @@ namespace WebFindLove.Models.Services.UserService
                     if (existsEmail)
                     {
                         fieldErrors.TryAdd(nameof(user.Email), new List<string>());
-                        fieldErrors[nameof(user.Email)].Add("Email already exists.");
+                        fieldErrors[nameof(user.Email)].Add("Email đã được sử dụng. Vui lòng sử dụng email khác.");
                     }
                 }
 
@@ -188,7 +188,7 @@ namespace WebFindLove.Models.Services.UserService
                     return new DataResponse<User>
                     {
                         Success = false,
-                        Message = "Validation errors",
+                        Message = "Có lỗi xảy ra khi cập nhật. Vui lòng kiểm tra lại thông tin.",
                         ErrorDetails = System.Text.Json.JsonSerializer.Serialize(fieldErrors)
                     };
                 }

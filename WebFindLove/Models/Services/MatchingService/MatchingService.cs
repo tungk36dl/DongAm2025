@@ -354,6 +354,7 @@ namespace WebFindLove.Models.Services.MatchingService
 
                 _logger.LogInformation("Successfully saved {Count} one-way matches for user {UserId}", 
                     matchResults.Count, userId);
+                //List<MatchResult> result = 
 
                 return new DataResponse<List<MatchResult>>
                 {
