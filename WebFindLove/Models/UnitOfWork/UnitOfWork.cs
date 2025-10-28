@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WebFindLove.Models.UnitOfWork
 {
@@ -42,7 +43,9 @@ namespace WebFindLove.Models.UnitOfWork
             await _context.SaveChangesAsync();
         }
 
-        public void Dispose() => _context.Dispose();
+        public void Dispose() => _context.Dispose(); // Giúp UnitOfWork có th? dùng trong kh?i using ho?c await using.
+
+        // ??m b?o gi?i phóng connection DB và các resource khác khi xong.
         public ValueTask DisposeAsync() => _context.DisposeAsync();
     }
 }

@@ -60,7 +60,8 @@ namespace WebFindLove.Controllers
             try
             {
                 var userId = UserId;
-                if(id != Guid.Empty && id != userId)
+                var isAdmin = !string.IsNullOrEmpty(UserRole) ? UserRole.Equals("Admin") : false;
+                if(!isAdmin && (id != Guid.Empty && id != userId))
                 {
                     TempData["ErrorMessage"] = "Bạn không có quyền!";
                     return RedirectToAction("Index", "Home");
@@ -166,7 +167,8 @@ namespace WebFindLove.Controllers
             _logger.LogInformation("POST Edit User - UserId: {UserId}, Username: {Username}, Requested by: {CurrentUser}", 
                 id, user.UserName, CurrentUser?.UserName);
 
-            if (id != user.Id)
+            var isAdmin = !string.IsNullOrEmpty(UserRole) ? UserRole.Equals("Admin") : false;
+            if (!isAdmin && id != user.Id)
             {
                 _logger.LogWarning("User ID mismatch in edit request - URL ID: {UrlId}, Model ID: {ModelId}", id, user.Id);
                 return BadRequest();

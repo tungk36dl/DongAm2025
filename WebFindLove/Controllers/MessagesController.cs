@@ -6,6 +6,8 @@ using WebFindLove.Models.Services;
 using WebFindLove.Models.Services.MessageService;
 using WebFindLove.Models.Services.ConversationService;
 using WebFindLove.Models.Services.UserService.Dto;
+using WebFindLove.Models.Services.NotificationService;
+using WebFindLove.Models.Services.NotificationService.Dto;
 using WebFindLove.Hubs;
 
 namespace WebFindLove.Controllers
@@ -16,6 +18,7 @@ namespace WebFindLove.Controllers
         private readonly IMessageService _messageService;
         private readonly IConversationService _conversationService;
         private readonly IUserService _userService;
+        private readonly INotificationService _notificationService;
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly ILogger<MessagesController> _logger;
 
@@ -23,12 +26,14 @@ namespace WebFindLove.Controllers
             IMessageService messageService,
             IConversationService conversationService,
             IUserService userService,
+            INotificationService notificationService,
             IHubContext<ChatHub> hubContext,
             ILogger<MessagesController> logger)
         {
             _messageService = messageService;
             _conversationService = conversationService;
             _userService = userService;
+            _notificationService = notificationService;
             _hubContext = hubContext;
             _logger = logger;
             Logger = logger;
@@ -134,12 +139,14 @@ namespace WebFindLove.Controllers
                 {
                     // Get sender info
                     var senderInfo = await _userService.GetByIdAsync(UserId!.Value);
+                    var senderName = senderInfo.Data?.UserName ?? CurrentUser?.UserName ?? "Unknown";
+                    var senderAvatar = senderInfo.Data?.Avatar ?? "";
                     
                     var messageData = new
                     {
                         senderId = UserId.ToString(),
-                        senderName = senderInfo.Data?.UserName ?? CurrentUser?.UserName ?? "Unknown",
-                        senderAvatar = senderInfo.Data?.Avatar ?? "",
+                        senderName = senderName,
+                        senderAvatar = senderAvatar,
                         message = content,
                         timestamp = DateTime.UtcNow,
                         messageId = response.Data?.Id
@@ -147,11 +154,45 @@ namespace WebFindLove.Controllers
                     
                     _logger.LogInformation("Sending SignalR message to user: {ReceiverId}", receiverId);
                     
-                    // Send via ChatHub
+                    // Send message via ChatHub
                     await _hubContext.Clients.User(receiverId.ToString())
                         .SendAsync("ReceiveMessage", messageData);
                     
                     _logger.LogInformation("SignalR message sent successfully");
+
+                    // Create and send notification
+                    var messagePreview = content.Length > 100 ? content.Substring(0, 100) + "..." : content;
+                    var notificationDto = new NotificationCreateDto
+                    {
+                        Title = "Tin nhắn mới",
+                        Message = $"{senderName} đã gửi cho bạn: {messagePreview}",
+                        SenderId = UserId.Value,
+                        ReceiverId = receiverId,
+                        Link = "/Messages/Index",
+                        Type = "Message"
+                    };
+
+                    var notificationResponse = await _notificationService.CreateNotificationAsync(notificationDto);
+                    
+                    if (notificationResponse.Success && notificationResponse.Data != null)
+                    {
+                        // Send realtime notification
+                        await _hubContext.Clients.User(receiverId.ToString())
+                            .SendAsync("ReceiveNotification", new
+                            {
+                                id = notificationResponse.Data.Id,
+                                title = notificationResponse.Data.Title,
+                                message = notificationResponse.Data.Message,
+                                senderName = notificationResponse.Data.SenderName,
+                                senderAvatar = notificationResponse.Data.SenderAvatar,
+                                link = notificationResponse.Data.Link,
+                                type = notificationResponse.Data.Type,
+                                timeAgo = notificationResponse.Data.TimeAgo,
+                                createdAt = notificationResponse.Data.CreatedAt
+                            });
+                        
+                        _logger.LogInformation("Notification created and sent successfully");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -290,19 +331,59 @@ namespace WebFindLove.Controllers
             try
             {
                 var senderInfo = await _userService.GetByIdAsync(UserId!.Value);
+                var senderName = senderInfo.Data?.UserName ?? CurrentUser?.UserName ?? "Unknown";
+                var senderAvatar = senderInfo.Data?.Avatar ?? "";
                 
                 var messageData = new
                 {
                     senderId = UserId.ToString(),
-                    senderName = senderInfo.Data?.UserName ?? CurrentUser?.UserName ?? "Unknown",
-                    senderAvatar = senderInfo.Data?.Avatar ?? "",
+                    senderName = senderName,
+                    senderAvatar = senderAvatar,
                     message = request.Content,
                     timestamp = DateTime.UtcNow,
                     messageId = response.Data?.Id
                 };
                 
+                // Send message via ChatHub
                 await _hubContext.Clients.User(request.ReceiverId.ToString())
                     .SendAsync("ReceiveMessage", messageData);
+
+                // Create and send notification
+                var messagePreview = request.Content.Length > 100 
+                    ? request.Content.Substring(0, 100) + "..." 
+                    : request.Content;
+                
+                var notificationDto = new NotificationCreateDto
+                {
+                    Title = "Tin nhắn mới",
+                    Message = $"{senderName} đã gửi cho bạn: {messagePreview}",
+                    SenderId = UserId.Value,
+                    ReceiverId = request.ReceiverId,
+                    Link = "/Messages/Index",
+                    Type = "Message"
+                };
+
+                var notificationResponse = await _notificationService.CreateNotificationAsync(notificationDto);
+                
+                if (notificationResponse.Success && notificationResponse.Data != null)
+                {
+                    // Send realtime notification
+                    await _hubContext.Clients.User(request.ReceiverId.ToString())
+                        .SendAsync("ReceiveNotification", new
+                        {
+                            id = notificationResponse.Data.Id,
+                            title = notificationResponse.Data.Title,
+                            message = notificationResponse.Data.Message,
+                            senderName = notificationResponse.Data.SenderName,
+                            senderAvatar = notificationResponse.Data.SenderAvatar,
+                            link = notificationResponse.Data.Link,
+                            type = notificationResponse.Data.Type,
+                            timeAgo = notificationResponse.Data.TimeAgo,
+                            createdAt = notificationResponse.Data.CreatedAt
+                        });
+                    
+                    _logger.LogInformation("Notification created and sent successfully");
+                }
             }
             catch (Exception ex)
             {

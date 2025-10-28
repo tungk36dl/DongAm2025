@@ -1,0 +1,235 @@
+@model List<WebFindLove.Models.Services.NotificationService.Dto.NotificationDto>
+@{
+    ViewData["Title"] = "Thông báo";
+    var currentPage = (int)(ViewData["CurrentPage"] ?? 1);
+    var pageSize = (int)(ViewData["PageSize"] ?? 20);
+}
+
+<div class="max-w-4xl mx-auto p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Thông báo</h1>
+        @if (Model.Any())
+        {
+            <form asp-action="MarkAllAsRead" method="post" class="inline">
+                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                    <i class="fas fa-check-double mr-2"></i>Đánh dấu tất cả đã đọc
+                </button>
+            </form>
+        }
+    </div>
+
+    <!-- Notifications List -->
+    @if (Model.Any())
+    {
+        <div class="space-y-3">
+            @foreach (var notification in Model)
+            {
+                <div class="notification-item @(!notification.IsRead ? "bg-blue-50 border-l-4 border-blue-500" : "bg-white") rounded-lg shadow p-4 hover:shadow-md transition">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start space-x-4 flex-1">
+                            <!-- Avatar -->
+                            <div class="flex-shrink-0">
+                                @if (!string.IsNullOrEmpty(notification.SenderAvatar))
+                                {
+                                    <img src="@notification.SenderAvatar" alt="@notification.SenderName" class="w-12 h-12 rounded-full object-cover">
+                                }
+                                else
+                                {
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-r from-pink-400 to-purple-500 flex items-center justify-center text-white font-semibold text-lg">
+                                        @(notification.SenderName?.Substring(0, 1).ToUpper() ?? "H")
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center space-x-2 mb-1">
+                                    <h3 class="font-semibold text-gray-800">@notification.Title</h3>
+                                    @if (!notification.IsRead)
+                                    {
+                                        <span class="inline-block w-2 h-2 bg-blue-500 rounded-full"></span>
+                                    }
+                                </div>
+                                <p class="text-gray-600 text-sm mb-2">@notification.Message</p>
+                                <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                    <span><i class="far fa-user mr-1"></i>@notification.SenderName</span>
+                                    <span><i class="far fa-clock mr-1"></i>@notification.TimeAgo</span>
+                                    @if (!string.IsNullOrEmpty(notification.Type))
+                                    {
+                                        <span class="px-2 py-1 bg-gray-200 rounded">@notification.Type</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex items-center space-x-2 ml-4">
+                            @if (!string.IsNullOrEmpty(notification.Link))
+                            {
+                                <a href="@notification.Link" class="text-blue-500 hover:text-blue-700 transition" title="Xem chi tiết">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            }
+                            
+                            @if (!notification.IsRead)
+                            {
+                                <button type="button" 
+                                        class="mark-read-btn text-green-500 hover:text-green-700 transition" 
+                                        data-notification-id="@notification.Id"
+                                        title="Đánh dấu đã đọc">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            }
+                            
+                            <button type="button" 
+                                    class="delete-notification-btn text-red-500 hover:text-red-700 transition" 
+                                    data-notification-id="@notification.Id"
+                                    title="Xóa">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination (Simple) -->
+        <div class="mt-6 flex justify-center space-x-2">
+            @if (currentPage > 1)
+            {
+                <a href="?page=@(currentPage - 1)" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition">
+                    <i class="fas fa-chevron-left"></i> Trang trước
+                </a>
+            }
+            
+            <span class="px-4 py-2 bg-blue-500 text-white rounded">
+                Trang @currentPage
+            </span>
+            
+            @if (Model.Count >= pageSize)
+            {
+                <a href="?page=@(currentPage + 1)" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition">
+                    Trang sau <i class="fas fa-chevron-right"></i>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div class="text-center py-12 bg-white rounded-lg shadow">
+            <i class="fas fa-bell-slash text-6xl text-gray-300 mb-4"></i>
+            <h2 class="text-2xl font-semibold text-gray-600 mb-2">Không có thông báo</h2>
+            <p class="text-gray-500">Bạn chưa có thông báo nào</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    // Mark as read
+    document.querySelectorAll('.mark-read-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const notificationId = this.dataset.notificationId;
+            
+            try {
+                const response = await fetch('/Notification/MarkAsRead/' + notificationId, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Remove highlight and hide button
+                    const item = this.closest('.notification-item');
+                    item.classList.remove('bg-blue-50', 'border-l-4', 'border-blue-500');
+                    item.classList.add('bg-white');
+                    this.remove();
+                    
+                    // Update count in navbar
+                    updateNotificationCount();
+                } else {
+                    alert(result.message || 'Có lỗi xảy ra');
+                }
+            } catch (error) {
+                console.error('Error marking as read:', error);
+                alert('Có lỗi xảy ra khi đánh dấu đã đọc');
+            }
+        });
+    });
+    
+    // Delete notification
+    document.querySelectorAll('.delete-notification-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            if (!confirm('Bạn có chắc muốn xóa thông báo này?')) {
+                return;
+            }
+            
+            const notificationId = this.dataset.notificationId;
+            
+            try {
+                const response = await fetch('/Notification/Delete/' + notificationId, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Remove item from list
+                    const item = this.closest('.notification-item');
+                    item.style.transition = 'all 0.3s';
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(100%)';
+                    
+                    setTimeout(() => {
+                        item.remove();
+                        
+                        // Check if no more notifications
+                        if (!document.querySelector('.notification-item')) {
+                            location.reload();
+                        }
+                    }, 300);
+                    
+                    // Update count in navbar
+                    updateNotificationCount();
+                } else {
+                    alert(result.message || 'Có lỗi xảy ra');
+                }
+            } catch (error) {
+                console.error('Error deleting notification:', error);
+                alert('Có lỗi xảy ra khi xóa thông báo');
+            }
+        });
+    });
+    
+    // Update notification count in navbar
+    function updateNotificationCount() {
+        fetch('/Notification/GetUnreadCount')
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    const badge = document.querySelector('#notification-count-badge');
+                    if (badge) {
+                        if (result.count > 0) {
+                            badge.textContent = result.count;
+                            badge.style.display = 'block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error('Error updating count:', error));
+    }
+</script>
+}
+

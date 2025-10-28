@@ -6,6 +6,7 @@ using WebFindLove.Models.Repositories.MatchResultRepo;
 using WebFindLove.Models.Repositories.MessageRepo;
 using WebFindLove.Models.Repositories.ConversationRepo;
 using WebFindLove.Models.Repositories.ConversationParticipantRepo;
+using WebFindLove.Models.Repositories.NotificationRepo;
 
 namespace WebFindLove.Models.Repositories
 {
@@ -30,6 +31,7 @@ namespace WebFindLove.Models.Repositories
             services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddScoped<IConversationRepository, ConversationRepository>();
             services.AddScoped<IConversationParticipantRepository, ConversationParticipantRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
 
             return services;
         }

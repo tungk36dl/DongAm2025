@@ -1,0 +1,168 @@
+@* Notification Dropdown - Partial View for Navbar *@
+
+<!-- Notification Bell Icon -->
+<div class="relative notification-dropdown">
+    <button type="button" 
+            id="notification-bell" 
+            class="relative text-gray-600 hover:text-gray-800 focus:outline-none transition"
+            aria-label="Thông báo">
+        <i class="fas fa-bell text-2xl"></i>
+        <!-- Badge for unread count -->
+        <span id="notification-count-badge" 
+              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">
+            0
+        </span>
+    </button>
+
+    <!-- Dropdown Menu -->
+    <div id="notification-dropdown-menu" 
+         class="hidden absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50"
+         style="max-height: 500px; overflow-y: auto;">
+        
+        <!-- Header -->
+        <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="font-semibold text-gray-800">Thông báo</h3>
+            <a href="/Notification/Index" class="text-sm text-blue-500 hover:text-blue-700">Xem tất cả</a>
+        </div>
+
+        <!-- Notifications List -->
+        <div id="notification-list" class="divide-y divide-gray-200">
+            <!-- Loading -->
+            <div class="px-4 py-8 text-center text-gray-500">
+                <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                <p>Đang tải...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const notificationBell = document.getElementById('notification-bell');
+    const notificationDropdown = document.getElementById('notification-dropdown-menu');
+    const notificationList = document.getElementById('notification-list');
+    const notificationBadge = document.getElementById('notification-count-badge');
+    
+    let isDropdownOpen = false;
+    
+    // Toggle dropdown
+    notificationBell.addEventListener('click', function(e) {
+        e.stopPropagation();
+        isDropdownOpen = !isDropdownOpen;
+        
+        if (isDropdownOpen) {
+            notificationDropdown.classList.remove('hidden');
+            loadNotifications();
+        } else {
+            notificationDropdown.classList.add('hidden');
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!notificationBell.contains(e.target) && !notificationDropdown.contains(e.target)) {
+            notificationDropdown.classList.add('hidden');
+            isDropdownOpen = false;
+        }
+    });
+    
+    // Load notifications
+    async function loadNotifications() {
+        try {
+            const response = await fetch('/Notification/GetRecent?count=5');
+            const result = await response.json();
+            
+            if (result.success && result.notifications && result.notifications.length > 0) {
+                renderNotifications(result.notifications);
+            } else {
+                notificationList.innerHTML = `
+                    <div class="px-4 py-8 text-center text-gray-500">
+                        <i class="fas fa-bell-slash text-3xl mb-2"></i>
+                        <p>Không có thông báo mới</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error loading notifications:', error);
+            notificationList.innerHTML = `
+                <div class="px-4 py-8 text-center text-red-500">
+                    <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+                    <p>Lỗi khi tải thông báo</p>
+                </div>
+            `;
+        }
+    }
+    
+    // Render notifications
+    function renderNotifications(notifications) {
+        notificationList.innerHTML = notifications.map(n => `
+            <div class="px-4 py-3 hover:bg-gray-50 transition ${!n.isRead ? 'bg-blue-50' : ''}">
+                <div class="flex items-start space-x-3">
+                    <!-- Avatar -->
+                    <div class="flex-shrink-0">
+                        ${n.senderAvatar 
+                            ? `<img src="${n.senderAvatar}" alt="${n.senderName}" class="w-10 h-10 rounded-full object-cover">`
+                            : `<div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-400 to-purple-500 flex items-center justify-center text-white font-semibold">
+                                ${(n.senderName || 'H').substring(0, 1).toUpperCase()}
+                               </div>`
+                        }
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-sm text-gray-800 mb-1">
+                                    ${n.title}
+                                    ${!n.isRead ? '<span class="inline-block w-2 h-2 bg-blue-500 rounded-full ml-1"></span>' : ''}
+                                </h4>
+                                <p class="text-sm text-gray-600 mb-1">${n.message}</p>
+                                <div class="flex items-center space-x-2 text-xs text-gray-500">
+                                    <span>${n.timeAgo}</span>
+                                    ${n.type ? `<span class="px-2 py-0.5 bg-gray-200 rounded">${n.type}</span>` : ''}
+                                </div>
+                            </div>
+                            ${n.link 
+                                ? `<a href="${n.link}" class="text-blue-500 hover:text-blue-700 ml-2">
+                                    <i class="fas fa-external-link-alt"></i>
+                                   </a>`
+                                : ''
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Update notification count
+    async function updateNotificationCount() {
+        try {
+            const response = await fetch('/Notification/GetUnreadCount');
+            const result = await response.json();
+            
+            if (result.success) {
+                if (result.count > 0) {
+                    notificationBadge.textContent = result.count > 99 ? '99+' : result.count;
+                    notificationBadge.classList.remove('hidden');
+                } else {
+                    notificationBadge.classList.add('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Error updating notification count:', error);
+        }
+    }
+    
+    // Initial count update
+    updateNotificationCount();
+    
+    // Update count every 30 seconds
+    setInterval(updateNotificationCount, 30000);
+    
+    // Expose function globally for SignalR to call
+    window.updateNotificationCount = updateNotificationCount;
+    window.refreshNotificationDropdown = loadNotifications;
+})();
+</script>
+

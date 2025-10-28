@@ -58,9 +58,10 @@
                         <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Messages" asp-action="Index">
                             <i class="fas fa-comments text-blue-500 mr-1"></i>Tin nhắn
                         </a>
-                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Photos" asp-action="Index">
-                            <i class="fas fa-images text-purple-500 mr-1"></i>Ảnh
-                        </a>
+                        
+                        <!-- Notification Bell -->
+                        <partial name="_NotificationDropdown" />
+                    
                         @if (User.IsInRole("Admin"))
                         {
                             <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Users" asp-action="Index">
@@ -217,6 +218,163 @@
         themeToggle?.addEventListener('click', toggleDarkMode);
         themeToggleMobile?.addEventListener('click', toggleDarkMode);
     </script>
+
+    <!-- SignalR for Real-time Notifications -->
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        // SignalR Connection for Notifications
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <text>
+            (async function() {
+                try {
+                    // Create SignalR connection
+                    const notificationConnection = new signalR.HubConnectionBuilder()
+                        .withUrl("/chathub")
+                        .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+                        .configureLogging(signalR.LogLevel.Information)
+                        .build();
+
+                    // Handle receiving notifications
+                    notificationConnection.on("ReceiveNotification", function(notification) {
+                        console.log("Received notification:", notification);
+                        
+                        // Update notification count
+                        if (typeof window.updateNotificationCount === 'function') {
+                            window.updateNotificationCount();
+                        }
+                        
+                        // Show toast notification
+                        showNotificationToast(notification);
+                        
+                        // Play notification sound (optional)
+                        playNotificationSound();
+                    });
+
+                    // Handle connection state changes
+                    notificationConnection.onreconnecting(error => {
+                        console.log("SignalR reconnecting:", error);
+                    });
+
+                    notificationConnection.onreconnected(connectionId => {
+                        console.log("SignalR reconnected:", connectionId);
+                    });
+
+                    notificationConnection.onclose(error => {
+                        console.log("SignalR connection closed:", error);
+                    });
+
+                    // Start connection
+                    await notificationConnection.start();
+                    console.log("SignalR notification connection started");
+
+                    // Store connection globally for chat widget or other features
+                    window.notificationConnection = notificationConnection;
+
+                } catch (error) {
+                    console.error("Error starting SignalR notification connection:", error);
+                    // Retry after 5 seconds
+                    setTimeout(() => location.reload(), 5000);
+                }
+            })();
+
+            // Show notification toast
+            function showNotificationToast(notification) {
+                // Check if toast container exists
+                let toastContainer = document.getElementById('notification-toast-container');
+                if (!toastContainer) {
+                    toastContainer = document.createElement('div');
+                    toastContainer.id = 'notification-toast-container';
+                    toastContainer.className = 'fixed top-20 right-4 z-50 space-y-2';
+                    document.body.appendChild(toastContainer);
+                }
+
+                // Create toast element
+                const toast = document.createElement('div');
+                toast.className = 'notification-toast bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-sm transform transition-all duration-300 translate-x-full';
+                toast.style.minWidth = '300px';
+                
+                toast.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            ${notification.senderAvatar 
+                                ? `<img src="${notification.senderAvatar}" alt="${notification.senderName || 'User'}" class="w-10 h-10 rounded-full object-cover">`
+                                : `<div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-400 to-purple-500 flex items-center justify-center text-white font-semibold">
+                                    ${(notification.senderName || 'H').substring(0, 1).toUpperCase()}
+                                   </div>`
+                            }
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-gray-800 dark:text-gray-200 text-sm mb-1">
+                                ${notification.title || 'Thông báo mới'}
+                            </h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                                ${notification.message || ''}
+                            </p>
+                            ${notification.link 
+                                ? `<a href="${notification.link}" class="text-xs text-blue-500 hover:text-blue-700 mt-1 inline-block">Xem chi tiết →</a>`
+                                : ''
+                            }
+                        </div>
+                        <button type="button" class="close-toast-btn text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+
+                // Add to container
+                toastContainer.appendChild(toast);
+
+                // Animate in
+                setTimeout(() => {
+                    toast.classList.remove('translate-x-full');
+                }, 100);
+
+                // Close button handler
+                toast.querySelector('.close-toast-btn').addEventListener('click', () => {
+                    removeToast(toast);
+                });
+
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    removeToast(toast);
+                }, 5000);
+            }
+
+            function removeToast(toast) {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }
+
+            // Play notification sound (optional)
+            function playNotificationSound() {
+                try {
+                    // Create a simple beep sound using Web Audio API
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                } catch (error) {
+                    console.log('Could not play notification sound:', error);
+                }
+            }
+            </text>
+        }
+    </script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

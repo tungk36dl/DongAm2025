@@ -22,6 +22,7 @@ namespace WebFindLove.Models
         public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -71,6 +72,18 @@ namespace WebFindLove.Models
                     .WithOne(m => m.Receiver)
                     .HasForeignKey(m => m.ReceiverId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                // User -> Notifications as Sender (1:many)
+                entity.HasMany(e => e.SentNotifications)
+                    .WithOne(n => n.Sender)
+                    .HasForeignKey(n => n.SenderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // User -> Notifications as Receiver (1:many)
+                entity.HasMany(e => e.ReceivedNotifications)
+                    .WithOne(n => n.Receiver)
+                    .HasForeignKey(n => n.ReceiverId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             // ============================
@@ -192,6 +205,18 @@ namespace WebFindLove.Models
                     .WithMany()
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ============================
+            // Notification Configuration
+            // ============================
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.ReceiverId);
+                entity.HasIndex(e => e.SenderId);
+                entity.HasIndex(e => e.IsRead);
+                entity.HasIndex(e => e.CreatedAt);
             });
 
             // ============================

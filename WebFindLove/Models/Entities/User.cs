@@ -82,5 +82,7 @@ namespace WebFindLove.Models
         public virtual ICollection<MatchResult>? MatchesAsMatchedUser { get; set; }
         public virtual ICollection<Message>? SentMessages { get; set; }
         public virtual ICollection<Message>? ReceivedMessages { get; set; }
+        public virtual ICollection<Entities.Notification>? SentNotifications { get; set; }
+        public virtual ICollection<Entities.Notification>? ReceivedNotifications { get; set; }
     }
 }
