@@ -9,6 +9,7 @@ using WebFindLove.Models.Services.FileUploadService;
 using WebFindLove.Models.Services.EmbeddingService;
 using WebFindLove.Models.Services.MatchingService;
 using WebFindLove.Models.Services.NotificationService;
+using WebFindLove.Models.Services.PasswordResetService;
 using WebFindLove.Helper.HelperServices;
 
 namespace WebFindLove.Models.Services
@@ -26,6 +27,7 @@ namespace WebFindLove.Models.Services
             services.AddScoped<IUserService, UserService.UserService>();
             services.AddScoped<IRoleService, RoleService.RoleService>();
             services.AddScoped<IRolePermissionService, RolePermissionService.RolePermissionService>();
+            services.AddScoped<IPasswordResetService, PasswordResetService.PasswordResetService>();
 
             // Profile & Preference services
             services.AddScoped<IUserPreferenceService, UserPreferenceService.UserPreferenceService>();
@@ -43,6 +45,10 @@ namespace WebFindLove.Models.Services
 
             // Real-time tracking services (Singleton để shared state across requests)
             services.AddSingleton<IOnlineUserTrackingService, OnlineUserTrackingService>();
+
+            // Email
+            services.AddTransient<IEmailService, EmailService>();
+
 
             return services;
         }

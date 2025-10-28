@@ -7,6 +7,7 @@ using WebFindLove.Models.Repositories.MessageRepo;
 using WebFindLove.Models.Repositories.ConversationRepo;
 using WebFindLove.Models.Repositories.ConversationParticipantRepo;
 using WebFindLove.Models.Repositories.NotificationRepo;
+using WebFindLove.Models.Repositories.PasswordResetTokenRepo;
 
 namespace WebFindLove.Models.Repositories
 {
@@ -32,6 +33,9 @@ namespace WebFindLove.Models.Repositories
             services.AddScoped<IConversationRepository, ConversationRepository>();
             services.AddScoped<IConversationParticipantRepository, ConversationParticipantRepository>();
             services.AddScoped<INotificationRepository, NotificationRepository>();
+
+            // Authentication & Security repositories
+            services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
 
             return services;
         }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using WebFindLove.Helper.Email;
 using WebFindLove.Helper.Seeder;
 using WebFindLove.HelperServices;
 using WebFindLove.Hubs;
@@ -75,6 +76,10 @@ try
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
     });
+
+    // Email
+    builder.Services.Configure<EmailSetting>(builder.Configuration.GetSection("EmailSettings"));
+
 
     // Register UnitOfWork and services
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

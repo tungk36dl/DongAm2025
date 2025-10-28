@@ -6,6 +6,7 @@ using System.Security.Claims;
 using WebFindLove.Models;
 using WebFindLove.Models.Services;
 using WebFindLove.Models.Services.RolePermissionService;
+using WebFindLove.Models.Services.PasswordResetService;
 
 namespace WebFindLove.Controllers
 {
@@ -13,16 +14,19 @@ namespace WebFindLove.Controllers
     {
         private readonly IUserService _userService;
         private readonly IRolePermissionService _rolePermissionService;
+        private readonly IPasswordResetService _passwordResetService;
         private readonly PasswordHasher<User> _passwordHasher;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             IUserService userService, 
             IRolePermissionService rolePermissionService,
+            IPasswordResetService passwordResetService,
             ILogger<AuthController> logger)
         {
             _userService = userService;
             _rolePermissionService = rolePermissionService;
+            _passwordResetService = passwordResetService;
             _passwordHasher = new PasswordHasher<User>();
             _logger = logger;
             _logger.LogInformation("AuthController initialized");
@@ -334,6 +338,151 @@ namespace WebFindLove.Controllers
             
             _logger.LogInformation("User {Username} logged out successfully", userName);
             return RedirectToAction("Index", "Home");
+        }
+
+        // ============================
+        // Forgot Password Module
+        // ============================
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            _logger.LogInformation("GET ForgotPassword page accessed");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            _logger.LogInformation("POST ForgotPassword attempt for email: {Email}", email);
+
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                _logger.LogWarning("ForgotPassword failed: Email is empty");
+                ModelState.AddModelError("Email", "Vui lòng nhập địa chỉ email");
+                
+                if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Vui lòng nhập địa chỉ email" });
+                }
+                return View();
+            }
+
+            var result = await _passwordResetService.GenerateResetTokenAsync(email);
+            
+            _logger.LogInformation("ForgotPassword result for email {Email}: Success={Success}, Message={Message}", 
+                email, result.Success, result.Message);
+
+            var isAjax = Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            
+            if (isAjax)
+            {
+                return Json(new { 
+                    success = result.Success, 
+                    message = result.Message,
+                    redirectUrl = result.Success ? Url.Action("ResetPassword", "Auth") : null
+                });
+            }
+
+            if (result.Success)
+            {
+                TempData["SuccessMessage"] = result.Message;
+                return RedirectToAction("ResetPassword");
+            }
+
+            ModelState.AddModelError(string.Empty, result.Message);
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword()
+        {
+            _logger.LogInformation("GET ResetPassword page accessed");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string token, string newPassword, string confirmPassword)
+        {
+            _logger.LogInformation("POST ResetPassword attempt with token");
+
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
+            {
+                _logger.LogWarning("ResetPassword failed: Missing required fields");
+                ModelState.AddModelError(string.Empty, "Vui lòng điền đầy đủ thông tin");
+                
+                if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Vui lòng điền đầy đủ thông tin" });
+                }
+                return View();
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                _logger.LogWarning("ResetPassword failed: Passwords don't match");
+                ModelState.AddModelError(string.Empty, "Mật khẩu xác nhận không khớp");
+                
+                if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Mật khẩu xác nhận không khớp" });
+                }
+                return View();
+            }
+
+            if (newPassword.Length < 6)
+            {
+                _logger.LogWarning("ResetPassword failed: Password too short");
+                ModelState.AddModelError(string.Empty, "Mật khẩu phải có ít nhất 6 ký tự");
+                
+                if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Mật khẩu phải có ít nhất 6 ký tự" });
+                }
+                return View();
+            }
+
+            // Validate token first
+            var validateResult = await _passwordResetService.ValidateResetTokenAsync(token);
+            if (!validateResult.Success)
+            {
+                _logger.LogWarning("ResetPassword failed: Invalid token");
+                ModelState.AddModelError(string.Empty, validateResult.Message);
+                
+                if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = validateResult.Message });
+                }
+                return View();
+            }
+
+            // Reset password
+            var result = await _passwordResetService.ResetPasswordAsync(token, newPassword);
+            
+            _logger.LogInformation("ResetPassword result: Success={Success}, Message={Message}", 
+                result.Success, result.Message);
+
+            var isAjax = Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            
+            if (isAjax)
+            {
+                return Json(new { 
+                    success = result.Success, 
+                    message = result.Message,
+                    redirectUrl = result.Success ? Url.Action("Login", "Auth") : null
+                });
+            }
+
+            if (result.Success)
+            {
+                TempData["SuccessMessage"] = result.Message + " Vui lòng đăng nhập với mật khẩu mới.";
+                return RedirectToAction("Login");
+            }
+
+            ModelState.AddModelError(string.Empty, result.Message);
+            return View();
         }
     }
 }
