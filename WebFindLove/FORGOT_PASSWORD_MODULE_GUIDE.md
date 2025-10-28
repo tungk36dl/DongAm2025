@@ -84,16 +84,32 @@ Xử lý yêu cầu gửi mã xác nhận
   4. Gửi email
   5. Redirect đến trang ResetPassword
 
+#### GET /Auth/VerifyToken
+Hiển thị form nhập mã xác nhận (BƯỚC 1)
+
+#### POST /Auth/VerifyToken
+Xác thực mã xác nhận
+- **Input**: token
+- **Output**: JSON hoặc redirect
+- **Process**:
+  1. Validate token format (6 chữ số)
+  2. Kiểm tra token trong database
+  3. Lưu token vào TempData
+  4. Redirect đến ResetPassword
+
 #### GET /Auth/ResetPassword
-Hiển thị form nhập mã và mật khẩu mới
+Hiển thị form nhập mật khẩu mới (BƯỚC 2)
+- **Yêu cầu**: Phải có token đã verified trong TempData
+- **Redirect**: Nếu không có token, redirect về VerifyToken
 
 #### POST /Auth/ResetPassword
 Xử lý đặt lại mật khẩu
-- **Input**: token, newPassword, confirmPassword
+- **Input**: newPassword, confirmPassword
+- **Token**: Lấy từ TempData
 - **Output**: JSON hoặc redirect
 - **Process**:
-  1. Validate input
-  2. Kiểm tra mã xác nhận
+  1. Lấy token từ TempData
+  2. Validate password input
   3. Hash mật khẩu mới
   4. Cập nhật mật khẩu
   5. Đánh dấu token đã sử dụng
@@ -101,11 +117,18 @@ Xử lý đặt lại mật khẩu
 
 ### 7. View Layer
 - **ForgotPassword.cshtml**: Form nhập email
-- **ResetPassword.cshtml**: Form nhập mã và mật khẩu mới
+- **VerifyToken.cshtml**: Form nhập mã xác nhận 6 chữ số (BƯỚC 1)
+  - Auto-format: Chỉ chấp nhận số
+  - Auto-submit: Tự động submit khi nhập đủ 6 chữ số
+  - Large input: Text size lớn, center alignment
+- **ResetPassword.cshtml**: Form nhập mật khẩu mới (BƯỚC 2)
+  - Không có field token
+  - Password strength indicator
+  - Toggle password visibility
 - **Style**: Tailwind CSS + Font Awesome
 - **JavaScript**: AJAX form submission
 
-## 🔄 Luồng Hoạt Động
+## 🔄 Luồng Hoạt Động (2 Bước Tách Biệt)
 
 ```
 1. User clicks "Quên mật khẩu?" trên trang Login
@@ -123,20 +146,34 @@ Xử lý đặt lại mật khẩu
    - Lưu token vào database (có hiệu lực 15 phút)
    - Gửi email với template đẹp
    ↓
-6. Redirect đến ResetPassword.cshtml
+6. Redirect đến VerifyToken.cshtml (BƯỚC 1)
    ↓
-7. User nhập mã 6 chữ số + mật khẩu mới + xác nhận
+7. User nhập mã 6 chữ số
    ↓
-8. Controller gọi PasswordResetService.ResetPasswordAsync()
+8. Controller gọi PasswordResetService.ValidateResetTokenAsync()
    ↓
-9. Service:
-   - Validate token (chưa hết hạn, chưa dùng)
+9. Service validate token (chưa hết hạn, chưa dùng)
+   ↓
+10. Lưu token vào TempData, redirect đến ResetPassword.cshtml (BƯỚC 2)
+   ↓
+11. User nhập mật khẩu mới + xác nhận (không cần nhập lại mã)
+   ↓
+12. Controller lấy token từ TempData, gọi PasswordResetService.ResetPasswordAsync()
+   ↓
+13. Service:
    - Hash mật khẩu mới
    - Cập nhật password trong database
    - Đánh dấu token đã sử dụng
    ↓
-10. Redirect đến Login với thông báo thành công
+14. Redirect đến Login với thông báo thành công
 ```
+
+### Ưu Điểm Của Luồng 2 Bước:
+- ✅ **Tách biệt rõ ràng**: Xác thực mã và nhập mật khẩu là 2 bước độc lập
+- ✅ **UX tốt hơn**: User không phải nhập lại mã nếu mật khẩu nhập sai
+- ✅ **Bảo mật**: Token được validate riêng trước khi cho phép đổi mật khẩu
+- ✅ **Tự động submit**: Mã 6 chữ số tự động submit khi nhập đủ (optional)
+- ✅ **Session management**: Sử dụng TempData để quản lý token giữa các bước
 
 ## 📝 Cấu Hình Email Settings
 
@@ -177,13 +214,20 @@ Xử lý đặt lại mật khẩu
 # Chạy ứng dụng và test gửi email
 ```
 
-### 2. Kiểm tra Forgot Password Flow
+### 2. Kiểm tra Forgot Password Flow (2 Bước)
 1. Truy cập `/Auth/Login`
 2. Click "Quên mật khẩu?"
 3. Nhập email đã đăng ký
 4. Kiểm tra email nhận được mã 6 chữ số
-5. Nhập mã và mật khẩu mới
-6. Đăng nhập với mật khẩu mới
+5. **BƯỚC 1**: Nhập mã 6 chữ số trên trang VerifyToken
+6. **BƯỚC 2**: Sau khi mã hợp lệ, nhập mật khẩu mới trên trang ResetPassword
+7. Đăng nhập với mật khẩu mới
+
+### Test Security Flow
+- Thử truy cập `/Auth/ResetPassword` trực tiếp → Sẽ bị redirect về `/Auth/VerifyToken`
+- Nhập sai mã 3 lần → Mã vẫn còn hạn (chưa implement rate limit)
+- F5 trang ResetPassword → Token vẫn còn trong TempData (TempData.Keep)
+- Submit mật khẩu sai format → Token được giữ lại để thử lại
 
 ### 3. Kiểm tra Validation
 - Token hết hạn sau 15 phút

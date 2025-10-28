@@ -388,7 +388,7 @@ namespace WebFindLove.Controllers
             if (result.Success)
             {
                 TempData["SuccessMessage"] = result.Message;
-                return RedirectToAction("ResetPassword");
+                return RedirectToAction("VerifyToken");
             }
 
             ModelState.AddModelError(string.Empty, result.Message);
@@ -396,26 +396,130 @@ namespace WebFindLove.Controllers
         }
 
         [HttpGet]
-        public IActionResult ResetPassword()
+        public IActionResult VerifyToken()
         {
-            _logger.LogInformation("GET ResetPassword page accessed");
+            _logger.LogInformation("GET VerifyToken page accessed");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(string token, string newPassword, string confirmPassword)
+        public async Task<IActionResult> VerifyToken(string token)
         {
-            _logger.LogInformation("POST ResetPassword attempt with token");
+            _logger.LogInformation("POST VerifyToken attempt with token");
 
-            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
+            if (string.IsNullOrWhiteSpace(token))
             {
-                _logger.LogWarning("ResetPassword failed: Missing required fields");
-                ModelState.AddModelError(string.Empty, "Vui lòng điền đầy đủ thông tin");
+                _logger.LogWarning("VerifyToken failed: Token is empty");
+                ModelState.AddModelError(string.Empty, "Vui lòng nhập mã xác nhận");
                 
                 if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    return Json(new { success = false, message = "Vui lòng điền đầy đủ thông tin" });
+                    return Json(new { success = false, message = "Vui lòng nhập mã xác nhận" });
+                }
+                return View();
+            }
+
+            if (token.Length != 6)
+            {
+                _logger.LogWarning("VerifyToken failed: Invalid token length");
+                ModelState.AddModelError(string.Empty, "Mã xác nhận phải có đúng 6 chữ số");
+                
+                if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Mã xác nhận phải có đúng 6 chữ số" });
+                }
+                return View();
+            }
+
+            // Validate token
+            var validateResult = await _passwordResetService.ValidateResetTokenAsync(token);
+            
+            var isAjax = Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            
+            if (!validateResult.Success)
+            {
+                _logger.LogWarning("VerifyToken failed: {Message}", validateResult.Message);
+                ModelState.AddModelError(string.Empty, validateResult.Message ?? "Mã xác nhận không hợp lệ");
+                
+                if (isAjax)
+                {
+                    return Json(new { success = false, message = validateResult.Message ?? "Mã xác nhận không hợp lệ" });
+                }
+                return View();
+            }
+
+            // Token hợp lệ, lưu vào TempData để dùng ở bước tiếp theo
+            TempData["ResetToken"] = token;
+            TempData["SuccessMessage"] = "Mã xác nhận hợp lệ. Vui lòng nhập mật khẩu mới.";
+            
+            _logger.LogInformation("Token verified successfully");
+            
+            if (isAjax)
+            {
+                return Json(new { 
+                    success = true, 
+                    message = "Mã xác nhận hợp lệ",
+                    redirectUrl = Url.Action("ResetPassword", "Auth")
+                });
+            }
+
+            return RedirectToAction("ResetPassword");
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword()
+        {
+            _logger.LogInformation("GET ResetPassword page accessed");
+            
+            // Kiểm tra xem có token đã được verify chưa
+            if (TempData["ResetToken"] == null)
+            {
+                _logger.LogWarning("ResetPassword accessed without verified token, redirecting to VerifyToken");
+                TempData["ErrorMessage"] = "Vui lòng xác thực mã trước khi đặt lại mật khẩu.";
+                return RedirectToAction("VerifyToken");
+            }
+
+            // Giữ token trong TempData cho lần submit
+            TempData.Keep("ResetToken");
+            
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string newPassword, string confirmPassword)
+        {
+            _logger.LogInformation("POST ResetPassword attempt");
+
+            // Lấy token từ TempData
+            var token = TempData["ResetToken"] as string;
+            
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                _logger.LogWarning("ResetPassword failed: No verified token found");
+                
+                if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Phiên làm việc hết hạn. Vui lòng thử lại.", redirectUrl = Url.Action("VerifyToken", "Auth") });
+                }
+                
+                TempData["ErrorMessage"] = "Phiên làm việc hết hạn. Vui lòng xác thực mã lại.";
+                return RedirectToAction("VerifyToken");
+            }
+
+            if (string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
+            {
+                _logger.LogWarning("ResetPassword failed: Missing password fields");
+                ModelState.AddModelError(string.Empty, "Vui lòng nhập đầy đủ mật khẩu");
+                
+                // Giữ token cho lần submit tiếp theo
+                TempData["ResetToken"] = token;
+                TempData.Keep("ResetToken");
+                
+                if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Vui lòng nhập đầy đủ mật khẩu" });
                 }
                 return View();
             }
@@ -424,6 +528,10 @@ namespace WebFindLove.Controllers
             {
                 _logger.LogWarning("ResetPassword failed: Passwords don't match");
                 ModelState.AddModelError(string.Empty, "Mật khẩu xác nhận không khớp");
+                
+                // Giữ token cho lần submit tiếp theo
+                TempData["ResetToken"] = token;
+                TempData.Keep("ResetToken");
                 
                 if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
@@ -437,23 +545,13 @@ namespace WebFindLove.Controllers
                 _logger.LogWarning("ResetPassword failed: Password too short");
                 ModelState.AddModelError(string.Empty, "Mật khẩu phải có ít nhất 6 ký tự");
                 
-                if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                {
-                    return Json(new { success = false, message = "Mật khẩu phải có ít nhất 6 ký tự" });
-                }
-                return View();
-            }
-
-            // Validate token first
-            var validateResult = await _passwordResetService.ValidateResetTokenAsync(token);
-            if (!validateResult.Success)
-            {
-                _logger.LogWarning("ResetPassword failed: Invalid token");
-                ModelState.AddModelError(string.Empty, validateResult.Message);
+                // Giữ token cho lần submit tiếp theo
+                TempData["ResetToken"] = token;
+                TempData.Keep("ResetToken");
                 
                 if (Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    return Json(new { success = false, message = validateResult.Message });
+                    return Json(new { success = false, message = "Mật khẩu phải có ít nhất 6 ký tự" });
                 }
                 return View();
             }
@@ -481,6 +579,10 @@ namespace WebFindLove.Controllers
                 return RedirectToAction("Login");
             }
 
+            // Nếu thất bại, giữ token để thử lại
+            TempData["ResetToken"] = token;
+            TempData.Keep("ResetToken");
+            
             ModelState.AddModelError(string.Empty, result.Message);
             return View();
         }
