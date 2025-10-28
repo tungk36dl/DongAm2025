@@ -1,0 +1,119 @@
+[2025-10-28 08:11:11.592 +07:00 INF] Starting WebFindLove application {"Application":"WebFindLove"}
+[2025-10-28 08:11:13.536 +07:00 INF] Database configured with connection string {"Application":"WebFindLove"}
+[2025-10-28 08:11:13.541 +07:00 INF] Authentication configured {"Application":"WebFindLove"}
+[2025-10-28 08:11:13.571 +07:00 INF] SignalR configured {"Application":"WebFindLove"}
+[2025-10-28 08:11:13.576 +07:00 INF] Services registered successfully {"Application":"WebFindLove"}
+[2025-10-28 08:11:13.657 +07:00 INF] Application built successfully {"Application":"WebFindLove"}
+[2025-10-28 08:11:13.661 +07:00 INF] Development environment configured {"Application":"WebFindLove"}
+[2025-10-28 08:11:17.261 +07:00 INF] SignalR ChatHub mapped to /chatHub {"Application":"WebFindLove"}
+[2025-10-28 08:11:17.268 +07:00 INF] Application starting... {"Application":"WebFindLove"}
+[2025-10-28 08:11:17.272 +07:00 INF] Environment: Development {"Application":"WebFindLove"}
+[2025-10-28 08:11:17.279 +07:00 INF] Listening on:  {"Application":"WebFindLove"}
+[2025-10-28 08:11:17.629 +07:00 ERR] Hosting failed to start {"EventId":{"Id":11,"Name":"HostedServiceStartupFaulted"},"SourceContext":"Microsoft.Extensions.Hosting.Internal.Host","Application":"WebFindLove"}
+System.Net.Sockets.SocketException (10049): The requested address is not valid in its context.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.ListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.AddressesStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindAsync(ListenOptions[] listenOptions, AddressBindContext context, Func`2 useHttps, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__15_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+[2025-10-28 08:11:17.710 +07:00 FTL] Application terminated unexpectedly {"Application":"WebFindLove"}
+System.Net.Sockets.SocketException (10049): The requested address is not valid in its context.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.ListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.AddressesStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindAsync(ListenOptions[] listenOptions, AddressBindContext context, Func`2 useHttps, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__15_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at Program.<Main>$(String[] args) in D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\Program.cs:line 147
+[2025-10-28 08:13:07.804 +07:00 INF] Starting WebFindLove application {"Application":"WebFindLove"}
+[2025-10-28 08:13:08.566 +07:00 INF] Database configured with connection string {"Application":"WebFindLove"}
+[2025-10-28 08:13:08.575 +07:00 INF] Authentication configured {"Application":"WebFindLove"}
+[2025-10-28 08:13:08.602 +07:00 INF] SignalR configured {"Application":"WebFindLove"}
+[2025-10-28 08:13:08.609 +07:00 INF] Services registered successfully {"Application":"WebFindLove"}
+[2025-10-28 08:13:08.740 +07:00 INF] Application built successfully {"Application":"WebFindLove"}
+[2025-10-28 08:13:08.743 +07:00 INF] Development environment configured {"Application":"WebFindLove"}
+[2025-10-28 08:13:12.034 +07:00 INF] SignalR ChatHub mapped to /chatHub {"Application":"WebFindLove"}
+[2025-10-28 08:13:12.043 +07:00 INF] Application starting... {"Application":"WebFindLove"}
+[2025-10-28 08:13:12.051 +07:00 INF] Environment: Development {"Application":"WebFindLove"}
+[2025-10-28 08:13:12.060 +07:00 INF] Listening on:  {"Application":"WebFindLove"}
+[2025-10-28 08:13:12.534 +07:00 INF] Now listening on: https://localhost:7092 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-28 08:13:12.545 +07:00 INF] Now listening on: http://localhost:5149 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-28 08:13:12.712 +07:00 INF] Application started. Press Ctrl+C to shut down. {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-28 08:13:12.717 +07:00 INF] Hosting environment: Development {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-28 08:13:12.723 +07:00 INF] Content root path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove {"SourceContext":"Microsoft.Hosting.Lifetime","Application":"WebFindLove"}
+[2025-10-28 08:13:14.326 +07:00 INF] FileUploadService initialized with base path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\wwwroot\uploads {"SourceContext":"WebFindLove.Models.Services.FileUploadService.FileUploadService","ActionId":"198faa60-16f1-4d87-86b5-78b896c38d87","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHM:00000001","RequestPath":"/","ConnectionId":"0HNGLNSL7CAHM","Application":"WebFindLove"}
+[2025-10-28 08:13:14.378 +07:00 INF] HomeController initialized {"SourceContext":"WebFindLove.Controllers.HomeController","ActionId":"198faa60-16f1-4d87-86b5-78b896c38d87","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHM:00000001","RequestPath":"/","ConnectionId":"0HNGLNSL7CAHM","Application":"WebFindLove"}
+[2025-10-28 08:13:14.443 +07:00 INF] GET Home Index - IsAuthenticated: true, User: admin, Role: Admin, SearchQuery: null {"SourceContext":"WebFindLove.Controllers.HomeController","ActionId":"198faa60-16f1-4d87-86b5-78b896c38d87","ActionName":"WebFindLove.Controllers.HomeController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHM:00000001","RequestPath":"/","ConnectionId":"0HNGLNSL7CAHM","Application":"WebFindLove"}
+[2025-10-28 08:13:16.353 +07:00 INF] User connected - UserId: 00000000-0000-0000-0000-000000000001, ConnectionId: Vj8xSb13t6QbxVWeEjcV4A {"SourceContext":"WebFindLove.Hubs.ChatHub","TransportConnectionId":"Vj8xSb13t6QbxVWeEjcV4A","RequestId":"0HNGLNSL7CAHO:00000003","RequestPath":"/chatHub","Application":"WebFindLove"}
+[2025-10-28 08:13:22.118 +07:00 INF] User disconnected - UserId: 00000000-0000-0000-0000-000000000001 {"SourceContext":"WebFindLove.Hubs.ChatHub","TransportConnectionId":"Vj8xSb13t6QbxVWeEjcV4A","RequestId":"0HNGLNSL7CAHO:00000003","RequestPath":"/chatHub","ConnectionId":"0HNGLNSL7CAHO","Application":"WebFindLove"}
+[2025-10-28 08:13:22.147 +07:00 INF] FileUploadService initialized with base path: D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\wwwroot\uploads {"SourceContext":"WebFindLove.Models.Services.FileUploadService.FileUploadService","ActionId":"7ae77761-6705-4f55-84b2-8cd73c539707","ActionName":"WebFindLove.Controllers.MessagesController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHP:00000001","RequestPath":"/Messages","ConnectionId":"0HNGLNSL7CAHP","Application":"WebFindLove"}
+[2025-10-28 08:13:22.158 +07:00 INF] MessagesController initialized {"SourceContext":"WebFindLove.Controllers.MessagesController","ActionId":"7ae77761-6705-4f55-84b2-8cd73c539707","ActionName":"WebFindLove.Controllers.MessagesController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHP:00000001","RequestPath":"/Messages","ConnectionId":"0HNGLNSL7CAHP","Application":"WebFindLove"}
+[2025-10-28 08:13:22.209 +07:00 INF] GET Messages Index - User: admin {"SourceContext":"WebFindLove.Controllers.MessagesController","ActionId":"7ae77761-6705-4f55-84b2-8cd73c539707","ActionName":"WebFindLove.Controllers.MessagesController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHP:00000001","RequestPath":"/Messages","ConnectionId":"0HNGLNSL7CAHP","Application":"WebFindLove"}
+[2025-10-28 08:13:22.224 +07:00 INF] Getting conversations for user: "00000000-0000-0000-0000-000000000001" {"SourceContext":"WebFindLove.Models.Services.ConversationService.ConversationService","ActionId":"7ae77761-6705-4f55-84b2-8cd73c539707","ActionName":"WebFindLove.Controllers.MessagesController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHP:00000001","RequestPath":"/Messages","ConnectionId":"0HNGLNSL7CAHP","Application":"WebFindLove"}
+[2025-10-28 08:13:22.893 +07:00 INF] Getting unread count for user: "00000000-0000-0000-0000-000000000001" {"SourceContext":"WebFindLove.Models.Services.MessageService.MessageService","ActionId":"7ae77761-6705-4f55-84b2-8cd73c539707","ActionName":"WebFindLove.Controllers.MessagesController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHP:00000001","RequestPath":"/Messages","ConnectionId":"0HNGLNSL7CAHP","Application":"WebFindLove"}
+[2025-10-28 08:13:23.198 +07:00 INF] User connected - UserId: 00000000-0000-0000-0000-000000000001, ConnectionId: rCdl2WxMH3BHqoC-ajbzVA {"SourceContext":"WebFindLove.Hubs.ChatHub","TransportConnectionId":"rCdl2WxMH3BHqoC-ajbzVA","RequestId":"0HNGLNSL7CAHP:00000009","RequestPath":"/chatHub","Application":"WebFindLove"}
+[2025-10-28 08:13:52.822 +07:00 INF] User disconnected - UserId: 00000000-0000-0000-0000-000000000001 {"SourceContext":"WebFindLove.Hubs.ChatHub","TransportConnectionId":"rCdl2WxMH3BHqoC-ajbzVA","RequestId":"0HNGLNSL7CAHP:00000009","RequestPath":"/chatHub","ConnectionId":"0HNGLNSL7CAHP","Application":"WebFindLove"}
+[2025-10-28 08:13:52.838 +07:00 INF] PhotosController initialized {"SourceContext":"WebFindLove.Controllers.PhotosController","ActionId":"7838dff0-4657-419a-a622-0ed6d413d11a","ActionName":"WebFindLove.Controllers.PhotosController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHP:0000000B","RequestPath":"/Photos","ConnectionId":"0HNGLNSL7CAHP","Application":"WebFindLove"}
+[2025-10-28 08:13:52.864 +07:00 INF] GET Photos Index - User: admin, Search: {"UserId":null,"IsPrimary":null,"IsActive":null,"Keyword":null,"SearchTerm":null,"SortBy":null,"SortDescending":false,"Page":1,"PageSize":10,"$type":"PhotoSearch"} {"SourceContext":"WebFindLove.Controllers.PhotosController","ActionId":"7838dff0-4657-419a-a622-0ed6d413d11a","ActionName":"WebFindLove.Controllers.PhotosController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHP:0000000B","RequestPath":"/Photos","ConnectionId":"0HNGLNSL7CAHP","Application":"WebFindLove"}
+[2025-10-28 08:13:52.893 +07:00 INF] Getting all photos with search: {"UserId":null,"IsPrimary":null,"IsActive":null,"Keyword":null,"SearchTerm":null,"SortBy":null,"SortDescending":false,"Page":1,"PageSize":10,"$type":"PhotoSearch"} {"SourceContext":"WebFindLove.Models.Services.PhotoService.PhotoService","ActionId":"7838dff0-4657-419a-a622-0ed6d413d11a","ActionName":"WebFindLove.Controllers.PhotosController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHP:0000000B","RequestPath":"/Photos","ConnectionId":"0HNGLNSL7CAHP","Application":"WebFindLove"}
+[2025-10-28 08:13:52.959 +07:00 INF] Successfully retrieved 0 photos {"SourceContext":"WebFindLove.Models.Services.PhotoService.PhotoService","ActionId":"7838dff0-4657-419a-a622-0ed6d413d11a","ActionName":"WebFindLove.Controllers.PhotosController.Index (WebFindLove)","RequestId":"0HNGLNSL7CAHP:0000000B","RequestPath":"/Photos","ConnectionId":"0HNGLNSL7CAHP","Application":"WebFindLove"}
+[2025-10-28 08:13:53.189 +07:00 INF] User connected - UserId: 00000000-0000-0000-0000-000000000001, ConnectionId: 7Cboz0YEicyIGmIODm32mQ {"SourceContext":"WebFindLove.Hubs.ChatHub","TransportConnectionId":"7Cboz0YEicyIGmIODm32mQ","RequestId":"0HNGLNSL7CAHP:00000013","RequestPath":"/chatHub","Application":"WebFindLove"}
+[2025-10-28 08:20:57.204 +07:00 INF] Starting WebFindLove application {"Application":"WebFindLove"}
+[2025-10-28 08:20:57.415 +07:00 INF] Database configured with connection string {"Application":"WebFindLove"}
+[2025-10-28 08:20:57.416 +07:00 INF] Authentication configured {"Application":"WebFindLove"}
+[2025-10-28 08:20:57.422 +07:00 INF] SignalR configured {"Application":"WebFindLove"}
+[2025-10-28 08:20:57.422 +07:00 INF] Services registered successfully {"Application":"WebFindLove"}
+[2025-10-28 08:20:57.456 +07:00 FTL] Application terminated unexpectedly {"Application":"WebFindLove"}
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at System.Diagnostics.DiagnosticSource.Write[T](String name, T value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\Program.cs:line 92
+[2025-10-28 08:21:14.767 +07:00 INF] Starting WebFindLove application {"Application":"WebFindLove"}
+[2025-10-28 08:21:14.881 +07:00 INF] Database configured with connection string {"Application":"WebFindLove"}
+[2025-10-28 08:21:14.882 +07:00 INF] Authentication configured {"Application":"WebFindLove"}
+[2025-10-28 08:21:14.883 +07:00 INF] SignalR configured {"Application":"WebFindLove"}
+[2025-10-28 08:21:14.884 +07:00 INF] Services registered successfully {"Application":"WebFindLove"}
+[2025-10-28 08:21:14.913 +07:00 FTL] Application terminated unexpectedly {"Application":"WebFindLove"}
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at System.Diagnostics.DiagnosticSource.Write[T](String name, T value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in D:\BacHa\LapTrinh_dotNet\WebFindLove\WebFindLove\Program.cs:line 92

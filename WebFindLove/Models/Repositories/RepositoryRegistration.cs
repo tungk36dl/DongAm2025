@@ -3,7 +3,6 @@ using WebFindLove.Models.Repositories.RoleRepo;
 using WebFindLove.Models.Repositories.RolePermissionRepo;
 using WebFindLove.Models.Repositories.UserPreferenceRepo;
 using WebFindLove.Models.Repositories.MatchResultRepo;
-using WebFindLove.Models.Repositories.PhotoRepo;
 using WebFindLove.Models.Repositories.MessageRepo;
 using WebFindLove.Models.Repositories.ConversationRepo;
 using WebFindLove.Models.Repositories.ConversationParticipantRepo;
@@ -28,7 +27,6 @@ namespace WebFindLove.Models.Repositories
 
             // Matching & Communication repositories
             services.AddScoped<IMatchResultRepository, MatchResultRepository>();
-            services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddScoped<IConversationRepository, ConversationRepository>();
             services.AddScoped<IConversationParticipantRepository, ConversationParticipantRepository>();

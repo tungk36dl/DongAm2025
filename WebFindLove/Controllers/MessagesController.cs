@@ -171,6 +171,168 @@ namespace WebFindLove.Controllers
             return Json(new { success = response.Success, count = response.Data });
         }
 
+        // GET: Messages/GetConversationsJson - API endpoint for chat widget
+        [HttpGet]
+        public async Task<IActionResult> GetConversationsJson()
+        {
+            _logger.LogInformation("GET Conversations JSON - User: {Username}", CurrentUser?.UserName);
+
+            var response = await _conversationService.GetUserConversationsAsync(UserId!.Value);
+
+            if (!response.Success)
+            {
+                return Json(new { success = false, message = response.Message });
+            }
+
+            var conversations = response.Data?.Select(c =>
+            {
+                var otherParticipant = c.Participants?.FirstOrDefault(p => p.UserId != UserId!.Value);
+                var otherUser = otherParticipant?.User;
+                var hasUnread = c.Messages?.Any(m => !m.IsRead && m.ReceiverId == UserId!.Value) ?? false;
+
+                return new
+                {
+                    conversationId = c.Id,
+                    otherUserId = otherUser?.Id,
+                    otherUserName = otherUser?.UserName ?? "Unknown User",
+                    otherUserAvatar = otherUser?.Avatar,
+                    lastMessage = c.LastMessage,
+                    lastMessageAt = c.LastMessageAt ?? c.CreatedAt,
+                    hasUnread = hasUnread,
+                    unreadCount = c.Messages?.Count(m => !m.IsRead && m.ReceiverId == UserId!.Value) ?? 0
+                };
+            }).OrderByDescending(c => c.lastMessageAt).ToList();
+
+            // Get total unread count
+            var unreadResponse = await _messageService.GetUnreadCountAsync(UserId!.Value);
+            var unreadCount = unreadResponse.Success ? unreadResponse.Data : 0;
+
+            return Json(new
+            {
+                success = true,
+                conversations = conversations,
+                unreadCount = unreadCount
+            });
+        }
+
+        // GET: Messages/GetMessagesJson - API endpoint for chat widget
+        [HttpGet]
+        public async Task<IActionResult> GetMessagesJson(Guid userId)
+        {
+            _logger.LogInformation("GET Messages JSON - CurrentUser: {CurrentUserId}, WithUser: {OtherUserId}", UserId, userId);
+
+            if (userId == UserId)
+            {
+                return Json(new { success = false, message = "Cannot message yourself." });
+            }
+
+            // Get the other user's info
+            var userResponse = await _userService.GetByIdAsync(userId);
+            if (!userResponse.Success || userResponse.Data == null)
+            {
+                return Json(new { success = false, message = "User not found." });
+            }
+
+            // Get conversation messages
+            var response = await _messageService.GetConversationAsync(UserId!.Value, userId);
+
+            if (!response.Success)
+            {
+                return Json(new { success = false, message = response.Message });
+            }
+
+            var messages = response.Data?.Select(m => new
+            {
+                id = m.Id,
+                senderId = m.SenderId,
+                receiverId = m.ReceiverId,
+                content = m.Content,
+                sentAt = m.SentAt,
+                isRead = m.IsRead,
+                isSentByMe = m.SenderId == UserId!.Value
+            }).ToList();
+
+            // Mark messages as read
+            await _messageService.MarkAsReadAsync(UserId!.Value, userId);
+
+            return Json(new
+            {
+                success = true,
+                messages = messages,
+                otherUser = new
+                {
+                    id = userResponse.Data.Id,
+                    userName = userResponse.Data.UserName,
+                    avatar = userResponse.Data.Avatar
+                }
+            });
+        }
+
+        // POST: Messages/SendMessageJson - API endpoint for chat widget
+        [HttpPost]
+        public async Task<IActionResult> SendMessageJson([FromBody] SendMessageRequest request)
+        {
+            _logger.LogInformation("POST Send Message JSON - From: {SenderId}, To: {ReceiverId}", UserId, request.ReceiverId);
+
+            if (string.IsNullOrWhiteSpace(request.Content))
+            {
+                return Json(new { success = false, message = "Message content cannot be empty." });
+            }
+
+            var response = await _messageService.SendMessageAsync(UserId!.Value, request.ReceiverId, request.Content);
+
+            if (!response.Success)
+            {
+                return Json(new { success = false, message = response.Message });
+            }
+
+            // Send real-time notification via SignalR
+            try
+            {
+                var senderInfo = await _userService.GetByIdAsync(UserId!.Value);
+                
+                var messageData = new
+                {
+                    senderId = UserId.ToString(),
+                    senderName = senderInfo.Data?.UserName ?? CurrentUser?.UserName ?? "Unknown",
+                    senderAvatar = senderInfo.Data?.Avatar ?? "",
+                    message = request.Content,
+                    timestamp = DateTime.UtcNow,
+                    messageId = response.Data?.Id
+                };
+                
+                await _hubContext.Clients.User(request.ReceiverId.ToString())
+                    .SendAsync("ReceiveMessage", messageData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send SignalR notification");
+            }
+
+            return Json(new
+            {
+                success = true,
+                message = new
+                {
+                    id = response.Data?.Id,
+                    senderId = response.Data?.SenderId,
+                    receiverId = response.Data?.ReceiverId,
+                    content = response.Data?.Content,
+                    sentAt = response.Data?.SentAt,
+                    isRead = response.Data?.IsRead,
+                    isSentByMe = true
+                }
+            });
+        }
+
+        // Request model for SendMessageJson
+        public class SendMessageRequest
+        {
+            public Guid ReceiverId { get; set; }
+            public string Content { get; set; } = string.Empty;
+        }
+    
+
         // POST: Messages/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]

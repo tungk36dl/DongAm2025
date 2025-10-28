@@ -3,7 +3,6 @@ using WebFindLove.Models.Services.RoleService;
 using WebFindLove.Models.Services.RolePermissionService;
 using WebFindLove.Models.Services.UserPreferenceService;
 using WebFindLove.Models.Services.MatchResultService;
-using WebFindLove.Models.Services.PhotoService;
 using WebFindLove.Models.Services.MessageService;
 using WebFindLove.Models.Services.ConversationService;
 using WebFindLove.Models.Services.FileUploadService;
@@ -32,7 +31,6 @@ namespace WebFindLove.Models.Services
             // Matching & Communication services
             services.AddScoped<IMatchResultService, MatchResultService.MatchResultService>();
             services.AddScoped<IMatchingService, MatchingService.MatchingService>();
-            services.AddScoped<IPhotoService, PhotoService.PhotoService>();
             services.AddScoped<IMessageService, MessageService.MessageService>();
             services.AddScoped<IConversationService, ConversationService.ConversationService>();
 

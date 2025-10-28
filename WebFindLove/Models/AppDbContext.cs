@@ -17,7 +17,6 @@ namespace WebFindLove.Models
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserPreference> UserPreferences { get; set; }
         public DbSet<MatchResult> MatchResults { get; set; }
-        public DbSet<Photo> Photos { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Conversation> Conversations { get; set; }
         public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
@@ -47,12 +46,6 @@ namespace WebFindLove.Models
                 entity.HasOne(e => e.Preference)
                     .WithOne(p => p.User)
                     .HasForeignKey<UserPreference>(p => p.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                // User -> Photos (1:many)
-                entity.HasMany(e => e.Photos)
-                    .WithOne(p => p.User)
-                    .HasForeignKey(p => p.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
 
                 // User -> MatchResults as User (1:many)
@@ -147,15 +140,6 @@ namespace WebFindLove.Models
                 
                 // Prevent self-matching
                 entity.ToTable(t => t.HasCheckConstraint("CK_MatchResult_NoSelfMatch", "[UserId] <> [MatchedUserId]"));
-            });
-
-            // ============================
-            // Photo Configuration
-            // ============================
-            modelBuilder.Entity<Photo>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.HasIndex(e => e.UserId);
             });
 
             // ============================
