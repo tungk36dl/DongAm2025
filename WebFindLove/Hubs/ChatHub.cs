@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using WebFindLove.Models.Services.NotificationService;
 using WebFindLove.Models.Services.NotificationService.Dto;
+using WebFindLove.Helper.HelperServices;
 
 namespace WebFindLove.Hubs
 {
@@ -8,13 +9,16 @@ namespace WebFindLove.Hubs
     {
         private readonly ILogger<ChatHub> _logger;
         private readonly INotificationService _notificationService;
+        private readonly IOnlineUserTrackingService _onlineUserTracking;
 
         public ChatHub(
             ILogger<ChatHub> logger,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IOnlineUserTrackingService onlineUserTracking)
         {
             _logger = logger;
             _notificationService = notificationService;
+            _onlineUserTracking = onlineUserTracking;
         }
 
         /// <summary>
@@ -112,8 +116,26 @@ namespace WebFindLove.Hubs
         public override async Task OnConnectedAsync()
         {
             var userId = Context.UserIdentifier;
+            var connectionId = Context.ConnectionId;
+            
             _logger.LogInformation("User connected - UserId: {UserId}, ConnectionId: {ConnectionId}", 
-                userId, Context.ConnectionId);
+                userId, connectionId);
+            
+            if (!string.IsNullOrEmpty(userId))
+            {
+                // Add to online tracking
+                _onlineUserTracking.AddUserConnection(userId, connectionId);
+                
+                // Broadcast to all clients that this user is now online
+                await Clients.All.SendAsync("UserStatusChanged", new
+                {
+                    userId = userId,
+                    isOnline = true,
+                    timestamp = DateTime.UtcNow
+                });
+                
+                _logger.LogInformation("User {UserId} is now ONLINE", userId);
+            }
             
             await base.OnConnectedAsync();
         }
@@ -121,9 +143,57 @@ namespace WebFindLove.Hubs
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var userId = Context.UserIdentifier;
-            _logger.LogInformation("User disconnected - UserId: {UserId}", userId);
+            var connectionId = Context.ConnectionId;
+            
+            _logger.LogInformation("User disconnected - UserId: {UserId}, ConnectionId: {ConnectionId}", 
+                userId, connectionId);
+            
+            if (!string.IsNullOrEmpty(userId))
+            {
+                // Remove from online tracking
+                _onlineUserTracking.RemoveUserConnection(connectionId);
+                
+                // Check if user still has other connections
+                var isStillOnline = _onlineUserTracking.IsUserOnline(userId);
+                
+                if (!isStillOnline)
+                {
+                    // Broadcast to all clients that this user is now offline
+                    await Clients.All.SendAsync("UserStatusChanged", new
+                    {
+                        userId = userId,
+                        isOnline = false,
+                        timestamp = DateTime.UtcNow
+                    });
+                    
+                    _logger.LogInformation("User {UserId} is now OFFLINE", userId);
+                }
+            }
             
             await base.OnDisconnectedAsync(exception);
+        }
+
+        /// <summary>
+        /// Check if a specific user is online
+        /// </summary>
+        public bool IsUserOnline(string userId)
+        {
+            return _onlineUserTracking.IsUserOnline(userId);
+        }
+
+        /// <summary>
+        /// Get online status for multiple users
+        /// </summary>
+        public Dictionary<string, bool> GetUsersOnlineStatus(List<string> userIds)
+        {
+            var result = new Dictionary<string, bool>();
+            
+            foreach (var userId in userIds)
+            {
+                result[userId] = _onlineUserTracking.IsUserOnline(userId);
+            }
+            
+            return result;
         }
     }
 }

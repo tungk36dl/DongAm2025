@@ -1,3 +1,4 @@
+using WebFindLove.Models.Services.MessageService.Dto;
 using WebFindLove.Models.UnitOfWork;
 
 namespace WebFindLove.Models.Repositories.MessageRepo
@@ -10,7 +11,7 @@ namespace WebFindLove.Models.Repositories.MessageRepo
         /// <summary>
         /// Get conversation between two users
         /// </summary>
-        Task<List<Message>> GetConversationAsync(Guid userId1, Guid userId2);
+        Task<List<Message>> GetConversationAsync(MessageSearch search);
 
         /// <summary>
         /// Get user's conversations (latest message from each contact)

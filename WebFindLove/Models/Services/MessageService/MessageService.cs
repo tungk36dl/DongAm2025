@@ -2,6 +2,7 @@ using WebFindLove.Models.Repositories.MessageRepo;
 using WebFindLove.Models.Repositories.ConversationRepo;
 using WebFindLove.Models.UnitOfWork;
 using WebFindLove.Models.Services.ConversationService;
+using WebFindLove.Models.Services.MessageService.Dto;
 
 namespace WebFindLove.Models.Services.MessageService
 {
@@ -27,18 +28,18 @@ namespace WebFindLove.Models.Services.MessageService
             _logger = logger;
         }
 
-        public async Task<DataResponse<List<Message>>> GetConversationAsync(Guid userId1, Guid userId2)
+        public async Task<DataResponse<List<Message>>> GetConversationAsync(MessageSearch search)
         {
             try
             {
-                _logger.LogInformation("Getting conversation between users: {UserId1} and {UserId2}", userId1, userId2);
-                var messages = await _repository.GetConversationAsync(userId1, userId2);
+                _logger.LogInformation("Getting conversation between users: {UserId1} and {UserId2}", search.UserId1, search.UserId2);
+                var messages = await _repository.GetConversationAsync(search);
 
                 return new DataResponse<List<Message>> { Success = true, Data = messages, Message = $"Retrieved {messages.Count} message(s)" };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting conversation between users: {UserId1} and {UserId2}", userId1, userId2);
+                _logger.LogError(ex, "Error getting conversation between users: {UserId1} and {UserId2}", search.UserId1, search.UserId2);
                 return new DataResponse<List<Message>> { Success = false, Message = "Failed to get conversation", ErrorDetails = ex.Message };
             }
         }

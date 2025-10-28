@@ -9,6 +9,7 @@ using WebFindLove.Models.Services.FileUploadService;
 using WebFindLove.Models.Services.EmbeddingService;
 using WebFindLove.Models.Services.MatchingService;
 using WebFindLove.Models.Services.NotificationService;
+using WebFindLove.Helper.HelperServices;
 
 namespace WebFindLove.Models.Services
 {
@@ -39,6 +40,9 @@ namespace WebFindLove.Models.Services
             // Utility services
             services.AddScoped<IFileUploadService, FileUploadService.FileUploadService>();
             services.AddScoped<IEmbeddingService, EmbeddingService.EmbeddingService>();
+
+            // Real-time tracking services (Singleton để shared state across requests)
+            services.AddSingleton<IOnlineUserTrackingService, OnlineUserTrackingService>();
 
             return services;
         }

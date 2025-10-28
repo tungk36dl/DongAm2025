@@ -104,11 +104,12 @@ try
     {
         Log.Information("Development environment configured");
     }
-    using (var scope = app.Services.CreateScope())
-    {
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        PermissionSeeder.SyncPermissions(db);
-    }
+    // Add permissuion seeding
+    //using (var scope = app.Services.CreateScope())
+    //{
+    //    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    //    PermissionSeeder.SyncPermissions(db);
+    //}
 
     app.UseHttpsRedirection();
     app.UseStaticFiles();

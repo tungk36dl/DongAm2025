@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using WebFindLove.Models.Services.MessageService.Dto;
 using WebFindLove.Models.UnitOfWork;
 
 namespace WebFindLove.Models.Repositories.MessageRepo
@@ -10,16 +11,16 @@ namespace WebFindLove.Models.Repositories.MessageRepo
     {
         public MessageRepository(AppDbContext context) : base(context) { }
 
-        public async Task<List<Message>> GetConversationAsync(Guid userId1, Guid userId2)
+        public async Task<List<Message>> GetConversationAsync(MessageSearch search)
         {
             return await _context.Messages
                 .Include(m => m.Sender)
                 .Include(m => m.Receiver)
                 .Where(m =>
-                    ((m.SenderId == userId1 && m.ReceiverId == userId2) ||
-                     (m.SenderId == userId2 && m.ReceiverId == userId1)) &&
+                    ((m.SenderId == search.UserId1 && m.ReceiverId == search.UserId2) ||
+                     (m.SenderId == search.UserId2 && m.ReceiverId == search.UserId1)) &&
                     m.IsActive)
-                .OrderBy(m => m.SentAt).Take(100)
+                .OrderByDescending(m => m.SentAt).Take(search.PageSize)
                 .ToListAsync();
         }
 

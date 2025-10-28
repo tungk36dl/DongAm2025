@@ -9,6 +9,7 @@ using WebFindLove.Models.Services.UserService.Dto;
 using WebFindLove.Models.Services.NotificationService;
 using WebFindLove.Models.Services.NotificationService.Dto;
 using WebFindLove.Hubs;
+using WebFindLove.Models.Services.MessageService.Dto;
 
 namespace WebFindLove.Controllers
 {
@@ -88,9 +89,15 @@ namespace WebFindLove.Controllers
                 TempData["ErrorMessage"] = conversationResponse.Message;
                 return RedirectToAction(nameof(Index));
             }
+            var search = new MessageSearch
+            {
+                UserId1 = UserId!.Value,
+                UserId2 = userId,
+                PageSize = 100,
 
+            };
             // Get conversation messages
-            var response = await _messageService.GetConversationAsync(UserId!.Value, userId);
+            var response = await _messageService.GetConversationAsync(search);
 
             if (!response.Success)
             {
@@ -262,6 +269,10 @@ namespace WebFindLove.Controllers
         {
             _logger.LogInformation("GET Messages JSON - CurrentUser: {CurrentUserId}, WithUser: {OtherUserId}", UserId, userId);
 
+            if(userId == Guid.Empty)
+            {
+                return Json(new { success = false, message = "Invalid user ID." });
+            }
             if (userId == UserId)
             {
                 return Json(new { success = false, message = "Cannot message yourself." });
@@ -273,9 +284,14 @@ namespace WebFindLove.Controllers
             {
                 return Json(new { success = false, message = "User not found." });
             }
-
+            var search = new MessageSearch
+            {
+                UserId1 = UserId!.Value,
+                UserId2 = userId,
+                PageSize = 20,
+            };
             // Get conversation messages
-            var response = await _messageService.GetConversationAsync(UserId!.Value, userId);
+            var response = await _messageService.GetConversationAsync(search);
 
             if (!response.Success)
             {

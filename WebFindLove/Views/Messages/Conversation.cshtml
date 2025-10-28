@@ -151,10 +151,11 @@
 
         // Initialize SignalR
         async function startSignalR() {
-            connection = new signalR.HubConnectionBuilder()
-                .withUrl("/chatHub")
-                .withAutomaticReconnect()
-                .build();
+            return new Promise(async (resolve, reject) => {
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/chatHub")
+                    .withAutomaticReconnect()
+                    .build();
 
             // Receive messages
             connection.on("ReceiveMessage", function (data) {
@@ -171,13 +172,26 @@
                 }
             });
 
-            try {
-                await connection.start();
-                console.log('SignalR Connected');
-            } catch (err) {
-                console.error('SignalR Error:', err);
-                setTimeout(startSignalR, 5000);
-            }
+            // Listen for user status changes (online/offline)
+            connection.on("UserStatusChanged", function (data) {
+                console.log('User status changed:', data);
+                
+                // Update UI if this is the user we're chatting with
+                if (data.userId === otherUserId) {
+                    updateUserOnlineStatus(data.isOnline);
+                }
+            });
+
+                try {
+                    await connection.start();
+                    console.log('SignalR Connected');
+                    resolve();
+                } catch (err) {
+                    console.error('SignalR Error:', err);
+                    setTimeout(startSignalR, 5000);
+                    reject(err);
+                }
+            });
         }
 
         // Add message to UI
@@ -223,11 +237,47 @@
             }
         }
 
+        // Update user online status
+        function updateUserOnlineStatus(isOnline) {
+            const statusDot = document.getElementById('onlineStatus');
+            const statusText = document.getElementById('statusText');
+            
+            if (statusDot && statusText) {
+                if (isOnline) {
+                    statusDot.classList.remove('bg-gray-400');
+                    statusDot.classList.add('bg-green-500');
+                    statusText.textContent = 'Online';
+                } else {
+                    statusDot.classList.remove('bg-green-500');
+                    statusDot.classList.add('bg-gray-400');
+                    statusText.textContent = 'Offline';
+                }
+                console.log('User status updated:', isOnline ? 'Online' : 'Offline');
+            }
+        }
+
+        // Check user online status
+        async function checkUserOnlineStatus() {
+            try {
+                if (connection && connection.state === 'Connected') {
+                    const isOnline = await connection.invoke('IsUserOnline', otherUserId);
+                    updateUserOnlineStatus(isOnline);
+                    console.log('Initial online status for user', otherUserId, ':', isOnline);
+                }
+            } catch (error) {
+                console.error('Error checking online status:', error);
+                updateUserOnlineStatus(false);
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             scrollToBottom();
             messageInput?.focus();
-            startSignalR();
+            startSignalR().then(() => {
+                // Check online status after SignalR is connected
+                checkUserOnlineStatus();
+            });
         });
 
         // Cleanup

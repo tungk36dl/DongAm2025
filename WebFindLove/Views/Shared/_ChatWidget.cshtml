@@ -323,6 +323,9 @@
                         avatarEl.innerHTML = userName.charAt(0).toUpperCase();
                     }
                     
+                    // Check and update online status
+                    this.checkUserOnlineStatus(userId);
+                    
                     // Load messages
                     this.loadMessages(userId);
                 },
@@ -567,6 +570,45 @@
                     }
                 },
 
+                // Update user online status in conversation view
+                updateUserOnlineStatus(isOnline) {
+                    const statusDot = document.getElementById('chatOnlineStatus');
+                    const statusText = document.getElementById('chatStatusText');
+                    
+                    if (statusDot && statusText) {
+                        if (isOnline) {
+                            statusDot.classList.remove('bg-gray-400');
+                            statusDot.classList.add('bg-green-500');
+                            statusText.textContent = 'Online';
+                            statusText.classList.remove('text-gray-500');
+                            statusText.classList.add('text-green-600');
+                        } else {
+                            statusDot.classList.remove('bg-green-500');
+                            statusDot.classList.add('bg-gray-400');
+                            statusText.textContent = 'Offline';
+                            statusText.classList.remove('text-green-600');
+                            statusText.classList.add('text-gray-500');
+                        }
+                        console.log('User status updated:', isOnline ? 'Online' : 'Offline');
+                    }
+                },
+
+                // Check and update user online status
+                async checkUserOnlineStatus(userId) {
+                    try {
+                        if (this.connection && this.connection.state === 'Connected') {
+                            // Call SignalR method to check online status
+                            const isOnline = await this.connection.invoke('IsUserOnline', userId);
+                            this.updateUserOnlineStatus(isOnline);
+                            console.log('Initial online status for user', userId, ':', isOnline);
+                        }
+                    } catch (error) {
+                        console.error('Error checking online status:', error);
+                        // Default to offline if error
+                        this.updateUserOnlineStatus(false);
+                    }
+                },
+
                 // Start SignalR (based on working Conversation.cshtml logic)
                 async startSignalR() {
                     const self = this;
@@ -599,6 +641,16 @@
                             if (conversationsView && !conversationsView.classList.contains('hidden')) {
                                 self.loadConversations();
                             }
+                        }
+                    });
+
+                    // Listen for user status changes (online/offline)
+                    this.connection.on("UserStatusChanged", function (data) {
+                        console.log('User status changed:', data);
+                        
+                        // Update UI if we're viewing this user's conversation
+                        if (self.currentConversationUserId === data.userId) {
+                            self.updateUserOnlineStatus(data.isOnline);
                         }
                     });
 
