@@ -120,10 +120,10 @@ namespace WebFindLove.Models.Services.EmbeddingService
                 }
 
                 // Tính cách
-                if (!string.IsNullOrWhiteSpace(user.PersonalityType))
-                {
-                    parts.Add($"Nhóm tính cách: {user.PersonalityType}");
-                }
+                //if (!string.IsNullOrWhiteSpace(user.PersonalityType))
+                //{
+                //    parts.Add($"Nhóm tính cách: {user.PersonalityType}");
+                //}
 
                 if (!string.IsNullOrWhiteSpace(user.PersonalityText))
                 {
@@ -131,10 +131,10 @@ namespace WebFindLove.Models.Services.EmbeddingService
                 }
 
                 // Tiểu sử
-                if (!string.IsNullOrWhiteSpace(user.Bio))
-                {
-                    parts.Add($"Giới thiệu: {user.Bio}");
-                }
+                //if (!string.IsNullOrWhiteSpace(user.Bio))
+                //{
+                //    parts.Add($"Giới thiệu: {user.Bio}");
+                //}
 
                 // Sở thích
                 if (!string.IsNullOrWhiteSpace(user.Interests))
