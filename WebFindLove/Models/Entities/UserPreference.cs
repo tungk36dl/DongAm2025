@@ -40,6 +40,9 @@ namespace WebFindLove.Models
 
         public string? PreferenceEmbedding { get; set; }  // Vector embedding của preference (lưu dạng JSON string)
 
+        // Số lần cho phép cập nhật sở thích miễn phí
+        public int? FreeUpdateCount { get; set; } = 3;
+
         // ============================
         // Navigation Properties
         // ============================

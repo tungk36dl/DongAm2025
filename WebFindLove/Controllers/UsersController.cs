@@ -388,6 +388,9 @@ namespace WebFindLove.Controllers
                 Avatar = resp.Data.Avatar
             };
 
+            // Pass free update count to view
+            ViewBag.FreeProfileUpdatesLeft = resp.Data.FreeProfileUpdatesLeft ?? 0;
+
             _logger.LogDebug("Loaded user for edit profile - FullName: {FullName}", resp.Data.FullName);
             return View(model);
         }

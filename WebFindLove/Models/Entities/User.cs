@@ -74,6 +74,9 @@ namespace WebFindLove.Models
         [StringLength(50)]
         public string? RoleName { get; set; }
 
+        // Số lần cho phép cập nhật profile miễn phí
+        public int? FreeProfileUpdatesLeft { get; set; } = 3;
+
         // ============================
         // Navigation Properties
         // ============================

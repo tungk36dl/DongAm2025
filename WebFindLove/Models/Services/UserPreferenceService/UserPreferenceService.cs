@@ -75,6 +75,17 @@ namespace WebFindLove.Models.Services.UserPreferenceService
                 
                 if (existing != null)
                 {
+                    // Check if user has free preference updates left
+                    if (existing.FreeUpdateCount == null || existing.FreeUpdateCount <= 0)
+                    {
+                        _logger.LogWarning("User {UserId} has no free preference updates left", model.UserId);
+                        return new DataResponse<UserPreference> 
+                        { 
+                            Success = false, 
+                            Message = "Bạn đã hết số lần cập nhật sở thích miễn phí. Vui lòng liên hệ admin để được hỗ trợ." 
+                        };
+                    }
+
                     // Update
                     existing.PreferredGender = model.PreferredGender;
                     existing.AgeMin = model.AgeMin;
@@ -84,6 +95,11 @@ namespace WebFindLove.Models.Services.UserPreferenceService
                     existing.LocationPreference = model.LocationPreference;
                     existing.PersonalityPreference = model.PersonalityPreference;
                     existing.InterestPreference = model.InterestPreference;
+
+                    // Decrement free preference updates count
+                    existing.FreeUpdateCount = (existing.FreeUpdateCount ?? 0) - 1;
+                    _logger.LogInformation("Decremented FreeUpdateCount for user {UserId}. Remaining: {Count}", model.UserId, existing.FreeUpdateCount);
+
                     existing.UpdatedAt = DateTime.UtcNow;
                     existing.UpdatedBy = userId;
 

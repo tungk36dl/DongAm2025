@@ -15,6 +15,38 @@
         <p class="text-gray-600">Cho chúng tôi biết bạn đang tìm kiếm gì</p>
     </div>
 
+    <!-- Free Updates Info -->
+    @{
+        var freeUpdates = Model.FreeUpdateCount ?? 0;
+    }
+    <div class="mb-6 @(freeUpdates > 0 ? "bg-blue-50" : "bg-red-50") border-l-4 @(freeUpdates > 0 ? "border-blue-500" : "border-red-500") p-4 rounded-lg">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-sync-alt mr-3 @(freeUpdates > 0 ? "text-blue-500" : "text-red-500")"></i>
+                <div>
+                    <p class="font-semibold @(freeUpdates > 0 ? "text-blue-800" : "text-red-800")">
+                        Số lần cập nhật sở thích còn lại: 
+                        <span class="text-2xl font-bold">@freeUpdates</span> lần
+                    </p>
+                    @if (freeUpdates == 0)
+                    {
+                        <p class="text-sm text-red-700 mt-1">
+                            Bạn đã hết lượt cập nhật miễn phí. Vui lòng liên hệ admin để được hỗ trợ.
+                        </p>
+                    }
+                </div>
+            </div>
+            @if (freeUpdates > 0)
+            {
+                <div class="px-4 py-2 bg-blue-100 rounded-full">
+                    <span class="text-blue-800 font-semibold">
+                        @(freeUpdates == 1 ? "Lượt cuối cùng" : "")
+                    </span>
+                </div>
+            }
+        </div>
+    </div>
+
     <!-- Form -->
     <div class="bg-white rounded-lg shadow-md p-6">
         <form asp-action="Edit" method="post">
@@ -138,9 +170,12 @@
             <!-- Buttons -->
             <div class="mt-8 flex gap-3">
                 <button type="submit" 
-                        class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition flex items-center gap-2">
+                        id="submitBtn"
+                        @if (freeUpdates == 0) { @:disabled
+                        }
+                        class="@(freeUpdates == 0 ? "bg-gray-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700") text-white px-6 py-3 rounded-lg transition flex items-center gap-2">
                     <i class="fas fa-save"></i>
-                    Lưu Sở Thích
+                    @(freeUpdates == 0 ? "Đã Hết Lượt" : "Lưu Sở Thích")
                 </button>
                 <a asp-action="Index" 
                    class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition">

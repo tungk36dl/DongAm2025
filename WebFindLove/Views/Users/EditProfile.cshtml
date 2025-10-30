@@ -14,6 +14,37 @@
         </div>
         
         <div class="p-6 md:p-8">
+            <!-- Free Updates Info -->
+            @{
+                var freeUpdates = ViewBag.FreeProfileUpdatesLeft ?? 0;
+            }
+            <div class="mb-6 @(freeUpdates > 0 ? "bg-blue-50 dark:bg-blue-900" : "bg-red-50 dark:bg-red-900") border-l-4 @(freeUpdates > 0 ? "border-blue-500" : "border-red-500") p-4 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-sync-alt mr-3 @(freeUpdates > 0 ? "text-blue-500" : "text-red-500")"></i>
+                        <div>
+                            <p class="font-semibold @(freeUpdates > 0 ? "text-blue-800 dark:text-blue-200" : "text-red-800 dark:text-red-200")">
+                                Số lần cập nhật còn lại: 
+                                <span class="text-2xl font-bold">@freeUpdates</span> lần
+                            </p>
+                            @if (freeUpdates == 0)
+                            {
+                                <p class="text-sm text-red-700 dark:text-red-300 mt-1">
+                                    Bạn đã hết lượt cập nhật miễn phí. Vui lòng liên hệ admin để được hỗ trợ.
+                                </p>
+                            }
+                        </div>
+                    </div>
+                    @if (freeUpdates > 0)
+                    {
+                        <div class="px-4 py-2 bg-blue-100 dark:bg-blue-800 rounded-full">
+                            <span class="text-blue-800 dark:text-blue-200 font-semibold">
+                                @(freeUpdates == 1 ? "Lượt cuối cùng" : "")
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
             @if (TempData["SuccessMessage"] != null)
             {
                 <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 px-4 py-3 rounded-lg mb-6 flex items-center justify-between animate-fade-in">
@@ -278,9 +309,13 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap gap-3">
-                    <button type="submit" class="bg-gradient-to-r from-secondary to-purple-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium flex items-center">
+                    <button type="submit" 
+                            id="submitBtn"
+                            @if (freeUpdates == 0) { @:disabled
+                            }
+                            class="@(freeUpdates == 0 ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-secondary to-purple-600 hover:shadow-lg") text-white px-6 py-3 rounded-lg transition font-medium flex items-center">
                         <i class="fas fa-save mr-2"></i>
-                        Lưu Hồ Sơ
+                        @(freeUpdates == 0 ? "Đã Hết Lượt" : "Lưu Hồ Sơ")
                     </button>
                     <a asp-action="EditAccount" class="bg-gradient-to-r from-primary to-pink-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium flex items-center">
                         <i class="fas fa-user-circle mr-2"></i>

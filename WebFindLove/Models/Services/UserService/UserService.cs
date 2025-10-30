@@ -345,6 +345,17 @@ namespace WebFindLove.Models.Services.UserService
                     return new DataResponse<User> { Success = false, Message = "User not found." };
                 }
 
+                // Check if user has free profile updates left
+                if (user.FreeProfileUpdatesLeft == null || user.FreeProfileUpdatesLeft <= 0)
+                {
+                    _logger.LogWarning("User {UserId} has no free profile updates left", model.Id);
+                    return new DataResponse<User> 
+                    { 
+                        Success = false, 
+                        Message = "Bạn đã hết số lần cập nhật profile miễn phí. Vui lòng liên hệ admin để được hỗ trợ." 
+                    };
+                }
+
                 // Update profile information
                 user.FullName = model.FullName;
                 user.PhoneNumber = model.PhoneNumber;
@@ -397,6 +408,10 @@ namespace WebFindLove.Models.Services.UserService
                     user.Avatar = uploadResult.FileName;
                     _logger.LogInformation("Avatar uploaded successfully for user {UserId}: {FileName}", model.Id, uploadResult.FileName);
                 }
+
+                // Decrement free profile updates count
+                user.FreeProfileUpdatesLeft = (user.FreeProfileUpdatesLeft ?? 0) - 1;
+                _logger.LogInformation("Decremented FreeProfileUpdatesLeft for user {UserId}. Remaining: {Count}", model.Id, user.FreeProfileUpdatesLeft);
 
                 user.UpdatedAt = DateTime.UtcNow;
                 _userRepository.Update(user);

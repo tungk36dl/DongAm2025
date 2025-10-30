@@ -120,6 +120,18 @@
                     </label>
                     <p class="mt-2 text-gray-800 dark:text-white font-medium">@Model.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
                 </div>
+
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <label class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                        <i class="fas fa-sync-alt mr-2"></i>Số Lần Cập Nhật Profile Miễn Phí
+                    </label>
+                    <p class="mt-2 text-gray-800 dark:text-white font-medium">
+                        <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full 
+                            @(Model.FreeProfileUpdatesLeft > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                            @(Model.FreeProfileUpdatesLeft ?? 0) lần
+                        </span>
+                    </p>
+                </div>
             </div>
 
             <!-- Action Buttons -->
