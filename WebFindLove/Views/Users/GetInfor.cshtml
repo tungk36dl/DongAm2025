@@ -1,0 +1,256 @@
+@model WebFindLove.Models.User
+@{
+    ViewData["Title"] = "Thông Tin Cơ Bản";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="javascript:history.back()" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>Quay Lại
+        </a>
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-user-circle text-blue-500 mr-3"></i>Thông Tin Cơ Bản
+            </h1>
+            <p class="text-gray-600 text-lg">Hồ sơ công khai của @Model.FullName</p>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span>@TempData["SuccessMessage"]</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span>@TempData["ErrorMessage"]</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    }
+
+    <!-- Profile Card -->
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+            <!-- Profile Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-8 text-white">
+                <div class="flex items-center gap-6">
+                    <!-- Avatar -->
+                    <div class="flex-shrink-0">
+                        @if (!string.IsNullOrEmpty(Model.Avatar))
+                        {
+                            <img src="@Model.Avatar" alt="@Model.FullName" 
+                                 class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
+                        }
+                        else
+                        {
+                            <div class="w-32 h-32 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                                @Model.FullName?.Substring(0, 1).ToUpper()
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Basic Info -->
+                    <div class="flex-1">
+                        <h2 class="text-3xl font-bold mb-2">@Model.FullName</h2>
+                        <div class="flex items-center gap-6 text-blue-100">
+                            @if (Model.DateOfBirth.HasValue)
+                            {
+                                var age = DateTime.UtcNow.Year - Model.DateOfBirth.Value.Year;
+                                <span class="flex items-center">
+                                    <i class="fas fa-birthday-cake mr-2"></i>
+                                    @age tuổi
+                                </span>
+                            }
+                            @if (Model.Height.HasValue)
+                            {
+                                <span class="flex items-center">
+                                    <i class="fas fa-ruler-vertical mr-2"></i>
+                                    @Model.Height cm
+                                </span>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Location))
+                            {
+                                <span class="flex items-center">
+                                    <i class="fas fa-map-marker-alt mr-2"></i>
+                                    @Model.Location
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="p-8">
+                <!-- Bio Section -->
+                @if (!string.IsNullOrEmpty(Model.Bio))
+                {
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-quote-left text-blue-500 mr-2"></i>
+                            Giới Thiệu
+                        </h3>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p class="text-gray-700 leading-relaxed">@Model.Bio</p>
+                        </div>
+                    </div>
+                }
+
+                <!-- Personal Information Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Basic Details -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                            Thông Tin Cơ Bản
+                        </h3>
+                        
+                        @if (!string.IsNullOrEmpty(Model.Gender))
+                        {
+                            <div class="flex items-center py-2">
+                                <i class="fas fa-venus-mars text-gray-400 w-6"></i>
+                                <span class="text-gray-600 ml-3">Giới tính:</span>
+                                <span class="text-gray-800 font-medium ml-2">@Model.Gender</span>
+                            </div>
+                        }
+
+                        @if (Model.DateOfBirth.HasValue)
+                        {
+                            <div class="flex items-center py-2">
+                                <i class="fas fa-calendar text-gray-400 w-6"></i>
+                                <span class="text-gray-600 ml-3">Ngày sinh:</span>
+                                <span class="text-gray-800 font-medium ml-2">@Model.DateOfBirth.Value.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        }
+
+                        @if (Model.Height.HasValue)
+                        {
+                            <div class="flex items-center py-2">
+                                <i class="fas fa-ruler-vertical text-gray-400 w-6"></i>
+                                <span class="text-gray-600 ml-3">Chiều cao:</span>
+                                <span class="text-gray-800 font-medium ml-2">@Model.Height cm</span>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.Hometown))
+                        {
+                            <div class="flex items-center py-2">
+                                <i class="fas fa-home text-gray-400 w-6"></i>
+                                <span class="text-gray-600 ml-3">Quê quán:</span>
+                                <span class="text-gray-800 font-medium ml-2">@Model.Hometown</span>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.Location))
+                        {
+                            <div class="flex items-center py-2">
+                                <i class="fas fa-map-marker-alt text-gray-400 w-6"></i>
+                                <span class="text-gray-600 ml-3">Nơi ở hiện tại:</span>
+                                <span class="text-gray-800 font-medium ml-2">@Model.Location</span>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Professional & Personality -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-user-tie text-blue-500 mr-2"></i>
+                            Nghề Nghiệp & Tính Cách
+                        </h3>
+
+                        @if (!string.IsNullOrEmpty(Model.Occupation))
+                        {
+                            <div class="flex items-center py-2">
+                                <i class="fas fa-briefcase text-gray-400 w-6"></i>
+                                <span class="text-gray-600 ml-3">Nghề nghiệp:</span>
+                                <span class="text-gray-800 font-medium ml-2">@Model.Occupation</span>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.PersonalityType))
+                        {
+                            <div class="flex items-center py-2">
+                                <i class="fas fa-brain text-gray-400 w-6"></i>
+                                <span class="text-gray-600 ml-3">MBTI:</span>
+                                <span class="text-gray-800 font-medium ml-2">@Model.PersonalityType</span>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.PersonalityText))
+                        {
+                            <div class="py-2">
+                                <div class="flex items-start">
+                                    <i class="fas fa-comment-dots text-gray-400 w-6 mt-1"></i>
+                                    <div class="ml-3">
+                                        <span class="text-gray-600 block mb-1">Mô tả tính cách:</span>
+                                        <p class="text-gray-800 font-medium">@Model.PersonalityText</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Interests Section -->
+                @if (!string.IsNullOrEmpty(Model.Interests))
+                {
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-heart text-red-500 mr-2"></i>
+                            Sở Thích
+                        </h3>
+                        <div class="bg-red-50 rounded-lg p-4">
+                            <p class="text-gray-700">@Model.Interests</p>
+                        </div>
+                    </div>
+                }
+
+                <!-- Contact Information -->
+                @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                {
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-phone text-green-500 mr-2"></i>
+                            Thông Tin Liên Hệ
+                        </h3>
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-phone text-gray-400 mr-3"></i>
+                                <span class="text-gray-600 mr-3">Số điện thoại:</span>
+                                <span class="text-gray-800 font-medium">@Model.PhoneNumber</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Action Buttons -->
+                <div class="flex gap-4 justify-center pt-6 border-t border-gray-200">
+                    <a asp-controller="Messages" asp-action="Conversation" asp-route-userId="@Model.Id"
+                       class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-lg transition font-bold shadow-lg">
+                        <i class="fas fa-comment mr-2"></i>Nhắn Tin
+                    </a>
+                    <a href="javascript:history.back()"
+                       class="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg transition font-bold">
+                        <i class="fas fa-arrow-left mr-2"></i>Quay Lại
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -83,6 +83,36 @@ namespace WebFindLove.Controllers
             }
             
         }
+
+        public async Task<IActionResult> GetInfor(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "Id rỗng!";
+                return RedirectToAction("Index", "Home");
+            }
+            try
+            {
+                var userId = UserId; 
+                _logger.LogInformation("GET User Details - UserId: {UserId}, Requested by: {CurrentUser}", id, CurrentUser?.UserName);
+
+                var resp = await _userService.GetByIdAsync(id);
+                if (!resp.Success || resp.Data == null)
+                {
+                    _logger.LogWarning("User not found - UserId: {UserId}", id);
+                    return NotFound();
+                }
+
+                _logger.LogDebug("User details retrieved - Username: {Username}, Email: {Email}", resp.Data.UserName, resp.Data.Email);
+                return View(resp.Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+
+        }
+
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {

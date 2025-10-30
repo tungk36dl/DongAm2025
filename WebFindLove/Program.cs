@@ -8,6 +8,7 @@ using WebFindLove.HelperServices;
 using WebFindLove.Hubs;
 using WebFindLove.Models;
 using WebFindLove.Models.Repositories;
+using WebFindLove.Models.Options;
 using WebFindLove.Models.Services;
 using WebFindLove.Models.Services.RoleService;
 using WebFindLove.Models.Services.UserService;
@@ -80,6 +81,8 @@ try
     // Email
     builder.Services.Configure<EmailSetting>(builder.Configuration.GetSection("EmailSettings"));
 
+    // OpenAI
+    builder.Services.Configure<OpenAIOptions>(builder.Configuration.GetSection("OpenAI"));
 
     // Register UnitOfWork and services
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -11,6 +11,7 @@ using WebFindLove.Models.Services.MatchingService;
 using WebFindLove.Models.Services.NotificationService;
 using WebFindLove.Models.Services.PasswordResetService;
 using WebFindLove.Helper.HelperServices;
+using WebFindLove.Models.Services.OpenAIChatService;
 
 namespace WebFindLove.Models.Services
 {
@@ -42,6 +43,7 @@ namespace WebFindLove.Models.Services
             // Utility services
             services.AddScoped<IFileUploadService, FileUploadService.FileUploadService>();
             services.AddScoped<IEmbeddingService, EmbeddingService.EmbeddingService>();
+            services.AddScoped<IOpenAIChatService, OpenAIChatService.OpenAIChatService>();
 
             // Real-time tracking services (Singleton để shared state across requests)
             services.AddSingleton<IOnlineUserTrackingService, OnlineUserTrackingService>();

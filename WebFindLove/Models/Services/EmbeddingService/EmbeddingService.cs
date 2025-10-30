@@ -10,6 +10,9 @@ using OpenAI.Embeddings;
 using WebFindLove.Models.Repositories.UserRepo;
 using WebFindLove.Models.Repositories.UserPreferenceRepo;
 using WebFindLove.Models.UnitOfWork;
+using WebFindLove.Models.Services.OpenAIChatService;
+using Microsoft.Extensions.Options;
+using WebFindLove.Models.Options;
 
 namespace WebFindLove.Models.Services.EmbeddingService
 {
@@ -18,30 +21,37 @@ namespace WebFindLove.Models.Services.EmbeddingService
     /// </summary>
     public class EmbeddingService : IEmbeddingService
     {
-        private readonly IConfiguration _configuration;
+        private readonly OpenAIOptions _openAIOptions;
         private readonly ILogger<EmbeddingService> _logger;
         private readonly IUserRepository _userRepository;
         private readonly IUserPreferenceRepository _preferenceRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly EmbeddingClient _embeddingClient;
+        private readonly IOpenAIChatService _chatService;
         private readonly string _embeddingModel;
 
         public EmbeddingService(
-            IConfiguration configuration,
+            IOptions<OpenAIOptions> openAIOptions,
             ILogger<EmbeddingService> logger,
             IUserRepository userRepository,
             IUserPreferenceRepository preferenceRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IOpenAIChatService chatService)
         {
-            _configuration = configuration;
+            _openAIOptions = openAIOptions.Value;
             _logger = logger;
             _userRepository = userRepository;
             _preferenceRepository = preferenceRepository;
             _unitOfWork = unitOfWork;
+            _chatService = chatService;
 
             // Get OpenAI configuration
-            var apiKey = _configuration["OpenAI:ApiKey"];
-            _embeddingModel = _configuration["OpenAI:EmbeddingModel"] ?? "text-embedding-3-small";
+            var apiKey = _openAIOptions.ApiKey;
+            _embeddingModel = string.IsNullOrWhiteSpace(_openAIOptions.EmbeddingModel)
+                ? "text-embedding-3-small"
+                : _openAIOptions.EmbeddingModel;
+
+
 
             if (string.IsNullOrWhiteSpace(apiKey) || apiKey == "YOUR_OPENAI_API_KEY_HERE")
             {
@@ -274,11 +284,21 @@ namespace WebFindLove.Models.Services.EmbeddingService
                         Message = "Cannot generate profile text" 
                     };
                 }
+                var profileTextNormalized = await _chatService.NormalizeTextAsync(profileText);
+                if (string.IsNullOrWhiteSpace(profileTextNormalized))
+                {
+                    _logger.LogWarning("Profile text is empty for user {UserId}", user.Id);
+                    return new DataResponse<User>
+                    {
+                        Success = false,
+                        Message = "Cannot generate profile text"
+                    };
+                }
 
-                user.ProfileText = profileText;
+                user.ProfileText = profileTextNormalized;
 
                 // Generate embedding
-                var embedding = await GetEmbeddingAsync(profileText);
+                var embedding = await GetEmbeddingAsync(profileTextNormalized);
                 if (embedding == null || embedding.Length == 0)
                 {
                     _logger.LogWarning("Failed to generate embedding for user {UserId}", user.Id);
@@ -346,13 +366,23 @@ namespace WebFindLove.Models.Services.EmbeddingService
                         Message = "Cannot generate preference text" 
                     };
                 }
+                var preferenceTextNormalized = await _chatService.NormalizeTextAsync(preferenceText);
+                if(string.IsNullOrWhiteSpace(preferenceTextNormalized))
+                {
+                    _logger.LogWarning("Preference text is empty for user {UserId}", preference.UserId);
+                    return new DataResponse<UserPreference>
+                    {
+                        Success = false,
+                        Message = "Cannot generate preference text"
+                    };
+                }
 
-               
 
-                preference.PreferenceText = preferenceText;
+
+                preference.PreferenceText = preferenceTextNormalized;
 
                 // Generate embedding
-                var embedding = await GetEmbeddingAsync(preferenceText);
+                var embedding = await GetEmbeddingAsync(preferenceTextNormalized);
                 if (embedding == null || embedding.Length == 0)
                 {
                     _logger.LogWarning("Failed to generate embedding for user preference {UserId}", preference.UserId);
@@ -390,6 +420,9 @@ namespace WebFindLove.Models.Services.EmbeddingService
                 };
             }
         }
+
+
+
     }
 }
 

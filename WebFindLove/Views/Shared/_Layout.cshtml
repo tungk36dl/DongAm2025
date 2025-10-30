@@ -29,11 +29,11 @@
     </script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-    <header class="bg-white dark:bg-gray-800 shadow-md transition-colors duration-200">
+    <header class="bg-white dark:bg-gray-800 shadow-md transition-colors duration-200 sticky top-0 z-50">
         <nav class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 <a class="text-2xl font-bold text-primary hover:text-pink-600 transition" asp-controller="Home" asp-action="Index">
-                    <i class="fas fa-heart mr-2"></i>WebFindLove
+                    <i class="fas fa-heart mr-2"></i>WebFindLove123 
                 </a>
                 
                 <button class="lg:hidden text-gray-700 dark:text-gray-300 focus:outline-none" id="mobile-menu-button">
@@ -84,10 +84,10 @@
                                     <i class="fas fa-user-edit mr-2"></i>Hồ sơ cá nhân
                                 </a>
                                 <a class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" asp-controller="UserPreferences" asp-action="Index">
-                                    <i class="fas fa-sliders-h mr-2"></i>Tùy chọn
+                                    <i class="fas fa-sliders-h mr-2"></i>Gu người yêu
                                 </a>
                                 <a class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" asp-controller="PersonalityTraits" asp-action="Index">
-                                    <i class="fas fa-brain mr-2"></i>Tính cách
+                                    <i class="fas fa-brain mr-2"></i>Bài test tính cách 
                                 </a>
                                 <div class="border-t dark:border-gray-700 my-1"></div>
                                 <form method="post" asp-controller="Auth" asp-action="Logout" class="m-0">

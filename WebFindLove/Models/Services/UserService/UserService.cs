@@ -86,6 +86,33 @@ namespace WebFindLove.Models.Services.UserService
             }
         }
 
+        public async Task<DataResponse<UserDto>> GetInfoAsync(Guid id)
+        {
+            try
+            {
+                var u = await _userRepository.FindByIdAsync(id, r => r.Role);
+                var userDto = new UserDto()
+                {
+                    FullName = u.FullName,
+                    PhoneNumber = u.PhoneNumber,
+                    Gender = u.Gender,
+                    Hometown = u.Hometown,
+                    Avatar = u.Avatar,
+                    DateOfBirth = u.DateOfBirth,
+                    Bio = u.Bio,
+                    Occupation = u.Occupation,
+                    Location = u.Location,
+                    Height = u.Height
+
+                };
+                return new DataResponse<UserDto> { Success = true, Data = userDto };
+            }
+            catch (Exception ex)
+            {
+                return new DataResponse<UserDto> { Success = false, Message = $"Failed to get user by id: {id}", ErrorDetails = ex.Message };
+            }
+        }
+
         public async Task<DataResponse<User>> AddAsync(User user)
         {
             if (user == null)
