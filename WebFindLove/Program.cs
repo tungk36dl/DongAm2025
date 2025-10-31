@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -46,10 +48,20 @@ try
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
     Log.Information("Database configured with connection string");
 
- 
+
+    builder.Services.Configure<CookiePolicyOptions>(options =>
+    {
+        options.Secure = CookieSecurePolicy.SameAsRequest;
+        options.CheckConsentNeeded = context => false;
+        options.MinimumSameSitePolicy = SameSiteMode.None;
+    });
 
     // Configure Authentication
-    builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+        })
         .AddCookie(options =>
         {
             options.LoginPath = "/Auth/Login";
@@ -58,7 +70,34 @@ try
             options.ExpireTimeSpan = TimeSpan.FromDays(7);
             options.SlidingExpiration = true;
             options.Cookie.HttpOnly = true;
+            // Use SameSite None for OAuth to work properly
+            options.Cookie.SameSite = SameSiteMode.None;
+            // Must be Secure when SameSite is None
             options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        })
+        .AddGoogle(GoogleDefaults.AuthenticationScheme, googleOptions =>
+        {
+            var googleConfig = builder.Configuration.GetSection("GoogleAuth");
+            var clientId = googleConfig["ClientId"];
+            var clientSecret = googleConfig["ClientSecret"];
+            
+            if (!string.IsNullOrEmpty(clientId) && !string.IsNullOrEmpty(clientSecret) && 
+                clientId != "YOUR_CLIENT_ID" && clientSecret != "YOUR_CLIENT_SECRET")
+            {
+                googleOptions.ClientId = clientId;
+                googleOptions.ClientSecret = clientSecret;
+                googleOptions.CallbackPath = "/Auth/GoogleCallback";
+                
+                // Save tokens for future requests
+                googleOptions.SaveTokens = true;
+                
+                var clientIdPreview = clientId?.Length > 20 ? clientId?.Substring(0, 20) + "..." : clientId;
+                Log.Information("Google Authentication configured with ClientId: {ClientId}", clientIdPreview);
+            }
+            else
+            {
+                Log.Warning("Google Authentication not configured - ClientId or ClientSecret is missing");
+            }
         });
     Log.Information("Authentication configured");
 
@@ -76,6 +115,8 @@ try
         options.IdleTimeout = TimeSpan.FromMinutes(30);
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
+        options.Cookie.SameSite = SameSiteMode.None;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     });
 
     // Email
@@ -83,6 +124,9 @@ try
 
     // OpenAI
     builder.Services.Configure<OpenAIOptions>(builder.Configuration.GetSection("OpenAI"));
+
+    // Google Authentication
+    builder.Services.Configure<GoogleAuthOptions>(builder.Configuration.GetSection("GoogleAuth"));
 
     // Register UnitOfWork and services
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -124,6 +168,9 @@ try
 
     app.UseRouting();
 
+    // Cookie policy must be before authentication
+    app.UseCookiePolicy();
+    
     // Session middleware (must be before authentication)
     app.UseSession();
 

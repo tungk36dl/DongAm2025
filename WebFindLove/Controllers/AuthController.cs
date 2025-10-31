@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -205,6 +206,160 @@ namespace WebFindLove.Controllers
             return View();
         }
 
+        // ============================
+        // Google OAuth2 Authentication
+        // ============================
+
+        /// <summary>
+        /// Initiates Google OAuth2 login
+        /// </summary>
+        public async Task GoogleLogin()
+        {
+            _logger.LogInformation("Initiating Google OAuth login");
+            await HttpContext.ChallengeAsync(GoogleDefaults.AuthenticationScheme, new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+            {
+                RedirectUri = "/Auth/GoogleCallback"
+            });
+        }
+
+        /// <summary>
+        /// Handles Google OAuth2 callback
+        /// </summary>
+        public async Task<IActionResult> GoogleCallback()
+        {
+            _logger.LogInformation("Google OAuth callback received");
+            
+            try
+            {
+                var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+                
+                if (!result.Succeeded)
+                {
+                    _logger.LogWarning("Google authentication failed");
+                    TempData["ErrorMessage"] = "Đăng nhập bằng Google thất bại. Vui lòng thử lại.";
+                    return RedirectToAction("Login");
+                }
+
+                var claims = result.Principal.Claims.ToList();
+                var googleId = claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                var email = claims.FirstOrDefault(c => c.Type == "email")?.Value;
+                var name = claims.FirstOrDefault(c => c.Type == "name")?.Value;
+                var picture = claims.FirstOrDefault(c => c.Type == "picture")?.Value;
+
+                _logger.LogInformation("Google user authenticated - Email: {Email}, Name: {Name}", email, name);
+
+                if (string.IsNullOrEmpty(email))
+                {
+                    _logger.LogWarning("Google authentication failed - Email is null");
+                    TempData["ErrorMessage"] = "Không thể lấy thông tin email từ Google. Vui lòng thử lại.";
+                    return RedirectToAction("Login");
+                }
+
+                // Check if user exists in database
+                var usersResp = await _userService.GetAllAsync();
+                var users = usersResp.Data ?? new List<User>();
+                var existingUser = users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+
+                if (existingUser != null)
+                {
+                    _logger.LogInformation("Existing user found for Google login - Email: {Email}", email);
+                    
+                    // Check if account is active
+                    if (!existingUser.IsActive)
+                    {
+                        _logger.LogWarning("Google login failed - Account is disabled");
+                        TempData["ErrorMessage"] = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ admin.";
+                        return RedirectToAction("Login");
+                    }
+
+                    // Sign in with existing user
+                    var userClaims = await CreateUserClaimsAsync(existingUser);
+                    var claimsIdentity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var authProperties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                    };
+
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
+                        new ClaimsPrincipal(claimsIdentity), authProperties);
+
+                    var userRole = existingUser.Role?.Name ?? existingUser.RoleName ?? "User";
+                    _logger.LogInformation("User logged in successfully via Google - Email: {Email}, Role: {Role}", email, userRole);
+
+                    // Redirect based on role
+                    if (userRole == "Admin")
+                    {
+                        return RedirectToAction("Index", "Admin");
+                    }
+                    else if (userRole == "NhanVien")
+                    {
+                        return RedirectToAction("Index", "NhanVien");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation("New Google user - Creating account - Email: {Email}", email);
+                    
+                    // Create new user from Google account
+                    var newUser = new User
+                    {
+                        Id = Guid.NewGuid(),
+                        UserName = email.Split('@')[0] + "_" + Guid.NewGuid().ToString().Substring(0, 8), // Generate unique username
+                        Email = email,
+                        FullName = name ?? "User",
+                        IsActive = true,
+                        RoleId = Guid.Parse("22222222-2222-2222-2222-222222222222"), // User role
+                        RoleName = "User",
+                        Avatar = picture, // Save Google profile picture
+                        PasswordHash = null, // No password for OAuth users
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    var addResult = await _userService.AddAsync(newUser);
+                    
+                    if (addResult.Success && addResult.Data != null)
+                    {
+                        _logger.LogInformation("New user created successfully via Google - Email: {Email}", email);
+                        
+                        // Sign in the new user
+                        var userClaims = await CreateUserClaimsAsync(addResult.Data);
+                        var claimsIdentity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var authProperties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+                        {
+                            IsPersistent = true,
+                            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                        };
+
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
+                            new ClaimsPrincipal(claimsIdentity), authProperties);
+
+                        _logger.LogInformation("New user logged in successfully via Google - Email: {Email}", email);
+                        TempData["SuccessMessage"] = "Đăng ký và đăng nhập thành công bằng Google!";
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        _logger.LogError("Failed to create new user via Google - Email: {Email}, Message: {Message}", 
+                            email, addResult.Message);
+                        TempData["ErrorMessage"] = "Không thể tạo tài khoản. Vui lòng thử lại hoặc liên hệ admin.";
+                        return RedirectToAction("Login");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred during Google OAuth callback");
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi đăng nhập bằng Google. Vui lòng thử lại.";
+                return RedirectToAction("Login");
+            }
+        }
+
         [HttpPost]
         // [ValidateAntiForgeryToken] // Temporarily disabled for debugging
         public async Task<IActionResult> Login(string usernameOrEmail, string password)
@@ -245,7 +400,16 @@ namespace WebFindLove.Controllers
             _logger.LogDebug("User found - Username: {Username}, Email: {Email}, IsActive: {IsActive}, Role: {Role}", 
                 user.UserName, user.Email, user.IsActive, user.RoleName);
 
-            var verify = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash ?? string.Empty, password);
+            // Check if user is OAuth-only user (no password)
+            if (string.IsNullOrEmpty(user.PasswordHash))
+            {
+                _logger.LogWarning("Login failed: User {Username} is OAuth-only, cannot login with password", user.UserName);
+                if (isAjax) return Json(new { success = false, message = "Tài khoản này đăng nhập bằng Google. Vui lòng dùng nút 'Đăng nhập bằng Google'." });
+                ModelState.AddModelError(string.Empty, "Tài khoản này đăng nhập bằng Google. Vui lòng dùng nút 'Đăng nhập bằng Google'.");
+                return View();
+            }
+
+            var verify = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
             if (verify == PasswordVerificationResult.Failed)
             {
                 _logger.LogWarning("Login failed: Invalid password for user: {Username}", user.UserName);
