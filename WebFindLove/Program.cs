@@ -43,6 +43,8 @@ try
     // Add services to the container.
     builder.Services.AddControllersWithViews();
 
+    builder.Services.AddHttpContextAccessor();
+
     // Thêm EF vào DI container
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

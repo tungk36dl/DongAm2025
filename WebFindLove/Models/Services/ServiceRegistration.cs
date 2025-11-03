@@ -51,6 +51,9 @@ namespace WebFindLove.Models.Services
             // Email
             services.AddTransient<IEmailService, EmailService>();
 
+            // UrlHelperService
+            services.AddScoped<IUrlHelperService, UrlHelperService>();
+
 
             return services;
         }

@@ -48,12 +48,23 @@ namespace WebFindLove.Models.Services.UserService
                 
                 if (search != null)
                 {
-                    if (!string.IsNullOrWhiteSpace(search.Query))
+                    // Support both Keyword (from SearchBase) and Query
+                    var searchTerm = !string.IsNullOrWhiteSpace(search.Query) 
+                        ? search.Query 
+                        : (!string.IsNullOrWhiteSpace(search.Keyword) ? search.Keyword : null);
+                    
+                    if (!string.IsNullOrWhiteSpace(searchTerm))
                     {
-                        var qstr = search.Query.Trim();
+                        var qstr = searchTerm.Trim();
                         query = query.Where(u => (u.UserName != null && u.UserName.Contains(qstr))
                                                 || (u.Email != null && u.Email.Contains(qstr))
                                                 || (u.FullName != null && u.FullName.Contains(qstr)));
+                    }
+
+                    // Filter by Role
+                    if (!string.IsNullOrWhiteSpace(search.Role))
+                    {
+                        query = query.Where(u => u.RoleName == search.Role);
                     }
 
                     if (search.IsActive.HasValue)
@@ -65,6 +76,13 @@ namespace WebFindLove.Models.Services.UserService
                 }
 
                 var data = await query.ToListAsync();
+                
+                // Normalize avatar paths for all users
+                //foreach (var user in data)
+                //{
+                //    user.Avatar = NormalizeAvatarPath(user.Avatar);
+                //}
+                
                 return new DataResponse<List<User>> { Success = true, Data = data };
             }
             catch (Exception ex)
@@ -73,11 +91,56 @@ namespace WebFindLove.Models.Services.UserService
             }
         }
 
+        public async Task<DataResponse<int>> GetCountAsync(UserSearch? search = null)
+        {
+            try
+            {
+                IQueryable<User> query = _userRepository.FindAll(null, r => r.Role);
+                
+                if (search != null)
+                {
+                    // Support both Keyword (from SearchBase) and Query
+                    var searchTerm = !string.IsNullOrWhiteSpace(search.Query) 
+                        ? search.Query 
+                        : (!string.IsNullOrWhiteSpace(search.Keyword) ? search.Keyword : null);
+                    
+                    if (!string.IsNullOrWhiteSpace(searchTerm))
+                    {
+                        var qstr = searchTerm.Trim();
+                        query = query.Where(u => (u.UserName != null && u.UserName.Contains(qstr))
+                                                || (u.Email != null && u.Email.Contains(qstr))
+                                                || (u.FullName != null && u.FullName.Contains(qstr)));
+                    }
+
+                    // Filter by Role
+                    if (!string.IsNullOrWhiteSpace(search.Role))
+                    {
+                        query = query.Where(u => u.RoleName == search.Role);
+                    }
+
+                    if (search.IsActive.HasValue)
+                        query = query.Where(u => u.IsActive == search.IsActive.Value);
+                }
+
+                var count = await query.CountAsync();
+                return new DataResponse<int> { Success = true, Data = count };
+            }
+            catch (Exception ex)
+            {
+                return new DataResponse<int> { Success = false, Message = "Failed to get user count.", ErrorDetails = ex.Message };
+            }
+        }
+
         public async Task<DataResponse<User?>> GetByIdAsync(Guid id)
         {
             try
             {
                 var u = await _userRepository.FindByIdAsync(id, r => r.Role);
+                //if (u != null)
+                //{
+                //    // Normalize avatar path
+                //    u.Avatar = NormalizeAvatarPath(u.Avatar);
+                //}
                 return new DataResponse<User?> { Success = true, Data = u };
             }
             catch (Exception ex)
@@ -97,7 +160,7 @@ namespace WebFindLove.Models.Services.UserService
                     PhoneNumber = u.PhoneNumber,
                     Gender = u.Gender,
                     Hometown = u.Hometown,
-                    Avatar = u.Avatar,
+                    Avatar = NormalizeAvatarPath(u.Avatar),
                     DateOfBirth = u.DateOfBirth,
                     Bio = u.Bio,
                     Occupation = u.Occupation,
@@ -162,8 +225,14 @@ namespace WebFindLove.Models.Services.UserService
                 user.CreatedAt = DateTime.UtcNow;
                 user.UpdatedAt = DateTime.UtcNow;
 
+                // Normalize avatar path before saving
+                user.Avatar = NormalizeAvatarPath(user.Avatar);
+
                 _userRepository.Add(user);
                 await _unitOfWork.SaveChangesAsync();
+                
+                // Normalize again after save (in case it was already normalized)
+                user.Avatar = NormalizeAvatarPath(user.Avatar);
                 return new DataResponse<User> { Success = true, Data = user };
             }
             catch (ValidationException vex)
@@ -220,9 +289,15 @@ namespace WebFindLove.Models.Services.UserService
                     };
                 }
 
+                // Normalize avatar path before saving
+                user.Avatar = NormalizeAvatarPath(user.Avatar);
+                
                 user.UpdatedAt = DateTime.UtcNow;
                 _userRepository.Update(user);
                 await _unitOfWork.SaveChangesAsync();
+                
+                // Normalize again after save (in case it was already normalized)
+                user.Avatar = NormalizeAvatarPath(user.Avatar);
                 return new DataResponse<User> { Success = true, Data = user };
             }
             catch (ValidationException vex)
@@ -314,10 +389,15 @@ namespace WebFindLove.Models.Services.UserService
                     user.PasswordHash = _passwordHasher.HashPassword(user, model.NewPassword);
                 }
 
+                // Normalize avatar path before saving
+                user.Avatar = NormalizeAvatarPath(user.Avatar);
+                
                 user.UpdatedAt = DateTime.UtcNow;
                 _userRepository.Update(user);
                 await _unitOfWork.SaveChangesAsync();
 
+                // Normalize again after save (in case it was already normalized)
+                user.Avatar = NormalizeAvatarPath(user.Avatar);
                 return new DataResponse<User> { Success = true, Data = user };
             }
             catch (ValidationException vex)
@@ -399,14 +479,17 @@ namespace WebFindLove.Models.Services.UserService
                     // Delete old avatar if exists
                     if (!string.IsNullOrEmpty(user.Avatar))
                     {
-                        var oldAvatarPath = Path.Combine("avatars", user.Avatar);
+                        // Extract filename from path if it contains path separators
+                        var oldAvatarPath = user.Avatar.Contains('/') 
+                            ? user.Avatar.Replace("uploads/", "").Replace("\\", "/") 
+                            : Path.Combine("avatars", user.Avatar).Replace("\\", "/");
                         await _fileUploadService.DeleteFileAsync(oldAvatarPath);
                         _logger.LogInformation("Deleted old avatar for user {UserId}: {OldAvatar}", model.Id, user.Avatar);
                     }
 
-                    // Update user avatar with new filename
-                    user.Avatar = uploadResult.FileName;
-                    _logger.LogInformation("Avatar uploaded successfully for user {UserId}: {FileName}", model.Id, uploadResult.FileName);
+                    // Update user avatar with full path: uploads/avatars/filename.jpg
+                    user.Avatar = $"uploads/{uploadResult.FilePath}";
+                    _logger.LogInformation("Avatar uploaded successfully for user {UserId}: {Avatar}", model.Id, user.Avatar);
                 }
 
                 // Decrement free profile updates count
@@ -434,6 +517,10 @@ namespace WebFindLove.Models.Services.UserService
                 }
 
                 _logger.LogInformation("Profile updated successfully for user {UserId}", model.Id);
+                
+                // Normalize avatar path before returning
+                user.Avatar = NormalizeAvatarPath(user.Avatar);
+                
                 return new DataResponse<User> { Success = true, Data = user };
             }
             catch (Exception ex)
@@ -441,6 +528,33 @@ namespace WebFindLove.Models.Services.UserService
                 _logger.LogError(ex, "Error updating profile for user {UserId}", model.Id);
                 return new DataResponse<User> { Success = false, Message = "Failed to update profile.", ErrorDetails = ex.Message };
             }
+        }
+
+        /// <summary>
+        /// Normalizes avatar path to ensure it has the full path format: uploads/avatars/filename.jpg
+        /// If the path already contains uploads/avatars/, returns as is
+        /// If it only contains avatars/, prepends uploads/
+        /// If it's just a filename, prepends uploads/avatars/
+        /// </summary>
+        private string? NormalizeAvatarPath(string? avatar)
+        {
+            if (string.IsNullOrWhiteSpace(avatar))
+                return avatar;
+
+            // Already has full path
+            if (avatar.StartsWith("uploads/avatars/") || avatar.StartsWith("/uploads/avatars/"))
+            {
+                return avatar.StartsWith("/") ? avatar : avatar;
+            }
+
+            // Has avatars/ but missing uploads/
+            if (avatar.StartsWith("avatars/"))
+            {
+                return $"uploads/{avatar}";
+            }
+
+            // Just filename, add full path
+            return $"uploads/avatars/{avatar}";
         }
     }
 }

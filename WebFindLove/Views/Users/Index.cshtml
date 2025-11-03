@@ -3,6 +3,10 @@
 @{
     ViewData["Title"] = "Quản Lý Người Dùng";
     var search = ViewBag.Search as WebFindLove.Models.Services.UserService.Dto.UserSearch;
+    var totalCount = (int)(ViewBag.TotalCount ?? 0);
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+    var pageSize = (int)(ViewBag.PageSize ?? 10);
+    var totalPages = (int)(ViewBag.TotalPages ?? 0);
 }
 
 <div class="mb-6">
@@ -20,7 +24,7 @@
 
     <!-- Search and Filter Section -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <form method="get" asp-action="Index" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <form method="get" asp-action="Index" class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
                 <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
                     <i class="fas fa-search mr-1"></i>Tìm Kiếm
@@ -39,7 +43,7 @@
                 <select name="Role" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                     <option value="">Tất Cả Vai Trò</option>
                     <option value="Admin" selected="@(search?.Role == "Admin")">Quản Trị Viên</option>
-                    <option value="NhanVien" selected="@(search?.Role == "NhanVien")">Nhân Viên</option>
+                    <!-- <option value="NhanVien" selected="@(search?.Role == "NhanVien")">Nhân Viên</option> -->
                     <option value="User" selected="@(search?.Role == "User")">Người Dùng</option>
                 </select>
             </div>
@@ -55,11 +59,26 @@
                 </select>
             </div>
 
+            <div>
+                <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                    <i class="fas fa-list-ol mr-1"></i>Số Lượng/Trang
+                </label>
+                <select name="PageSize" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <option value="10" selected="@(pageSize == 10)">10</option>
+                    <option value="20" selected="@(pageSize == 20)">20</option>
+                    <option value="50" selected="@(pageSize == 50)">50</option>
+                    <option value="100" selected="@(pageSize == 100)">100</option>
+                </select>
+            </div>
+
             <div class="flex items-end">
                 <button type="submit" class="w-full bg-primary text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition font-medium">
                     <i class="fas fa-filter mr-2"></i>Lọc
                 </button>
             </div>
+            
+            <!-- Hidden field to preserve page when filtering -->
+            <input type="hidden" name="Page" value="1" />
         </form>
     </div>
 
@@ -106,9 +125,21 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
-                                            <div class="h-10 w-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white font-bold">
-                                                @(user.UserName?.Substring(0, 1).ToUpper() ?? "U")
-                                            </div>
+                                            @if (!string.IsNullOrEmpty(user.Avatar))
+                                            {
+                                                <img src="@user.Avatar" alt="@user.UserName" 
+                                                     class="h-10 w-10 rounded-full object-cover border-2 border-primary" 
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="h-10 w-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white font-bold" style="display: none;">
+                                                    @(user.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="h-10 w-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white font-bold">
+                                                    @(user.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                                                </div>
+                                            }
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900 dark:text-white">@user.UserName</div>
@@ -160,6 +191,96 @@
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Pagination -->
+            @if (totalPages > 1)
+            {
+                <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700 dark:text-gray-300">
+                            Hiển thị <span class="font-semibold">@((currentPage - 1) * pageSize + 1)</span> đến 
+                            <span class="font-semibold">@(Math.Min(currentPage * pageSize, totalCount))</span> trong tổng số 
+                            <span class="font-semibold">@totalCount</span> người dùng
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            @{
+                                Func<int, Dictionary<string, string>> getRouteValues = (page) => {
+                                    var values = new Dictionary<string, string>();
+                                    if (!string.IsNullOrEmpty(search?.Keyword))
+                                        values["Keyword"] = search.Keyword;
+                                    if (!string.IsNullOrEmpty(search?.Role))
+                                        values["Role"] = search.Role;
+                                    if (search?.IsActive != null && search.IsActive.HasValue)
+                                        values["IsActive"] = search.IsActive.Value.ToString();
+                                    values["PageSize"] = pageSize.ToString();
+                                    values["Page"] = page.ToString();
+                                    return values;
+                                };
+                                
+                                var startPage = Math.Max(1, currentPage - 2);
+                                var endPage = Math.Min(totalPages, currentPage + 2);
+                            }
+                            
+                            @if (currentPage > 1)
+                            {
+                                <a href="@Url.Action("Index", getRouteValues(currentPage - 1))" 
+                                   class="px-4 py-2 bg-white dark:bg-gray-600 text-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-500 transition border border-gray-300 dark:border-gray-500">
+                                    <i class="fas fa-chevron-left"></i> Trang trước
+                                </a>
+                            }
+                            
+                            @if (startPage > 1)
+                            {
+                                <a href="@Url.Action("Index", getRouteValues(1))" 
+                                   class="px-3 py-2 bg-white dark:bg-gray-600 text-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-500 transition border border-gray-300 dark:border-gray-500">1</a>
+                                @if (startPage > 2)
+                                {
+                                    <span class="px-2 text-gray-500">...</span>
+                                }
+                            }
+                            
+                            @for (int i = startPage; i <= endPage; i++)
+                            {
+                                if (i == currentPage)
+                                {
+                                    <span class="px-4 py-2 bg-primary text-white rounded-lg font-semibold">@i</span>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("Index", getRouteValues(i))" 
+                                       class="px-4 py-2 bg-white dark:bg-gray-600 text-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-500 transition border border-gray-300 dark:border-gray-500">@i</a>
+                                }
+                            }
+                            
+                            @if (endPage < totalPages)
+                            {
+                                @if (endPage < totalPages - 1)
+                                {
+                                    <span class="px-2 text-gray-500">...</span>
+                                }
+                                <a href="@Url.Action("Index", getRouteValues(totalPages))" 
+                                   class="px-3 py-2 bg-white dark:bg-gray-600 text-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-500 transition border border-gray-300 dark:border-gray-500">@totalPages</a>
+                            }
+                            
+                            @if (currentPage < totalPages)
+                            {
+                                <a href="@Url.Action("Index", getRouteValues(currentPage + 1))" 
+                                   class="px-4 py-2 bg-white dark:bg-gray-600 text-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-500 transition border border-gray-300 dark:border-gray-500">
+                                    Trang sau <i class="fas fa-chevron-right"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (totalCount > 0)
+            {
+                <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600">
+                    <div class="text-sm text-gray-700 dark:text-gray-300 text-center">
+                        Hiển thị tất cả <span class="font-semibold">@totalCount</span> người dùng
+                    </div>
+                </div>
+            }
         }
         else
         {

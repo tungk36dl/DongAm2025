@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using WebFindLove.Helper.HelperServices;
 
 namespace WebFindLove.Controllers
 {
@@ -20,14 +21,16 @@ namespace WebFindLove.Controllers
         private readonly IRoleService _roleService;
         private readonly PasswordHasher<User> _passwordHasher;
         private readonly ILogger<UsersController> _logger;
+        private readonly IUrlHelperService _urlHelperService;
 
-        public UsersController(IUserService userService, IRoleService roleService, ILogger<UsersController> logger)
+        public UsersController(IUserService userService, IRoleService roleService, ILogger<UsersController> logger, IUrlHelperService urlHelperService)
         {
             _userService = userService;
             _roleService = roleService;
             _passwordHasher = new PasswordHasher<User>();
             _logger = logger;
             _logger.LogInformation("UsersController initialized");
+            _urlHelperService = urlHelperService;
         }
 
         [Authorize(Roles = "Admin")]
@@ -35,18 +38,65 @@ namespace WebFindLove.Controllers
         {
             _logger.LogInformation("GET Users Index - Requested by: {CurrentUser}, Search: {@Search}", CurrentUser?.UserName, search);
             
+            // Normalize search parameters
+            if (search == null)
+            {
+                search = new Models.Services.UserService.Dto.UserSearch();
+            }
+            
+            // Map Keyword to Query if Query is empty but Keyword has value
+            if (string.IsNullOrWhiteSpace(search.Query) && !string.IsNullOrWhiteSpace(search.Keyword))
+            {
+                search.Query = search.Keyword;
+            }
+            
+            // Set default pagination values
+            if (search.Page < 1) search.Page = 1;
+            if (search.PageSize < 1) search.PageSize = 10;
+            
+            // Get total count for pagination (before applying pagination)
+            var countResp = await _userService.GetCountAsync(search);
+            var totalCount = countResp.Success ? countResp.Data : 0;
+            
+            // Get paginated users
             var resp = await _userService.GetAllAsync(search);
             if (!resp.Success)
             {
                 _logger.LogError("Failed to retrieve users list - Message: {Message}, ErrorDetails: {ErrorDetails}", 
                     resp.Message, resp.ErrorDetails);
                 ViewBag.ErrorMessage = resp.Message ?? resp.ErrorDetails;
-                ViewBag.Search = search ?? new Models.Services.UserService.Dto.UserSearch();
+                ViewBag.Search = search;
+                ViewBag.TotalCount = 0;
+                ViewBag.CurrentPage = search.Page;
+                ViewBag.PageSize = search.PageSize;
+                ViewBag.TotalPages = 0;
                 return View(new List<User>());
             }
             
-            _logger.LogInformation("Successfully retrieved {UserCount} users", resp.Data?.Count ?? 0);
-            ViewBag.Search = search ?? new Models.Services.UserService.Dto.UserSearch();
+            // Apply UrlHelperService to avatar for all users
+            if (resp.Data != null)
+            {
+                foreach (var user in resp.Data)
+                {
+                    if (!string.IsNullOrEmpty(user.Avatar))
+                    {
+                        user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
+                    }
+                }
+            }
+            
+            // Calculate total pages
+            var totalPages = (int)Math.Ceiling((double)totalCount / search.PageSize);
+            
+            _logger.LogInformation("Successfully retrieved {UserCount} users out of {TotalCount} (Page {Page}/{TotalPages})", 
+                resp.Data?.Count ?? 0, totalCount, search.Page, totalPages);
+            
+            ViewBag.Search = search;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.CurrentPage = search.Page;
+            ViewBag.PageSize = search.PageSize;
+            ViewBag.TotalPages = totalPages;
+            
             return View(resp.Data ?? new List<User>());
         }
 
@@ -75,6 +125,12 @@ namespace WebFindLove.Controllers
                     return NotFound();
                 }
 
+                // Apply UrlHelperService to avatar
+                if (!string.IsNullOrEmpty(resp.Data.Avatar))
+                {
+                    resp.Data.Avatar = _urlHelperService.GetFullUrl(resp.Data.Avatar);
+                }
+
                 _logger.LogDebug("User details retrieved - Username: {Username}, Email: {Email}", resp.Data.UserName, resp.Data.Email);
                 return View(resp.Data);
             }catch(Exception ex)
@@ -101,6 +157,12 @@ namespace WebFindLove.Controllers
                 {
                     _logger.LogWarning("User not found - UserId: {UserId}", id);
                     return NotFound();
+                }
+
+                // Apply UrlHelperService to avatar
+                if (!string.IsNullOrEmpty(resp.Data.Avatar))
+                {
+                    resp.Data.Avatar = _urlHelperService.GetFullUrl(resp.Data.Avatar);
                 }
 
                 _logger.LogDebug("User details retrieved - Username: {Username}, Email: {Email}", resp.Data.UserName, resp.Data.Email);
@@ -185,22 +247,34 @@ namespace WebFindLove.Controllers
                 return NotFound();
             }
             
+            // Convert User entity to UserUpdateVM
+            var model = new UserUpdateVM
+            {
+                Id = resp.Data.Id,
+                UserName = resp.Data.UserName,
+                Email = resp.Data.Email,
+                FullName = resp.Data.FullName,
+                IsActive = resp.Data.IsActive,
+                Role = resp.Data.RoleName,
+                FreeProfileUpdatesLeft = resp.Data.FreeProfileUpdatesLeft
+            };
+            
             _logger.LogDebug("Loaded user for edit - Username: {Username}, Email: {Email}", resp.Data.UserName, resp.Data.Email);
             await LoadRolesAsync();
-            return View(resp.Data);
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, User user)
+        public async Task<IActionResult> Edit(Guid id, UserUpdateVM model)
         {
             _logger.LogInformation("POST Edit User - UserId: {UserId}, Username: {Username}, Requested by: {CurrentUser}", 
-                id, user.UserName, CurrentUser?.UserName);
+                id, model.UserName, CurrentUser?.UserName);
 
             var isAdmin = !string.IsNullOrEmpty(UserRole) ? UserRole.Equals("Admin") : false;
-            if (!isAdmin && id != user.Id)
+            if (!isAdmin && id != model.Id)
             {
-                _logger.LogWarning("User ID mismatch in edit request - URL ID: {UrlId}, Model ID: {ModelId}", id, user.Id);
+                _logger.LogWarning("User ID mismatch in edit request - URL ID: {UrlId}, Model ID: {ModelId}", id, model.Id);
                 return BadRequest();
             }
 
@@ -208,8 +282,26 @@ namespace WebFindLove.Controllers
             {
                 _logger.LogWarning("User edit validation failed - UserId: {UserId}, Errors: {Errors}", 
                     id, string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
-                return View(user);
+                await LoadRolesAsync();
+                return View(model);
             }
+
+            // Get existing user to preserve other properties
+            var existingUserResp = await _userService.GetByIdAsync(id);
+            if (!existingUserResp.Success || existingUserResp.Data == null)
+            {
+                _logger.LogWarning("User not found for update - UserId: {UserId}", id);
+                return NotFound();
+            }
+
+            var user = existingUserResp.Data;
+            // Update only the fields from ViewModel
+            user.UserName = model.UserName;
+            user.Email = model.Email;
+            user.FullName = model.FullName;
+            user.IsActive = model.IsActive;
+            user.RoleName = model.Role;
+            user.FreeProfileUpdatesLeft = model.FreeProfileUpdatesLeft;
 
             var resp = await _userService.UpdateAsync(user);
             if (!resp.Success)
@@ -217,7 +309,8 @@ namespace WebFindLove.Controllers
                 _logger.LogError("Failed to update user - UserId: {UserId}, Username: {Username}, Message: {Message}, ErrorDetails: {ErrorDetails}", 
                     id, user.UserName, resp.Message, resp.ErrorDetails);
                 ModelState.AddDataResponse(new DataResponse<object> { Success = resp.Success, Message = resp.Message, ErrorDetails = resp.ErrorDetails });
-                return View(user);
+                await LoadRolesAsync();
+                return View(model);
             }
 
             _logger.LogInformation("User updated successfully - UserId: {UserId}, Username: {Username}, UpdatedBy: {CurrentUser}", 
@@ -385,7 +478,7 @@ namespace WebFindLove.Controllers
                 Interests = resp.Data.Interests,
                 PersonalityType = resp.Data.PersonalityType,
                 PersonalityText = resp.Data.PersonalityText,
-                Avatar = resp.Data.Avatar
+                Avatar = _urlHelperService.GetFullUrl(resp.Data.Avatar)
             };
 
             // Pass free update count to view
@@ -444,5 +537,6 @@ namespace WebFindLove.Controllers
                 return View(model);
             }
         }
+
     }
 }

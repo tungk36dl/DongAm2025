@@ -9,6 +9,7 @@ namespace WebFindLove.Models.Services
     public interface IUserService
     {
         Task<DataResponse<List<User>>> GetAllAsync(UserService.Dto.UserSearch? search = null);
+        Task<DataResponse<int>> GetCountAsync(UserService.Dto.UserSearch? search = null);
         Task<DataResponse<User?>> GetByIdAsync(Guid id);
         Task<DataResponse<UserDto>> GetInfoAsync(Guid id);
         Task<DataResponse<User>> AddAsync(User user);

@@ -223,44 +223,56 @@ namespace WebFindLove.Controllers
         [HttpGet]
         public async Task<IActionResult> GetConversationsJson()
         {
-            _logger.LogInformation("GET Conversations JSON - User: {Username}", CurrentUser?.UserName);
-
-            var response = await _conversationService.GetUserConversationsAsync(UserId!.Value);
-
-            if (!response.Success)
+            try
             {
-                return Json(new { success = false, message = response.Message });
-            }
-
-            var conversations = response.Data?.Select(c =>
-            {
-                var otherParticipant = c.Participants?.FirstOrDefault(p => p.UserId != UserId!.Value);
-                var otherUser = otherParticipant?.User;
-                var hasUnread = c.Messages?.Any(m => !m.IsRead && m.ReceiverId == UserId!.Value) ?? false;
-
-                return new
+                _logger.LogInformation("GET Conversations JSON - User: {Username}", CurrentUser?.UserName);
+                if (UserId == null)
                 {
-                    conversationId = c.Id,
-                    otherUserId = otherUser?.Id,
-                    otherUserName = otherUser?.UserName ?? "Unknown User",
-                    otherUserAvatar = otherUser?.Avatar,
-                    lastMessage = c.LastMessage,
-                    lastMessageAt = c.LastMessageAt ?? c.CreatedAt,
-                    hasUnread = hasUnread,
-                    unreadCount = c.Messages?.Count(m => !m.IsRead && m.ReceiverId == UserId!.Value) ?? 0
-                };
-            }).OrderByDescending(c => c.lastMessageAt).ToList();
+                    //return Unauthorized(); // hoặc RedirectToAction("Login", "Auth");
+                    return RedirectToAction("Login", "Auth");
+                }
 
-            // Get total unread count
-            var unreadResponse = await _messageService.GetUnreadCountAsync(UserId!.Value);
-            var unreadCount = unreadResponse.Success ? unreadResponse.Data : 0;
+                var response = await _conversationService.GetUserConversationsAsync(UserId!.Value);
 
-            return Json(new
+                if (!response.Success)
+                {
+                    return Json(new { success = false, message = response.Message });
+                }
+
+                var conversations = response.Data?.Select(c =>
+                {
+                    var otherParticipant = c.Participants?.FirstOrDefault(p => p.UserId != UserId!.Value);
+                    var otherUser = otherParticipant?.User;
+                    var hasUnread = c.Messages?.Any(m => !m.IsRead && m.ReceiverId == UserId!.Value) ?? false;
+
+                    return new
+                    {
+                        conversationId = c.Id,
+                        otherUserId = otherUser?.Id,
+                        otherUserName = otherUser?.UserName ?? "Unknown User",
+                        otherUserAvatar = otherUser?.Avatar,
+                        lastMessage = c.LastMessage,
+                        lastMessageAt = c.LastMessageAt ?? c.CreatedAt,
+                        hasUnread = hasUnread,
+                        unreadCount = c.Messages?.Count(m => !m.IsRead && m.ReceiverId == UserId!.Value) ?? 0
+                    };
+                }).OrderByDescending(c => c.lastMessageAt).ToList();
+
+                // Get total unread count
+                var unreadResponse = await _messageService.GetUnreadCountAsync(UserId!.Value);
+                var unreadCount = unreadResponse.Success ? unreadResponse.Data : 0;
+
+                return Json(new
+                {
+                    success = true,
+                    conversations = conversations,
+                    unreadCount = unreadCount
+                });
+            }
+            catch
             {
-                success = true,
-                conversations = conversations,
-                unreadCount = unreadCount
-            });
+                throw new Exception("Failed to get conversations.");
+            }
         }
 
         // GET: Messages/GetMessagesJson - API endpoint for chat widget
