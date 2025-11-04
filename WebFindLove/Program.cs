@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using Serilog;
 using WebFindLove.Helper.Email;
 using WebFindLove.Helper.Seeder;
@@ -16,6 +18,7 @@ using WebFindLove.Models.Services.RoleService;
 using WebFindLove.Models.Services.UserService;
 using WebFindLove.Models.UnitOfWork;
 using DotNetEnv;
+using Microsoft.AspNetCore.Authentication;
 
 // 🔹 Load environment variables from .env file
 Env.Load();
@@ -148,10 +151,41 @@ try
             {
                 googleOptions.ClientId = clientId;
                 googleOptions.ClientSecret = clientSecret;
-                googleOptions.CallbackPath = "/Auth/GoogleCallback";
+                // Use a dedicated middleware callback path; do NOT point to controller action
+                // The middleware will handle this path, then redirect to our RedirectUri
+                googleOptions.CallbackPath = "/signin-google";
+                googleOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 
                 // Save tokens for future requests
                 googleOptions.SaveTokens = true;
+
+                // Request profile data
+                googleOptions.Scope.Add("email");
+                googleOptions.Scope.Add("profile");
+
+                // Map useful claims from Google userinfo response
+                googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+                googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+                googleOptions.ClaimActions.MapJsonKey("picture", "picture");
+                googleOptions.ClaimActions.MapJsonKey("sub", "sub");
+                googleOptions.ClaimActions.MapJsonKey("locale", "locale");
+
+                // Ensure correlation cookie survives cross-site redirects
+                googleOptions.CorrelationCookie.SameSite = SameSiteMode.None;
+                googleOptions.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                googleOptions.CorrelationCookie.HttpOnly = true;
+
+                // Log and gracefully handle remote failures (e.g., invalid state)
+                googleOptions.Events = new OAuthEvents
+                {
+                    OnRemoteFailure = context =>
+                    {
+                        Log.Error(context.Failure, "Google OAuth remote failure: {Message}", context.Failure?.Message);
+                        context.Response.Redirect("/Auth/Login?error=google_oauth_failure");
+                        context.HandleResponse();
+                        return Task.CompletedTask;
+                    }
+                };
                 
                 var clientIdPreview = clientId?.Length > 20 ? clientId?.Substring(0, 20) + "..." : clientId;
                 Log.Information("Google Authentication configured with ClientId: {ClientId}", clientIdPreview);

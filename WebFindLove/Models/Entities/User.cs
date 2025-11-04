@@ -77,6 +77,10 @@ namespace WebFindLove.Models
         // Số lần cho phép cập nhật profile miễn phí
         public int? FreeProfileUpdatesLeft { get; set; } = 3;
 
+        // Phương thức đăng nhập nhanh
+        public string? Provider { get; set; }
+        public string? ProviderKey { get; set; }
+
         // ============================
         // Navigation Properties
         // ============================

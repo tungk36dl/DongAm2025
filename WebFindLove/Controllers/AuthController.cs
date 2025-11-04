@@ -213,14 +213,22 @@ namespace WebFindLove.Controllers
         /// <summary>
         /// Initiates Google OAuth2 login
         /// </summary>
-        public async Task GoogleLogin()
+        //public async Task GoogleLogin()
+        //{
+        //    _logger.LogInformation("Initiating Google OAuth login");
+        //    await HttpContext.ChallengeAsync(GoogleDefaults.AuthenticationScheme, new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+        //    {
+        //        RedirectUri = "/Auth/GoogleCallback"
+        //    });
+        //}
+        public IActionResult GoogleLogin()
         {
             _logger.LogInformation("Initiating Google OAuth login");
-            await HttpContext.ChallengeAsync(GoogleDefaults.AuthenticationScheme, new Microsoft.AspNetCore.Authentication.AuthenticationProperties
-            {
-                RedirectUri = "/Auth/GoogleCallback"
-            });
+            var properties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleCallback", "Auth") };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
+
+
 
         /// <summary>
         /// Handles Google OAuth2 callback
@@ -231,8 +239,9 @@ namespace WebFindLove.Controllers
             
             try
             {
-                var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
-                
+                // var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+                var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
                 if (!result.Succeeded)
                 {
                     _logger.LogWarning("Google authentication failed");
@@ -242,7 +251,8 @@ namespace WebFindLove.Controllers
 
                 var claims = result.Principal.Claims.ToList();
                 var googleId = claims.FirstOrDefault(c => c.Type == "sub")?.Value;
-                var email = claims.FirstOrDefault(c => c.Type == "email")?.Value;
+                var email = claims.FirstOrDefault(c =>
+                    c.Type == ClaimTypes.Email || c.Type == "email")?.Value;
                 var name = claims.FirstOrDefault(c => c.Type == "name")?.Value;
                 var picture = claims.FirstOrDefault(c => c.Type == "picture")?.Value;
 
@@ -309,7 +319,7 @@ namespace WebFindLove.Controllers
                     var newUser = new User
                     {
                         Id = Guid.NewGuid(),
-                        UserName = email.Split('@')[0] + "_" + Guid.NewGuid().ToString().Substring(0, 8), // Generate unique username
+                        UserName = email.Split('@')[0] + "_" + Guid.NewGuid().ToString().Substring(0, 3), // Generate unique username
                         Email = email,
                         FullName = name ?? "User",
                         IsActive = true,
