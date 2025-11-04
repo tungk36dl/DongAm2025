@@ -15,6 +15,10 @@ using WebFindLove.Models.Services;
 using WebFindLove.Models.Services.RoleService;
 using WebFindLove.Models.Services.UserService;
 using WebFindLove.Models.UnitOfWork;
+using DotNetEnv;
+
+// 🔹 Load environment variables from .env file
+Env.Load();
 
 // 🔹 Cấu hình Serilog trước khi build
 Log.Logger = new LoggerConfiguration()
@@ -36,6 +40,62 @@ try
     Log.Information("Starting WebFindLove application");
 
     var builder = WebApplication.CreateBuilder(args);
+
+    // Override configuration from environment variables (loaded from .env file)
+    // ASP.NET Core automatically prioritizes environment variables, but we'll ensure they're set
+    
+    // Priority 1: Azure SQL Connection String (for Azure deployment)
+    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTION_STRING")))
+    {
+        builder.Configuration["ConnectionStrings:DefaultConnection"] = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTION_STRING");
+        Log.Information("Using Azure SQL connection string from environment variable");
+    }
+    // Priority 2: SQL Authentication with individual components (for local/other deployments)
+    else if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DB_SERVER")))
+    {
+        var dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
+        var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+        var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+        var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+        var connectionString = $"Server={dbServer};Database={dbName};User Id={dbUser};Password={dbPassword};MultipleActiveResultSets=True;TrustServerCertificate=True;";
+        builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+        Log.Information("Using SQL authentication connection string from environment variables");
+    }
+
+    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("REDIS_CONNECTION")))
+    {
+        builder.Configuration["ConnectionStrings:Redis"] = Environment.GetEnvironmentVariable("REDIS_CONNECTION");
+    }
+
+    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JWT_SECRET_KEY")))
+    {
+        builder.Configuration["Jwt:Key"] = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+    }
+
+    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OPENAI_API_KEY")))
+    {
+        builder.Configuration["OpenAI:ApiKey"] = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+    }
+
+    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_EMAIL")))
+    {
+        builder.Configuration["EmailSettings:SenderEmail"] = Environment.GetEnvironmentVariable("SMTP_EMAIL");
+        builder.Configuration["EmailSettings:SmtpServer"] = Environment.GetEnvironmentVariable("SMTP_SERVER") ?? builder.Configuration["EmailSettings:SmtpServer"];
+        builder.Configuration["EmailSettings:Password"] = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
+    }
+
+    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")))
+    {
+        builder.Configuration["GoogleAuth:ClientId"] = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
+        builder.Configuration["GoogleAuth:ClientSecret"] = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET");
+    }
+
+    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ADMIN_USERNAME")))
+    {
+        builder.Configuration["DefaultAdmin:UserName"] = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
+        builder.Configuration["DefaultAdmin:Email"] = Environment.GetEnvironmentVariable("ADMIN_EMAIL");
+        builder.Configuration["DefaultAdmin:Password"] = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+    }
 
     // Use Serilog for logging
     builder.Host.UseSerilog();

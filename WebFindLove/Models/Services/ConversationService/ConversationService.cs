@@ -2,6 +2,7 @@ using WebFindLove.Models.Entities;
 using WebFindLove.Models.Repositories.ConversationRepo;
 using WebFindLove.Models.Repositories.ConversationParticipantRepo;
 using WebFindLove.Models.UnitOfWork;
+using WebFindLove.Helper.HelperServices;
 
 namespace WebFindLove.Models.Services.ConversationService
 {
@@ -10,17 +11,20 @@ namespace WebFindLove.Models.Services.ConversationService
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConversationRepository _conversationRepository;
         private readonly IConversationParticipantRepository _participantRepository;
+        private readonly IUrlHelperService _urlHelperService;
         private readonly ILogger<ConversationService> _logger;
 
         public ConversationService(
             IUnitOfWork unitOfWork,
             IConversationRepository conversationRepository,
             IConversationParticipantRepository participantRepository,
+            IUrlHelperService urlHelperService,
             ILogger<ConversationService> logger)
         {
             _unitOfWork = unitOfWork;
             _conversationRepository = conversationRepository;
             _participantRepository = participantRepository;
+            _urlHelperService = urlHelperService;
             _logger = logger;
         }
 
@@ -33,8 +37,15 @@ namespace WebFindLove.Models.Services.ConversationService
                 // Tìm conversation hiện có
                 var existingConversation = await _conversationRepository.FindPrivateConversationAsync(userId1, userId2);
                 
-                if (existingConversation != null)
+                if (existingConversation != null && existingConversation.Participants != null)
                 {
+                    foreach(var participant in existingConversation.Participants)
+                    {
+                        if(participant != null && participant.User != null)
+                        {
+                            participant.User.Avatar = _urlHelperService.GetFullUrl(participant.User.Avatar);
+                        }
+                    }
                     _logger.LogInformation("Found existing conversation: {ConversationId}", existingConversation.Id);
                     return new DataResponse<Conversation> 
                     { 
@@ -98,6 +109,20 @@ namespace WebFindLove.Models.Services.ConversationService
                 
                 var conversations = await _conversationRepository.GetUserConversationsAsync(userId);
 
+                foreach(var conversation in conversations)
+                {
+                    if(conversation != null && conversation.Participants != null)
+                    {
+                        foreach (var u in conversation.Participants)
+                        {
+                            if(u != null && u.User != null && u.User.Avatar != null)
+                            {
+                                u.User.Avatar = _urlHelperService.GetFullUrl(u.User.Avatar);
+                            }
+                        }
+                    }
+                    
+                }
                 return new DataResponse<List<Conversation>> 
                 { 
                     Success = true, 

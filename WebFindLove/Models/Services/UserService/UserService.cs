@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using WebFindLove.Models.Services.FileUploadService;
 using WebFindLove.Models.Services.FileUploadService.Dto;
 using WebFindLove.Models.Services.EmbeddingService;
+using WebFindLove.Helper.HelperServices;
 
 namespace WebFindLove.Models.Services.UserService
 {
@@ -24,12 +25,14 @@ namespace WebFindLove.Models.Services.UserService
         private readonly IFileUploadService _fileUploadService;
         private readonly IEmbeddingService _embeddingService;
         private readonly ILogger<UserService> _logger;
+        private readonly IUrlHelperService _urlHelperService;
 
         public UserService(
             IUnitOfWork unitOfWork, 
             IUserRepository userRepository, 
             IFileUploadService fileUploadService, 
             IEmbeddingService embeddingService,
+            IUrlHelperService urlHelperService,
             ILogger<UserService> logger)
         {
             _unitOfWork = unitOfWork;
@@ -37,6 +40,7 @@ namespace WebFindLove.Models.Services.UserService
             _passwordHasher = new PasswordHasher<User>();
             _fileUploadService = fileUploadService;
             _embeddingService = embeddingService;
+            _urlHelperService = urlHelperService;
             _logger = logger;
         }
 
@@ -76,13 +80,13 @@ namespace WebFindLove.Models.Services.UserService
                 }
 
                 var data = await query.ToListAsync();
-                
+
                 // Normalize avatar paths for all users
-                //foreach (var user in data)
-                //{
-                //    user.Avatar = NormalizeAvatarPath(user.Avatar);
-                //}
-                
+                foreach (var user in data)
+                {
+                    user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
+                }
+
                 return new DataResponse<List<User>> { Success = true, Data = data };
             }
             catch (Exception ex)
@@ -136,11 +140,11 @@ namespace WebFindLove.Models.Services.UserService
             try
             {
                 var u = await _userRepository.FindByIdAsync(id, r => r.Role);
-                //if (u != null)
-                //{
-                //    // Normalize avatar path
-                //    u.Avatar = NormalizeAvatarPath(u.Avatar);
-                //}
+                if (u != null)
+                {
+                    // Normalize avatar path
+                    u.Avatar = _urlHelperService.GetFullUrl(u.Avatar);
+                }
                 return new DataResponse<User?> { Success = true, Data = u };
             }
             catch (Exception ex)
@@ -160,7 +164,7 @@ namespace WebFindLove.Models.Services.UserService
                     PhoneNumber = u.PhoneNumber,
                     Gender = u.Gender,
                     Hometown = u.Hometown,
-                    Avatar = NormalizeAvatarPath(u.Avatar),
+                    Avatar = _urlHelperService.GetFullUrl(u.Avatar),
                     DateOfBirth = u.DateOfBirth,
                     Bio = u.Bio,
                     Occupation = u.Occupation,
@@ -226,13 +230,13 @@ namespace WebFindLove.Models.Services.UserService
                 user.UpdatedAt = DateTime.UtcNow;
 
                 // Normalize avatar path before saving
-                user.Avatar = NormalizeAvatarPath(user.Avatar);
+                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
 
                 _userRepository.Add(user);
                 await _unitOfWork.SaveChangesAsync();
                 
                 // Normalize again after save (in case it was already normalized)
-                user.Avatar = NormalizeAvatarPath(user.Avatar);
+                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
                 return new DataResponse<User> { Success = true, Data = user };
             }
             catch (ValidationException vex)
@@ -290,14 +294,14 @@ namespace WebFindLove.Models.Services.UserService
                 }
 
                 // Normalize avatar path before saving
-                user.Avatar = NormalizeAvatarPath(user.Avatar);
+                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
                 
                 user.UpdatedAt = DateTime.UtcNow;
                 _userRepository.Update(user);
                 await _unitOfWork.SaveChangesAsync();
                 
                 // Normalize again after save (in case it was already normalized)
-                user.Avatar = NormalizeAvatarPath(user.Avatar);
+                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
                 return new DataResponse<User> { Success = true, Data = user };
             }
             catch (ValidationException vex)
@@ -390,14 +394,14 @@ namespace WebFindLove.Models.Services.UserService
                 }
 
                 // Normalize avatar path before saving
-                user.Avatar = NormalizeAvatarPath(user.Avatar);
+                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
                 
                 user.UpdatedAt = DateTime.UtcNow;
                 _userRepository.Update(user);
                 await _unitOfWork.SaveChangesAsync();
 
                 // Normalize again after save (in case it was already normalized)
-                user.Avatar = NormalizeAvatarPath(user.Avatar);
+                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
                 return new DataResponse<User> { Success = true, Data = user };
             }
             catch (ValidationException vex)
@@ -519,7 +523,7 @@ namespace WebFindLove.Models.Services.UserService
                 _logger.LogInformation("Profile updated successfully for user {UserId}", model.Id);
                 
                 // Normalize avatar path before returning
-                user.Avatar = NormalizeAvatarPath(user.Avatar);
+                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
                 
                 return new DataResponse<User> { Success = true, Data = user };
             }
@@ -536,25 +540,25 @@ namespace WebFindLove.Models.Services.UserService
         /// If it only contains avatars/, prepends uploads/
         /// If it's just a filename, prepends uploads/avatars/
         /// </summary>
-        private string? NormalizeAvatarPath(string? avatar)
-        {
-            if (string.IsNullOrWhiteSpace(avatar))
-                return avatar;
+        //private string? _urlHelperService.GetFullUrl(string? avatar)
+        //{
+        //    if (string.IsNullOrWhiteSpace(avatar))
+        //        return avatar;
 
-            // Already has full path
-            if (avatar.StartsWith("uploads/avatars/") || avatar.StartsWith("/uploads/avatars/"))
-            {
-                return avatar.StartsWith("/") ? avatar : avatar;
-            }
+        //    // Already has full path
+        //    if (avatar.StartsWith("uploads/avatars/") || avatar.StartsWith("/uploads/avatars/"))
+        //    {
+        //        return avatar.StartsWith("/") ? avatar : avatar;
+        //    }
 
-            // Has avatars/ but missing uploads/
-            if (avatar.StartsWith("avatars/"))
-            {
-                return $"uploads/{avatar}";
-            }
+        //    // Has avatars/ but missing uploads/
+        //    if (avatar.StartsWith("avatars/"))
+        //    {
+        //        return $"uploads/{avatar}";
+        //    }
 
-            // Just filename, add full path
-            return $"uploads/avatars/{avatar}";
-        }
+        //    // Just filename, add full path
+        //    return $"uploads/avatars/{avatar}";
+        //}
     }
 }

@@ -74,16 +74,16 @@ namespace WebFindLove.Controllers
             }
             
             // Apply UrlHelperService to avatar for all users
-            if (resp.Data != null)
-            {
-                foreach (var user in resp.Data)
-                {
-                    if (!string.IsNullOrEmpty(user.Avatar))
-                    {
-                        user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
-                    }
-                }
-            }
+            //if (resp.Data != null)
+            //{
+            //    foreach (var user in resp.Data)
+            //    {
+            //        if (!string.IsNullOrEmpty(user.Avatar))
+            //        {
+            //            user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
+            //        }
+            //    }
+            //}
             
             // Calculate total pages
             var totalPages = (int)Math.Ceiling((double)totalCount / search.PageSize);

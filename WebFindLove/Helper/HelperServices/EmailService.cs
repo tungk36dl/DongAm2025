@@ -17,25 +17,33 @@ namespace WebFindLove.Helper.HelperServices
 
         public async Task SendEmailAsync(string toEmail, string subject, string body, bool isHtml = true)
         {
-            var email = new MimeMessage();
-            email.Sender = MailboxAddress.Parse(_settings.SenderEmail);
-            email.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));
-            email.To.Add(MailboxAddress.Parse(toEmail));
-            email.Subject = subject;
+            try
+            {
+                var email = new MimeMessage();
+                email.Sender = MailboxAddress.Parse(_settings.SenderEmail);
+                email.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));
+                email.To.Add(MailboxAddress.Parse(toEmail));
+                email.Subject = subject;
 
-            var builder = new BodyBuilder();
-            if (isHtml)
-                builder.HtmlBody = body;
-            else
-                builder.TextBody = body;
+                var builder = new BodyBuilder();
+                if (isHtml)
+                    builder.HtmlBody = body;
+                else
+                    builder.TextBody = body;
 
-            email.Body = builder.ToMessageBody();
+                email.Body = builder.ToMessageBody();
 
-            using var smtp = new SmtpClient();
-            await smtp.ConnectAsync(_settings.SmtpServer, _settings.Port, SecureSocketOptions.StartTls);
-            await smtp.AuthenticateAsync(_settings.SenderEmail, _settings.Password);
-            await smtp.SendAsync(email);
-            await smtp.DisconnectAsync(true);
+                using var smtp = new SmtpClient();
+                await smtp.ConnectAsync(_settings.SmtpServer, (int)_settings.Port, SecureSocketOptions.StartTls);
+                await smtp.AuthenticateAsync(_settings.SenderEmail, _settings.Password);
+                await smtp.SendAsync(email);
+                await smtp.DisconnectAsync(true);
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception as needed
+                throw new InvalidOperationException("Failed to send email.", ex);
+            }
         }
     }
 }
