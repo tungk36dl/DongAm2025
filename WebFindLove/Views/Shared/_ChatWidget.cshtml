@@ -89,8 +89,9 @@
 
                     <!-- Send Message Form -->
                     <div class="border-t border-gray-200 p-3 bg-white">
-                        <form id="chatMessageForm" class="flex gap-2">
+                        <form id="chatMessageForm" class="flex gap-2 items-center relative">
                             <input type="hidden" id="chatReceiverId" value="" />
+                            <button type="button" id="chatEmojiToggleBtn" title="Insert emoji" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-lg">😊</button>
                             <input type="text" 
                                    id="chatMessageInput"
                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
@@ -100,6 +101,11 @@
                                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
+
+                            <!-- Emoji Picker Container -->
+                            <div id="chatEmojiPickerContainer" class="absolute bottom-12 left-0 z-50 hidden bg-white rounded-lg shadow-lg border border-gray-200">
+                                <emoji-picker id="chatEmojiPicker"></emoji-picker>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -109,6 +115,7 @@
 
     <!-- Load SignalR if not already loaded -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js"></script>
     
     <script>
         (function() {
@@ -183,6 +190,44 @@
                             self.sendMessage();
                         });
                     }
+
+                    // Emoji toggle
+                    const emojiToggle = document.getElementById('chatEmojiToggleBtn');
+                    const emojiContainer = document.getElementById('chatEmojiPickerContainer');
+                    const emojiPicker = document.getElementById('chatEmojiPicker');
+                    const input = document.getElementById('chatMessageInput');
+
+                    if (emojiToggle && emojiContainer) {
+                        emojiToggle.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            emojiContainer.classList.toggle('hidden');
+                        });
+                    }
+
+                    if (emojiPicker && input) {
+                        emojiPicker.addEventListener('emoji-click', function(event) {
+                            const emoji = event.detail.unicode || event.detail.emoji?.unicode;
+                            if (!emoji) return;
+                            const start = input.selectionStart || input.value.length;
+                            const end = input.selectionEnd || input.value.length;
+                            const before = input.value.substring(0, start);
+                            const after = input.value.substring(end);
+                            input.value = before + emoji + after;
+                            const caret = start + emoji.length;
+                            input.focus();
+                            input.setSelectionRange(caret, caret);
+                        });
+                    }
+
+                    // Close emoji picker when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (!emojiContainer) return;
+                        const target = e.target;
+                        const clickedInside = emojiContainer.contains(target) || (emojiToggle && emojiToggle.contains(target));
+                        if (!clickedInside) {
+                            emojiContainer.classList.add('hidden');
+                        }
+                    });
                     
                     console.log('Events bound successfully');
                 },

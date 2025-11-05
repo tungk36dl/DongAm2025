@@ -118,10 +118,12 @@
 
     <!-- Send Message Form -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-        <form id="messageForm" asp-action="Send" method="post" class="flex gap-3">
+        <form id="messageForm" asp-action="Send" method="post" class="flex gap-3 items-center relative">
             @Html.AntiForgeryToken()
             <input type="hidden" name="receiverId" value="@otherUserId" />
             
+            <button type="button" id="emojiToggleBtn" title="Insert emoji" class="px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-xl">😊</button>
+
             <input type="text" 
                    name="content" 
                    id="messageInput"
@@ -135,11 +137,18 @@
                 <i class="fas fa-paper-plane"></i>
                 <span class="hidden sm:inline">Send</span>
             </button>
+
+            <!-- Emoji Picker Container -->
+            <div id="emojiPickerContainer" class="absolute bottom-16 left-0 z-50 hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                <!-- emoji-picker-element will render here -->
+                <emoji-picker id="emojiPicker" class="block"></emoji-picker>
+            </div>
         </form>
     </div>
 </div>
 
 @section Scripts {
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     <script>
         const currentUserId = '@currentUserId';
@@ -147,6 +156,9 @@
         const container = document.getElementById('messagesContainer');
         const messagesList = document.getElementById('messagesList');
         const messageInput = document.getElementById('messageInput');
+        const emojiToggleBtn = document.getElementById('emojiToggleBtn');
+        const emojiPickerContainer = document.getElementById('emojiPickerContainer');
+        const emojiPicker = document.getElementById('emojiPicker');
         let connection = null;
 
         // Initialize SignalR
@@ -277,6 +289,41 @@
             startSignalR().then(() => {
                 // Check online status after SignalR is connected
                 checkUserOnlineStatus();
+            });
+
+            // Emoji toggle
+            if (emojiToggleBtn && emojiPickerContainer) {
+                emojiToggleBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    emojiPickerContainer.classList.toggle('hidden');
+                });
+            }
+
+            // Emoji select -> insert at cursor
+            if (emojiPicker) {
+                emojiPicker.addEventListener('emoji-click', function (event) {
+                    const emoji = event.detail.unicode || event.detail.emoji?.unicode;
+                    if (!emoji || !messageInput) return;
+
+                    const start = messageInput.selectionStart || messageInput.value.length;
+                    const end = messageInput.selectionEnd || messageInput.value.length;
+                    const before = messageInput.value.substring(0, start);
+                    const after = messageInput.value.substring(end);
+                    messageInput.value = before + emoji + after;
+                    const caret = start + emoji.length;
+                    messageInput.focus();
+                    messageInput.setSelectionRange(caret, caret);
+                });
+            }
+
+            // Close picker when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!emojiPickerContainer) return;
+                const target = e.target;
+                const clickedInside = emojiPickerContainer.contains(target) || emojiToggleBtn.contains(target);
+                if (!clickedInside) {
+                    emojiPickerContainer.classList.add('hidden');
+                }
             });
         });
 

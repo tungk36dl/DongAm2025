@@ -75,5 +75,73 @@ Kết quả mong muốn (chỉ trả về đoạn mô tả cuối cùng, không 
                 return input; // fallback nếu lỗi
             }
         }
+
+        public async Task<string> GenerateMatchReasonTwoAsync(string userAProfile, string userAPreference, string userBProfile, string userBPreference)
+        {
+            try
+            {
+                var prompt = $"""
+Bạn là chuyên gia tư vấn hẹn hò. Hãy phân tích vì sao hai người dưới đây phù hợp với nhau, dựa trên mô tả cá nhân và gu người yêu của cả hai. Viết bằng tiếng Việt, tự nhiên, tích cực, 3-5 câu, tập trung vào điểm chung và bổ trợ.
+
+— Người A —
+Hồ sơ: {userAProfile}
+Gu mong muốn: {userAPreference}
+
+— Người B —
+Hồ sơ: {userBProfile}
+Gu mong muốn: {userBPreference}
+
+Yêu cầu:
+- Trả về CHỈ phần giải thích ngắn gọn (không tiêu đề, không đánh số).
+- Không thêm thông tin không có trong dữ liệu.
+""";
+
+                var response = await _chatClient.CompleteChatAsync(new ChatMessage[]
+                {
+                    new SystemChatMessage("Bạn là chuyên gia tư vấn hẹn hò, viết súc tích, tiếng Việt tự nhiên."),
+                    new UserChatMessage(prompt)
+                });
+
+                var text = response.Value.Content[0].Text?.Trim();
+                return string.IsNullOrWhiteSpace(text) ? "" : text;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating match reason via OpenAI");
+                return string.Empty;
+            }
+        }
+
+        public async Task<string> GenerateMatchReasonOneAsync(string userAPreference, string userBProfile)
+        {
+            try
+            {
+                var prompt = $"""
+Bạn là chuyên gia tư vấn hẹn hò. Dựa trên GU mong muốn của Người A và HỒ SƠ của Người B, hãy giải thích ngắn gọn (2-4 câu, tiếng Việt tự nhiên) vì sao Người B phù hợp với điều Người A đang tìm kiếm. Tập trung vào điểm khớp nổi bật, không thêm thắt ngoài dữ liệu.
+
+— Gu mong muốn của Người A —
+{userAPreference}
+
+— Hồ sơ của Người B —
+{userBProfile}
+
+Yêu cầu: Chỉ trả về đoạn giải thích, không tiêu đề, không đánh số.
+""";
+
+                var response = await _chatClient.CompleteChatAsync(new ChatMessage[]
+                {
+                    new SystemChatMessage("Bạn là chuyên gia tư vấn hẹn hò, viết súc tích, tiếng Việt tự nhiên."),
+                    new UserChatMessage(prompt)
+                });
+
+                var text = response.Value.Content[0].Text?.Trim();
+                return string.IsNullOrWhiteSpace(text) ? string.Empty : text;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating one-way match reason via OpenAI");
+                return string.Empty;
+            }
+        }
     }
 }

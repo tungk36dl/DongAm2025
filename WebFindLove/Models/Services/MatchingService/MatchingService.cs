@@ -8,6 +8,8 @@ using WebFindLove.Models.Repositories.UserRepo;
 using WebFindLove.Models.Repositories.UserPreferenceRepo;
 using WebFindLove.Models.Repositories.MatchResultRepo;
 using WebFindLove.Models.UnitOfWork;
+using WebFindLove.Models.Services.EmbeddingService;
+using WebFindLove.Models.Services.OpenAIChatService;
 
 namespace WebFindLove.Models.Services.MatchingService
 {
@@ -20,6 +22,8 @@ namespace WebFindLove.Models.Services.MatchingService
         private readonly IUserPreferenceRepository _preferenceRepository;
         private readonly IMatchResultRepository _matchResultRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmbeddingService _embeddingService;
+        private readonly IOpenAIChatService _chatService;
         private readonly ILogger<MatchingService> _logger;
 
         public MatchingService(
@@ -27,13 +31,17 @@ namespace WebFindLove.Models.Services.MatchingService
             IUserPreferenceRepository preferenceRepository,
             IMatchResultRepository matchResultRepository,
             IUnitOfWork unitOfWork,
-            ILogger<MatchingService> logger)
+            ILogger<MatchingService> logger,
+            IEmbeddingService embeddingService,
+            IOpenAIChatService chatService)
         {
             _userRepository = userRepository;
             _preferenceRepository = preferenceRepository;
             _matchResultRepository = matchResultRepository;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _embeddingService = embeddingService;
+            _chatService = chatService;
         }
 
         /// <summary>
@@ -334,33 +342,48 @@ namespace WebFindLove.Models.Services.MatchingService
                     };
                 }
 
-                // Sort by match score descending
-                matchResults = matchResults.OrderByDescending(m => m.MatchScore).ToList();
+                // Sort by match score descending and keep only the best one
+                var topMatch = matchResults
+                    .OrderByDescending(m => m.MatchScore)
+                    .First();
+
+                // Enrich top match with AI reasoning (one-way): A's preference vs B's profile
+                var matchedUser = await _userRepository.FindByIdAsync(topMatch.MatchedUserId, u => u.Preference);
+                if (matchedUser != null)
+                {
+                    var userAPrefText = preferenceA.PreferenceText;
+                    var userBProfileText = matchedUser.ProfileText;
+
+                    var reason = await _chatService.GenerateMatchReasonOneAsync(
+                        userAPrefText,
+                        userBProfileText
+                    );
+
+                    if (!string.IsNullOrWhiteSpace(reason))
+                    {
+                        topMatch.AiReasoning = reason;
+                    }
+                }
 
                 // Delete old matches for this user
-                var oldMatches = await _matchResultRepository.GetMatchesByUserIdAsync(userId);
-                foreach (var oldMatch in oldMatches)
+                var toDelete = await _matchResultRepository.GetMatchesByUserIdAsync(userId);
+                foreach (var oldMatch in toDelete)
                 {
                     _matchResultRepository.Remove(oldMatch);
                 }
 
-                // Save new matches
-                foreach (var match in matchResults)
-                {
-                    _matchResultRepository.Add(match);
-                }
+                // Save only the best match
+                _matchResultRepository.Add(topMatch);
 
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Successfully saved {Count} one-way matches for user {UserId}", 
-                    matchResults.Count, userId);
-                //List<MatchResult> result = 
+                _logger.LogInformation("Successfully saved the top one-way match for user {UserId}", userId);
 
                 return new DataResponse<List<MatchResult>>
                 {
                     Success = true,
-                    Data = matchResults,
-                    Message = $"Found {matchResults.Count} matches"
+                    Data = new List<MatchResult> { topMatch },
+                    Message = "Found 1 best match"
                 };
             }
             catch (Exception ex)
@@ -525,8 +548,33 @@ namespace WebFindLove.Models.Services.MatchingService
                     };
                 }
 
-                // Sort by match score descending
-                matchResults = matchResults.OrderByDescending(m => m.MatchScore).ToList();
+                // Sort by match score descending and keep only the best one
+                var topMatch = matchResults
+                    .OrderByDescending(m => m.MatchScore)
+                    .First();
+
+                // Enrich top match with AI reasoning (two-way): profiles + preferences of both sides
+                var matchedUser = await _userRepository.FindByIdAsync(topMatch.MatchedUserId, u => u.Preference);
+                if (matchedUser != null)
+                {
+                    var userAProfileText = userA.ProfileText;
+                    var userAPrefText = preferenceA.PreferenceText;
+                    var userBProfileText = matchedUser.ProfileText;
+                    var preferenceB = await _preferenceRepository.GetByUserIdAsync(matchedUser.Id);
+                    var userBPrefText = preferenceB != null ? preferenceB.PreferenceText : string.Empty;
+
+                    var reason = await _chatService.GenerateMatchReasonTwoAsync(
+                        userAProfileText,
+                        userAPrefText,
+                        userBProfileText,
+                        userBPrefText
+                    );
+
+                    if (!string.IsNullOrWhiteSpace(reason))
+                    {
+                        topMatch.AiReasoning = reason;
+                    }
+                }
 
                 // Delete old matches for this user
                 var oldMatches = await _matchResultRepository.GetMatchesByUserIdAsync(userId);
@@ -535,22 +583,18 @@ namespace WebFindLove.Models.Services.MatchingService
                     _matchResultRepository.Remove(oldMatch);
                 }
 
-                // Save new matches
-                foreach (var match in matchResults)
-                {
-                    _matchResultRepository.Add(match);
-                }
+                // Save only the best match
+                _matchResultRepository.Add(topMatch);
 
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Successfully saved {Count} matches for user {UserId}", 
-                    matchResults.Count, userId);
+                _logger.LogInformation("Successfully saved the top mutual match for user {UserId}", userId);
 
                 return new DataResponse<List<MatchResult>>
                 {
                     Success = true,
-                    Data = matchResults,
-                    Message = $"Found {matchResults.Count} matches"
+                    Data = new List<MatchResult> { topMatch },
+                    Message = "Found 1 best match"
                 };
             }
             catch (Exception ex)
