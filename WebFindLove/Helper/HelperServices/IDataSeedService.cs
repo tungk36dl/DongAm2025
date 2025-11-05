@@ -4,6 +4,6 @@ namespace WebFindLove.HelperServices
 {
     public interface IDataSeedService
     {
-        Task SeedDefaultAdminUserAsync();
+        Task SeedDefaultAdminUserAsync(CancellationToken cancellationToken = default);
     }
 }

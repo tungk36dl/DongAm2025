@@ -33,11 +33,9 @@ namespace WebFindLove.Controllers.Api
 
             try
             {
-                // Find user by username or email
-                var usersResp = await _userService.GetAllAsync();
-                var users = usersResp.Data ?? new List<User>();
-                var user = users.Find(u => string.Equals(u.UserName, request.UsernameOrEmail, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(u.Email, request.UsernameOrEmail, StringComparison.OrdinalIgnoreCase));
+                // Find user by username or email (optimized query)
+                var userResp = await _userService.FindByUsernameOrEmailAsync(request.UsernameOrEmail);
+                var user = userResp.Success ? userResp.Data : null;
 
                 if (user == null)
                 {

@@ -1,3 +1,4 @@
+using System;
 using WebFindLove.Models.Entities;
 using WebFindLove.Models.Repositories.RolePermissionRepo;
 using WebFindLove.Models.Repositories.RoleRepo;
@@ -177,6 +178,18 @@ namespace WebFindLove.Models.Services.RolePermissionService
                     { 
                         Success = true, 
                         Data = new List<string>() 
+                    };
+                }
+
+                // Admin role has all permissions, no need to query
+                var roleName = user.Role?.Name ?? user.RoleName;
+                if (string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogDebug("User {UserId} is Admin, skipping permission query", userId);
+                    return new DataResponse<List<string>> 
+                    { 
+                        Success = true, 
+                        Data = new List<string>() // Admin permissions are handled by PermissionAuthorizeAttribute
                     };
                 }
 

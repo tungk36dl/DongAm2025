@@ -2,6 +2,7 @@ using WebFindLove.Models;
 using WebFindLove.Models.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace WebFindLove.HelperServices
 {
@@ -18,41 +19,69 @@ namespace WebFindLove.HelperServices
             _passwordHasher = new PasswordHasher<User>();
         }
 
-        public async Task SeedDefaultAdminUserAsync()
+        public async Task SeedDefaultAdminUserAsync(CancellationToken cancellationToken = default)
         {
-            // Check if admin user already exists
-            var existingAdmin = await _context.Users
-                .FirstOrDefaultAsync(u => u.UserName == "admin");
-
-            if (existingAdmin != null)
-                return;
-
-            // Get admin role
-            var adminRole = await _context.Roles
-                .FirstOrDefaultAsync(r => r.Name == "Admin");
-
-            if (adminRole == null)
-                return;
-
-            // Create admin user
-            var adminUser = new User
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            
+            try
             {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
-                UserName = "admin",
-                Email = "admin@bacha.com",
-                FullName = "System Administrator",
-                IsActive = true,
-                RoleId = adminRole.Id,
-                RoleName = "Admin",
-                CreatedAt = DateTime.UtcNow
-            };
+                // Use AnyAsync instead of FirstOrDefaultAsync for existence check (much faster)
+                var adminExists = await _context.Users
+                    .AsNoTracking() // Don't track entity since we only check existence
+                    .AnyAsync(u => u.UserName == "admin", cancellationToken);
 
-            // Hash password
-            adminUser.PasswordHash = _passwordHasher.HashPassword(adminUser, "123");
+                if (adminExists)
+                {
+                    Log.Debug("Admin user already exists, skipping seed");
+                    return;
+                }
 
-            // Add to database
-            _context.Users.Add(adminUser);
-            await _context.SaveChangesAsync();
+                // Get admin role (only if needed)
+                var adminRole = await _context.Roles
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(r => r.Name == "Admin", cancellationToken);
+
+                if (adminRole == null)
+                {
+                    Log.Warning("Admin role not found, cannot seed admin user");
+                    return;
+                }
+
+                // Create admin user
+                var adminUser = new User
+                {
+                    Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                    UserName = "admin",
+                    Email = "admin@bacha.com",
+                    FullName = "System Administrator",
+                    IsActive = true,
+                    RoleId = adminRole.Id,
+                    RoleName = "Admin",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                // Hash password
+                adminUser.PasswordHash = _passwordHasher.HashPassword(adminUser, "123");
+
+                // Add to database
+                _context.Users.Add(adminUser);
+                await _context.SaveChangesAsync(cancellationToken);
+                
+                stopwatch.Stop();
+                Log.Information("Admin user seeded successfully in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
+            }
+            catch (OperationCanceledException)
+            {
+                Log.Warning("Admin user seeding was cancelled");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                stopwatch.Stop();
+                Log.Error(ex, "Error seeding admin user after {ElapsedMs}ms: {Message}", 
+                    stopwatch.ElapsedMilliseconds, ex.Message);
+                throw;
+            }
         }
     }
 }

@@ -153,6 +153,25 @@ namespace WebFindLove.Models.Services.UserService
             }
         }
 
+        public async Task<DataResponse<User?>> FindByUsernameOrEmailAsync(string usernameOrEmail)
+        {
+            try
+            {
+                var user = await _userRepository.FindByUsernameOrEmailAsync(usernameOrEmail);
+                if (user != null)
+                {
+                    // Normalize avatar path
+                    user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
+                }
+                return new DataResponse<User?> { Success = true, Data = user };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error finding user by username/email: {UsernameOrEmail}", usernameOrEmail);
+                return new DataResponse<User?> { Success = false, Message = $"Failed to find user by username/email: {usernameOrEmail}", ErrorDetails = ex.Message };
+            }
+        }
+
         public async Task<DataResponse<UserDto>> GetInfoAsync(Guid id)
         {
             try

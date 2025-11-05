@@ -253,11 +253,11 @@ try
         Log.Information("Development environment configured");
     }
     // Add permissuion seeding
-    //using (var scope = app.Services.CreateScope())
-    //{
-    //    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    //    PermissionSeeder.SyncPermissions(db);
-    //}
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        PermissionSeeder.SyncPermissions(db);
+    }
 
     app.UseHttpsRedirection();
     app.UseStaticFiles();
@@ -274,12 +274,70 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
 
-    // Seed default admin user
-    using (var scope = app.Services.CreateScope())
+    // Seed default admin user in background (non-blocking)
+    // This prevents blocking app startup and login requests
+    _ = Task.Run(async () =>
     {
-        var dataSeedService = scope.ServiceProvider.GetRequiredService<IDataSeedService>();
-        await dataSeedService.SeedDefaultAdminUserAsync();
-    }
+        try
+        {
+            // Wait a bit to ensure database is ready and app is fully started
+            await Task.Delay(TimeSpan.FromSeconds(2), CancellationToken.None);
+            
+            // Retry logic with exponential backoff
+            int maxRetries = 3;
+            int retryDelay = 2; // seconds
+            
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
+            {
+                try
+                {
+                    using var scope = app.Services.CreateScope();
+                    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    
+                    // Quick connection test before seeding
+                    if (await dbContext.Database.CanConnectAsync(CancellationToken.None))
+                    {
+                        Log.Information("Database connection verified, proceeding with admin user seeding (attempt {Attempt}/{MaxRetries})", attempt, maxRetries);
+                        
+                        var dataSeedService = scope.ServiceProvider.GetRequiredService<IDataSeedService>();
+                        
+                        // Use timeout to prevent hanging
+                        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                        await dataSeedService.SeedDefaultAdminUserAsync(cts.Token);
+                        
+                        Log.Information("Admin user seeding completed successfully");
+                        return; // Success, exit retry loop
+                    }
+                    else
+                    {
+                        Log.Warning("Database connection not ready (attempt {Attempt}/{MaxRetries})", attempt, maxRetries);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    Log.Warning("Admin user seeding timed out (attempt {Attempt}/{MaxRetries})", attempt, maxRetries);
+                    throw; // Don't retry on timeout
+                }
+                catch (Exception ex) when (attempt < maxRetries)
+                {
+                    Log.Warning(ex, "Admin user seeding failed (attempt {Attempt}/{MaxRetries}), will retry in {Delay}s: {Message}", 
+                        attempt, maxRetries, retryDelay, ex.Message);
+                    await Task.Delay(TimeSpan.FromSeconds(retryDelay), CancellationToken.None);
+                    retryDelay *= 2; // Exponential backoff
+                }
+            }
+            
+            Log.Error("Admin user seeding failed after {MaxRetries} attempts", maxRetries);
+        }
+        catch (OperationCanceledException)
+        {
+            Log.Warning("Admin user seeding was cancelled");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Background admin user seeding failed: {Message}", ex.Message);
+        }
+    });
 
     // Map API routes
     app.MapControllers();

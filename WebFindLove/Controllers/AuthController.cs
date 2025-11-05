@@ -47,7 +47,9 @@ namespace WebFindLove.Controllers
             };
 
             // Get user permissions and add to claims
-            if (user.RoleId.HasValue)
+            // Skip for Admin role (handled by PermissionAuthorizeAttribute)
+            var roleName = user.Role?.Name ?? user.RoleName ?? "User";
+            if (user.RoleId.HasValue && !string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase))
             {
                 var permissionsResponse = await _rolePermissionService.GetUserPermissionsAsync(user.Id);
                 if (permissionsResponse.Success && permissionsResponse.Data != null)
@@ -59,6 +61,10 @@ namespace WebFindLove.Controllers
                     _logger.LogDebug("Added {Count} permissions to claims for user {Username}", 
                         permissionsResponse.Data.Count, user.UserName);
                 }
+            }
+            else if (string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogDebug("Admin user {Username}, skipping permission claims (handled by attribute)", user.UserName);
             }
 
             return claims;
@@ -387,14 +393,10 @@ namespace WebFindLove.Controllers
                 return View();
             }
 
-            // find user by username or email
-            _logger.LogDebug("Fetching users from database to find matching user");
-            var usersResp = await _userService.GetAllAsync();
-            var users = usersResp.Data ?? new List<User>();
-            _logger.LogDebug("Found {UserCount} users in database", users.Count);
-            
-            var user = users.Find(u => string.Equals(u.UserName, usernameOrEmail, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(u.Email, usernameOrEmail, StringComparison.OrdinalIgnoreCase));
+            // find user by username or email (optimized query)
+            _logger.LogDebug("Querying database for user: {UsernameOrEmail}", usernameOrEmail);
+            var userResp = await _userService.FindByUsernameOrEmailAsync(usernameOrEmail);
+            var user = userResp.Success ? userResp.Data : null;
 
             var isAjax = Request.Headers.ContainsKey("X-Requested-With") && Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             _logger.LogDebug("Login request - isAjax: {IsAjax}, UsernameOrEmail: {UsernameOrEmail}", isAjax, usernameOrEmail);
