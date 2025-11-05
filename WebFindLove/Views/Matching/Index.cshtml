@@ -51,14 +51,11 @@
                         <p class="text-3xl font-bold" id="match-count">--</p>
                     </div>
                 </div>
-                <form asp-action="RefreshMatches" method="post" id="refresh-form" class="inline">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" id="refresh-btn" 
-                            class="bg-white text-blue-600 px-6 py-3 rounded-lg font-bold hover:bg-blue-50 transition shadow-lg flex items-center gap-2">
-                        <i class="fas fa-sync-alt" id="refresh-icon"></i>
-                        <span>Cập Nhật Ngay</span>
-                    </button>
-                </form>
+                <a asp-controller="MatchResults" asp-action="Index"
+                   class="bg-white text-blue-600 px-6 py-3 rounded-lg font-bold hover:bg-blue-50 transition shadow-lg flex items-center gap-2">
+                    <i class="fas fa-list"></i>
+                    <span>Xem Danh Sách Đã Ghép Đôi</span>
+                </a>
             </div>
         </div>
     </div>
@@ -222,50 +219,7 @@
             });
         }
 
-        // Handle refresh form submission
-        $('#refresh-form').on('submit', function(e) {
-            e.preventDefault();
-            
-            const $btn = $('#refresh-btn');
-            const $icon = $('#refresh-icon');
-            const originalHtml = $btn.html();
-            
-            // Disable button and show loading state
-            $btn.prop('disabled', true);
-            $icon.addClass('fa-spin');
-            $btn.find('span').text('Đang Cập Nhật...');
-            
-            $.ajax({
-                url: $(this).attr('action'),
-                type: 'POST',
-                data: $(this).serialize(),
-                success: function(response) {
-                    if (response.success) {
-                        // Show success message
-                        showNotification('success', response.message);
-                        
-                        // Reload match count
-                        loadMatchCount();
-                        
-                        // Update button text temporarily
-                        $btn.find('span').text('Thành Công!');
-                        setTimeout(function() {
-                            $btn.html(originalHtml);
-                            $btn.prop('disabled', false);
-                        }, 2000);
-                    } else {
-                        showNotification('error', response.message || 'Có lỗi xảy ra');
-                        $btn.html(originalHtml);
-                        $btn.prop('disabled', false);
-                    }
-                },
-                error: function() {
-                    showNotification('error', 'Không thể kết nối đến máy chủ');
-                    $btn.html(originalHtml);
-                    $btn.prop('disabled', false);
-                }
-            });
-        });
+        // (Removed refresh action) Now using link to MatchResults/Index to view matched users
 
         // Show/hide global loading overlay
         function showGlobalLoading(message) {
