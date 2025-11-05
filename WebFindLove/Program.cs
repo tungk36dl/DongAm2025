@@ -274,6 +274,9 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
 
+    // Dynamic route-based permission enforcement
+    app.UseMiddleware<WebFindLove.Helper.Authorization.RoutePermissionMiddleware>();
+
     // Seed default admin user in background (non-blocking)
     // This prevents blocking app startup and login requests
     _ = Task.Run(async () =>

@@ -1,3 +1,48 @@
+<!-- @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "403 - Access Denied";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-danger me-2">403</span>
+                        <h3 class="m-0">Bạn không có quyền truy cập</h3>
+                    </div>
+                    <p class="text-muted mb-4">
+                        Rất tiếc, bạn không được cấp quyền để truy cập chức năng này.
+                        Vui lòng liên hệ quản trị viên nếu bạn nghĩ đây là nhầm lẫn.
+                    </p>
+
+                    <div class="mb-3">
+                        <a class="btn btn-primary me-2" href="/Home/Index">Về trang chủ</a>
+                        <a class="btn btn-outline-secondary" href="javascript:history.back()">Quay lại</a>
+                    </div>
+
+                    @if (ViewData["RequiredPermissions"] != null)
+                    {
+                        <div class="mt-4">
+                            <h6 class="text-muted mb-2">Yêu cầu quyền:</h6>
+                            <code>@ViewData["RequiredPermissions"]</code>
+                        </div>
+                    }
+
+                    @if (ViewData["UserPermissions"] != null)
+                    {
+                        <div class="mt-3">
+                            <h6 class="text-muted mb-2">Quyền hiện có của bạn:</h6>
+                            <code>@ViewData["UserPermissions"]</code>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
+
 @{
     ViewData["Title"] = "Truy cập bị từ chối";
     var requiredPermissions = ViewData["RequiredPermissions"] as string;
