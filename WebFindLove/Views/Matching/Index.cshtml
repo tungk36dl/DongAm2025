@@ -91,7 +91,7 @@
                     </div>
                 </div>
 
-                <a asp-action="FindMatches" class="block w-full bg-white text-pink-600 text-center py-4 rounded-lg font-bold hover:bg-pink-50 transition shadow-lg">
+                <a asp-action="FindMatches" id="btn-find-matches" class="block w-full bg-white text-pink-600 text-center py-4 rounded-lg font-bold hover:bg-pink-50 transition shadow-lg">
                     <i class="fas fa-heart mr-2"></i>Bắt Đầu Tìm Kiếm
                 </a>
             </div>
@@ -123,7 +123,7 @@
                     </div>
                 </div>
 
-                <a asp-action="MutualMatches" class="block w-full bg-white text-purple-600 text-center py-4 rounded-lg font-bold hover:bg-purple-50 transition shadow-lg">
+                <a asp-action="MutualMatches" id="btn-mutual-matches" class="block w-full bg-white text-purple-600 text-center py-4 rounded-lg font-bold hover:bg-purple-50 transition shadow-lg">
                     <i class="fas fa-handshake mr-2"></i>Xem Kết Nối Hai Chiều
                 </a>
             </div>
@@ -182,11 +182,24 @@
     </div>
 </div>
 
+<!-- Global Loading Overlay for matching actions -->
+<div id="matching-loading-overlay" class="fixed inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-[1000] hidden">
+    <div class="w-full h-full flex flex-col items-center justify-center gap-4">
+        <i class="fas fa-heart text-pink-500 text-5xl animate-bounce"></i>
+        <div class="flex items-center gap-3 text-gray-700 dark:text-gray-200">
+            <i class="fas fa-spinner fa-spin text-2xl"></i>
+            <span class="font-semibold">Đang ghép đôi bằng AI, vui lòng chờ...</span>
+        </div>
+    </div>
+    
+</div>
+
 @section Scripts {
     <script>
         // Load match count on page load
         $(document).ready(function() {
             loadMatchCount();
+            bindMatchingButtons();
         });
 
         // Load current match count
@@ -253,6 +266,37 @@
                 }
             });
         });
+
+        // Show/hide global loading overlay
+        function showGlobalLoading(message) {
+            const overlay = document.getElementById('matching-loading-overlay');
+            if (!overlay) return;
+            if (message) {
+                const span = overlay.querySelector('span');
+                if (span) span.textContent = message;
+            }
+            overlay.classList.remove('hidden');
+        }
+
+        function hideGlobalLoading() {
+            const overlay = document.getElementById('matching-loading-overlay');
+            if (!overlay) return;
+            overlay.classList.add('hidden');
+        }
+
+        // Bind matching action buttons to show loading immediately on click
+        function bindMatchingButtons() {
+            const btnOne = document.getElementById('btn-find-matches');
+            const btnTwo = document.getElementById('btn-mutual-matches');
+
+            [btnOne, btnTwo].forEach(btn => {
+                if (!btn) return;
+                btn.addEventListener('click', function() {
+                    // Small timeout ensures DOM paints the overlay before navigation
+                    showGlobalLoading('Đang ghép đôi bằng AI, vui lòng chờ...');
+                });
+            });
+        }
 
         // Show notification helper
         function showNotification(type, message) {
