@@ -12,6 +12,7 @@ namespace WebFindLove.Models.Services
         Task<DataResponse<int>> GetCountAsync(UserService.Dto.UserSearch? search = null);
         Task<DataResponse<User?>> GetByIdAsync(Guid id);
         Task<DataResponse<User?>> FindByUsernameOrEmailAsync(string usernameOrEmail);
+        Task<DataResponse<List<User>>> SearchByFullNameAsync(string fullName, int pageSize = 20);
         Task<DataResponse<UserDto>> GetInfoAsync(Guid id);
         Task<DataResponse<User>> AddAsync(User user);
         Task<DataResponse<User>> UpdateAsync(User user);

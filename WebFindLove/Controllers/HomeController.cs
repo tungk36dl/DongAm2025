@@ -29,17 +29,11 @@ namespace WebFindLove.Controllers
             
             ViewBag.SearchQuery = searchQuery;
             
-            // If user is authenticated and there's a search query, search for users
+            // If user is authenticated and there's a search query, search for users by FullName
             if (isAuthenticated && !string.IsNullOrWhiteSpace(searchQuery))
             {
-                var search = new UserSearch 
-                { 
-                    Query = searchQuery,
-                    IsActive = true,
-                    PageSize = 20
-                };
-                
-                var response = await _userService.GetAllAsync(search);
+                // Sử dụng hàm SearchByFullNameAsync để tìm kiếm chính xác theo tên đầy đủ
+                var response = await _userService.SearchByFullNameAsync(searchQuery, pageSize: 20);
                 
                 if (response.Success && response.Data != null)
                 {
@@ -53,13 +47,17 @@ namespace WebFindLove.Controllers
                     {
                         ViewBag.SearchResults = response.Data;
                     }
-                    
-                    //_logger.LogInformation("Search returned {Count} users for query: {Query}", ViewBag.SearchResults.Count, searchQuery);
+
+                    //_logger.LogInformation("SearchByFullName returned {Count} users for query: {Query}",
+                        //ViewBag.SearchResults.Count, searchQuery);
                 }
                 else
                 {
                     ViewBag.SearchResults = new List<User>();
-                    _logger.LogWarning("User search failed: {Message}", response.Message);
+                    if (!string.IsNullOrEmpty(response?.Message))
+                    {
+                        _logger.LogWarning("User search by full name failed: {Message}", response.Message);
+                    }
                 }
             }
             else

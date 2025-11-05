@@ -172,6 +172,69 @@ namespace WebFindLove.Models.Services.UserService
             }
         }
 
+        /// <summary>
+        /// Tìm kiếm người dùng chính xác theo FullName (case-insensitive exact match)
+        /// </summary>
+        /// <param name="fullName">Tên đầy đủ cần tìm kiếm</param>
+        /// <param name="pageSize">Số lượng kết quả tối đa (mặc định 20)</param>
+        /// <returns>Danh sách người dùng có FullName khớp chính xác</returns>
+        public async Task<DataResponse<List<User>>> SearchByFullNameAsync(string fullName, int pageSize = 20)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(fullName))
+                {
+                    return new DataResponse<List<User>> 
+                    { 
+                        Success = false, 
+                        Message = "Tên đầy đủ không được để trống.",
+                        Data = new List<User>()
+                    };
+                }
+
+                var searchTerm = fullName.Trim();
+                IQueryable<User> query = _userRepository.FindAll(null, r => r.Role);
+
+                // Tìm kiếm chính xác theo FullName (case-insensitive)
+                // Sử dụng EF.Functions để hỗ trợ case-insensitive comparison
+                query = query.Where(u => u.FullName != null && 
+                                         u.FullName.ToLower() == searchTerm.ToLower());
+
+                // Chỉ lấy user đang active
+                query = query.Where(u => u.IsActive == true);
+
+                // Giới hạn số lượng kết quả
+                if (pageSize > 0)
+                {
+                    query = query.Take(pageSize);
+                }
+
+                var data = await query.ToListAsync();
+
+                // Normalize avatar paths for all users
+                foreach (var user in data)
+                {
+                    user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
+                }
+
+                _logger.LogInformation("SearchByFullName found {Count} users for FullName: {FullName}", 
+                    data.Count, searchTerm);
+
+                return new DataResponse<List<User>> { Success = true, Data = data };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching users by full name: {FullName}", fullName);
+                return new DataResponse<List<User>> 
+                { 
+                    Success = false, 
+                    Message = "Đã xảy ra lỗi khi tìm kiếm người dùng theo tên đầy đủ.", 
+                    ErrorDetails = ex.Message,
+                    Data = new List<User>()
+                };
+            }
+        }
+
         public async Task<DataResponse<UserDto>> GetInfoAsync(Guid id)
         {
             try
