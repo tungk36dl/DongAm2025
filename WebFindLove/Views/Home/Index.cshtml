@@ -20,7 +20,7 @@
                 </div>
                 
                 <!-- Search Form -->
-                <div class="max-w-2xl mx-auto">
+                <div class="max-w-2xl mx-auto mb-6">
                     <form method="get" asp-controller="Home" asp-action="Index" class="flex gap-2">
                         <div class="flex-1 relative">
                             <input type="text" 
@@ -34,6 +34,14 @@
                             <i class="fas fa-search mr-2"></i>Tìm kiếm
                         </button>
                     </form>
+                </div>
+
+                <!-- Quick Action: Ghép đôi -->
+                <div class="flex justify-center">
+                    <a asp-controller="Matching" asp-action="Index" 
+                       class="bg-white/20 backdrop-blur-sm border-2 border-white/50 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/30 hover:border-white transition transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-heart mr-2 animate-pulse"></i>Ghép đôi ngay
+                    </a>
                 </div>
             }
             else
@@ -169,10 +177,60 @@
 
     @if (User.Identity?.IsAuthenticated == true)
     {
+        <!-- Quick Actions Section -->
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8">
+                <i class="fas fa-bolt text-primary mr-2"></i>Thao tác nhanh
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Ghép đôi -->
+                <a asp-controller="Matching" asp-action="Index" 
+                   class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105 border-2 border-transparent hover:border-primary">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-gradient-to-r from-primary to-secondary w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-heart text-2xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Ghép đôi</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Tìm người phù hợp với bạn</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Tin nhắn -->
+                <a asp-controller="Messages" asp-action="Index" 
+                   class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105 border-2 border-transparent hover:border-primary">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-comments text-2xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Tin nhắn</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Xem và trả lời tin nhắn</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Hồ sơ -->
+                <a asp-controller="Users" asp-action="Details" asp-route-id="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" 
+                   class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105 border-2 border-transparent hover:border-primary">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-user text-2xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Hồ sơ</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Xem và chỉnh sửa hồ sơ</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
         <!-- Quick Actions for Admins -->
         @if (User.IsInRole("Admin"))
         {
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 mb-12">
                 <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
                     <i class="fas fa-cog text-primary mr-2"></i>Bảng điều khiển Admin
                 </h2>
