@@ -221,6 +221,9 @@ try
     // OpenAI
     builder.Services.Configure<OpenAIOptions>(builder.Configuration.GetSection("OpenAI"));
 
+    // Matching
+    builder.Services.Configure<MatchingOptions>(builder.Configuration.GetSection("Matching"));
+
     // Google Authentication
     builder.Services.Configure<GoogleAuthOptions>(builder.Configuration.GetSection("GoogleAuth"));
 

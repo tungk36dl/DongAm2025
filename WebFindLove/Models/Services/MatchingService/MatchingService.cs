@@ -10,6 +10,8 @@ using WebFindLove.Models.Repositories.MatchResultRepo;
 using WebFindLove.Models.UnitOfWork;
 using WebFindLove.Models.Services.EmbeddingService;
 using WebFindLove.Models.Services.OpenAIChatService;
+using WebFindLove.Models.Options;
+using Microsoft.Extensions.Options;
 
 namespace WebFindLove.Models.Services.MatchingService
 {
@@ -25,6 +27,7 @@ namespace WebFindLove.Models.Services.MatchingService
         private readonly IEmbeddingService _embeddingService;
         private readonly IOpenAIChatService _chatService;
         private readonly ILogger<MatchingService> _logger;
+        private readonly MatchingOptions _matchingOptions;
 
         public MatchingService(
             IUserRepository userRepository,
@@ -33,7 +36,8 @@ namespace WebFindLove.Models.Services.MatchingService
             IUnitOfWork unitOfWork,
             ILogger<MatchingService> logger,
             IEmbeddingService embeddingService,
-            IOpenAIChatService chatService)
+            IOpenAIChatService chatService,
+            IOptions<MatchingOptions> matchingOptions)
         {
             _userRepository = userRepository;
             _preferenceRepository = preferenceRepository;
@@ -42,6 +46,7 @@ namespace WebFindLove.Models.Services.MatchingService
             _logger = logger;
             _embeddingService = embeddingService;
             _chatService = chatService;
+            _matchingOptions = matchingOptions.Value;
         }
 
         /// <summary>
@@ -210,6 +215,25 @@ namespace WebFindLove.Models.Services.MatchingService
             {
                 _logger.LogInformation("Finding one-way matches for user {UserId}", userId);
 
+                // Daily limit: max 2 one-way matches per day (UTC)
+                var todayStart = DateTime.UtcNow.Date;
+                var todayEnd = todayStart.AddDays(1);
+                var oneWayCountToday = await _matchResultRepository.CountAsync(m =>
+                    m.UserId == userId &&
+                    m.MatchType == "OneWay" &&
+                    m.CreatedAt >= todayStart && m.CreatedAt < todayEnd);
+
+                var oneWayLimit = Math.Max(0, _matchingOptions?.OneWayDailyLimit ?? 2);
+                if (oneWayCountToday >= oneWayLimit)
+                {
+                    return new DataResponse<List<MatchResult>>
+                    {
+                        Success = false,
+                        Data = new List<MatchResult>(),
+                        Message = $"Bạn đã sử dụng hết {oneWayLimit} lượt ghép một chiều hôm nay. Vui lòng thử lại vào ngày mai."
+                    };
+                }
+
                 // Get user A and their preference
                 var userA = await _userRepository.FindByIdAsync(userId, u => u.Preference);
                 if (userA == null)
@@ -342,10 +366,13 @@ namespace WebFindLove.Models.Services.MatchingService
                     };
                 }
 
-                // Sort by match score descending and keep only the best one
-                var topMatch = matchResults
-                    .OrderByDescending(m => m.MatchScore)
-                    .First();
+                // Sort by match score descending and pick index based on how many one-way matches already made today (0-based)
+                var orderedOneWay = matchResults.OrderByDescending(m => m.MatchScore).ToList();
+                var pickIndex = Math.Max(0, Math.Min(oneWayCountToday, orderedOneWay.Count - 1));
+                var topMatch = orderedOneWay.ElementAt(pickIndex);
+
+                // Tag match type
+                topMatch.MatchType = "OneWay";
 
                 // Enrich top match with AI reasoning (one-way): A's preference vs B's profile
                 var matchedUser = await _userRepository.FindByIdAsync(topMatch.MatchedUserId, u => u.Preference);
@@ -365,12 +392,18 @@ namespace WebFindLove.Models.Services.MatchingService
                     }
                 }
 
-                // Delete old matches for this user
-                var toDelete = await _matchResultRepository.GetMatchesByUserIdAsync(userId);
-                foreach (var oldMatch in toDelete)
+                // Mark old matches inactive (keep history for daily limit)
+                var toDeactivateOneWay = await _matchResultRepository.GetMatchesByUserIdAsync(userId);
+                foreach (var oldMatch in toDeactivateOneWay)
                 {
-                    _matchResultRepository.Remove(oldMatch);
+                    oldMatch.IsActive = false;
+                    oldMatch.UpdatedAt = DateTime.UtcNow;
+                    _matchResultRepository.Update(oldMatch);
                 }
+
+                // Attach navigation and housekeeping
+
+                topMatch.LastCalculatedAt = DateTime.UtcNow;
 
                 // Save only the best match
                 _matchResultRepository.Add(topMatch);
@@ -378,6 +411,8 @@ namespace WebFindLove.Models.Services.MatchingService
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Successfully saved the top one-way match for user {UserId}", userId);
+                topMatch.User = userA;
+                topMatch.MatchedUser = matchedUser;
 
                 return new DataResponse<List<MatchResult>>
                 {
@@ -406,6 +441,25 @@ namespace WebFindLove.Models.Services.MatchingService
             try
             {
                 _logger.LogInformation("Finding best matches for user {UserId}", userId);
+
+                // Daily limit: max 1 mutual match per day (UTC)
+                var todayStart = DateTime.UtcNow.Date;
+                var todayEnd = todayStart.AddDays(1);
+                var mutualCountToday = await _matchResultRepository.CountAsync(m =>
+                    m.UserId == userId &&
+                    m.MatchType == "Mutual" &&
+                    m.CreatedAt >= todayStart && m.CreatedAt < todayEnd);
+
+                var mutualLimit = Math.Max(0, _matchingOptions?.MutualDailyLimit ?? 1);
+                if (mutualCountToday >= mutualLimit)
+                {
+                    return new DataResponse<List<MatchResult>>
+                    {
+                        Success = false,
+                        Data = new List<MatchResult>(),
+                        Message = $"Bạn đã sử dụng hết {mutualLimit} lượt ghép hai chiều hôm nay. Vui lòng thử lại vào ngày mai."
+                    };
+                }
 
                 // Get user A and their preference
                 var userA = await _userRepository.FindByIdAsync(userId, u => u.Preference);
@@ -576,12 +630,22 @@ namespace WebFindLove.Models.Services.MatchingService
                     }
                 }
 
-                // Delete old matches for this user
-                var oldMatches = await _matchResultRepository.GetMatchesByUserIdAsync(userId);
-                foreach (var oldMatch in oldMatches)
+                // Mark old matches inactive (keep history for daily limit)
+                var toDeactivateMutual = await _matchResultRepository.GetMatchesByUserIdAsync(userId);
+                foreach (var oldMatch in toDeactivateMutual)
                 {
-                    _matchResultRepository.Remove(oldMatch);
+                    oldMatch.IsActive = false;
+                    oldMatch.UpdatedAt = DateTime.UtcNow;
+                    _matchResultRepository.Update(oldMatch);
                 }
+
+                // Tag match type
+                topMatch.MatchType = "Mutual";
+
+                // Attach navigation and housekeeping
+                topMatch.User = userA;
+                topMatch.MatchedUser = matchedUser;
+                topMatch.LastCalculatedAt = DateTime.UtcNow;
 
                 // Save only the best match
                 _matchResultRepository.Add(topMatch);
