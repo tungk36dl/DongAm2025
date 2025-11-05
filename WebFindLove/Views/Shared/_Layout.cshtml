@@ -134,9 +134,7 @@
                         <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Messages" asp-action="Index">
                             <i class="fas fa-comments text-blue-500 mr-1"></i>Tin nhắn
                         </a>
-                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Photos" asp-action="Index">
-                            <i class="fas fa-images text-purple-500 mr-1"></i>Ảnh
-                        </a>
+
                         @if (User.IsInRole("Admin"))
                         {
                             <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Users" asp-action="Index">

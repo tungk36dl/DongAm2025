@@ -48,6 +48,7 @@
                            placeholder="Nhập địa chỉ email"
                            required />
                     <span asp-validation-for="Email" class="text-red-500 text-sm"></span>
+                    <span id="emailError" class="text-red-500 text-sm"></span>
                 </div>
 
                 <div class="mb-5">
@@ -61,6 +62,7 @@
                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                            placeholder="Nhập họ và tên đầy đủ" />
                     <span asp-validation-for="FullName" class="text-red-500 text-sm"></span>
+                    <span id="fullNameError" class="text-red-500 text-sm"></span>
                 </div>
 
                 <div class="mb-5">
@@ -81,7 +83,7 @@
                             <i class="fas fa-eye" id="toggleIcon1"></i>
                         </button>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Phải có ít nhất 6 ký tự</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt</p>
                     <span id="passwordError" class="text-red-500 text-sm"></span>
                 </div>
 
@@ -183,6 +185,7 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script>
+        // Toggle password visibility
         function togglePassword(inputId, iconId) {
             const passwordInput = document.getElementById(inputId);
             const toggleIcon = document.getElementById(iconId);
@@ -198,147 +201,391 @@
             }
         }
 
-        // Client-side validation helpers
+        // Global variables
         const registerForm = document.getElementById('registerForm');
         const submitBtn = registerForm.querySelector('button[type="submit"]');
         const errorBox = document.getElementById('errorMessage');
         const errorText = document.getElementById('errorText');
 
+        // Password strength validation
         function passwordStrengthIssues(pw) {
             const issues = [];
-            if (pw.length < 8) issues.push('Mật khẩu phải có ít nhất 8 ký tự');
-            if (!/[a-z]/.test(pw)) issues.push('Phải có ít nhất 1 chữ thường');
-            if (!/[A-Z]/.test(pw)) issues.push('Phải có ít nhất 1 chữ hoa');
-            if (!/[0-9]/.test(pw)) issues.push('Phải có ít nhất 1 chữ số');
-            if (!/[!@@#$%^&*()_+\-=[\]{};':"\\|,.<>\/?`~]/.test(pw)) issues.push('Phải có ít nhất 1 ký tự đặc biệt');
+            if (pw.length < 8) {
+                issues.push('Mật khẩu phải có ít nhất 8 ký tự');
+            }
+            if (!/[a-z]/.test(pw)) {
+                issues.push('Phải có ít nhất 1 chữ thường');
+            }
+            if (!/[A-Z]/.test(pw)) {
+                issues.push('Phải có ít nhất 1 chữ hoa');
+            }
+            if (!/[0-9]/.test(pw)) {
+                issues.push('Phải có ít nhất 1 chữ số');
+            }
+            if (!/[!@@#$%^&*()_+\-=[\]{};':"\\|,.<>\/?`~]/.test(pw)) {
+                issues.push('Phải có ít nhất 1 ký tự đặc biệt');
+            }
             return issues;
         }
 
-        function validateForm(showMessages = false) {
-            let valid = true;
-            const errors = [];
-
-            // Username
+        // Validate username
+        function validateUsername(showMessages = false) {
             const userNameInput = document.getElementById('UserName');
-            const userName = userNameInput.value.trim();
+            const userNameOriginal = userNameInput.value;
+            const userName = userNameOriginal.trim();
             const userNameError = document.getElementById('userNameError');
             const userNamePattern = /^[a-zA-Z0-9_]+$/;
-            if (!userNamePattern.test(userName)) {
-                valid = false;
-                const msg = 'Tên đăng nhập chỉ chứa chữ cái, số và gạch dưới (_).';
-                userNameError.textContent = msg;
+            let isValid = true;
+            let errorMsg = '';
+
+            // Kiểm tra rỗng
+            if (!userName || userName.length === 0) {
+                if (showMessages) {
+                    errorMsg = 'Tên đăng nhập không được để trống.';
+                    isValid = false;
+                }
+            }
+            // Kiểm tra dấu cách trong giá trị gốc
+            else if (/\s/.test(userNameOriginal)) {
+                errorMsg = 'Tên đăng nhập không được chứa dấu cách.';
+                isValid = false;
+            }
+            // Kiểm tra pattern
+            else if (!userNamePattern.test(userName)) {
+                errorMsg = 'Tên đăng nhập chỉ được chứa chữ cái, số và gạch dưới (_).';
+                isValid = false;
+            }
+            // Kiểm tra độ dài
+            else if (userName.length < 3 || userName.length > 20) {
+                errorMsg = 'Tên đăng nhập phải từ 3 đến 20 ký tự.';
+                isValid = false;
+            }
+
+            if (errorMsg) {
+                userNameError.textContent = errorMsg;
                 userNameInput.classList.add('border-red-500');
-                if (showMessages) errors.push(msg);
-            } else if (userName.length < 3 || userName.length > 20) {
-                valid = false;
-                const msg = 'Tên đăng nhập phải từ 3 đến 20 ký tự.';
-                userNameError.textContent = msg;
-                userNameInput.classList.add('border-red-500');
-                if (showMessages) errors.push(msg);
             } else {
                 userNameError.textContent = '';
                 userNameInput.classList.remove('border-red-500');
             }
 
-            // Email
+            return { isValid, errorMsg };
+        }
+
+        // Validate email
+        function validateEmail(showMessages = false) {
             const emailInput = document.getElementById('Email');
-            const emailVal = emailInput.value.trim();
+            const emailOriginal = emailInput.value;
+            const emailVal = emailOriginal.trim();
+            const emailError = document.getElementById('emailError');
             const emailErrorSpan = emailInput.closest('div').querySelector('span[asp-validation-for="Email"]');
-            const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]{2,}$/;
-            if (!emailRegex.test(emailVal)) {
-                valid = false;
-                const msg = 'Email không hợp lệ.';
-                if (emailErrorSpan) emailErrorSpan.textContent = msg;
+            let isValid = true;
+            let errorMsg = '';
+
+            // Kiểm tra rỗng
+            if (!emailVal || emailVal.length === 0) {
+                if (showMessages) {
+                    errorMsg = 'Email không được để trống.';
+                    isValid = false;
+                }
+            }
+            // Kiểm tra dấu cách trong giá trị gốc
+            else if (/\s/.test(emailOriginal)) {
+                errorMsg = 'Email không được chứa dấu cách.';
+                isValid = false;
+            }
+            // Kiểm tra format email
+            else {
+                // Email regex: chấp nhận hầu hết các định dạng email hợp lệ
+                // Không cho phép dấu cách (đã kiểm tra ở trên)
+                const emailRegex = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?@@[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(emailVal)) {
+                    errorMsg = 'Email không hợp lệ. Vui lòng nhập đúng định dạng email (ví dụ: example@domain.com).';
+                    isValid = false;
+                }
+            }
+
+            if (errorMsg) {
+                emailError.textContent = errorMsg;
+                if (emailErrorSpan) emailErrorSpan.textContent = '';
                 emailInput.classList.add('border-red-500');
-                if (showMessages) errors.push(msg);
             } else {
+                emailError.textContent = '';
                 if (emailErrorSpan) emailErrorSpan.textContent = '';
                 emailInput.classList.remove('border-red-500');
             }
 
-            // Password
+            return { isValid, errorMsg };
+        }
+
+        // Validate full name
+        function validateFullName(showMessages = false) {
+            const fullNameInput = document.getElementById('FullName');
+            const fullName = fullNameInput.value.trim();
+            const fullNameError = document.getElementById('fullNameError');
+            let isValid = true;
+            let errorMsg = '';
+
+            // FullName là optional, nhưng nếu có thì validate
+            if (fullName.length > 0) {
+                if (fullName.length < 2) {
+                    errorMsg = 'Họ và tên phải có ít nhất 2 ký tự.';
+                    isValid = false;
+                } else if (fullName.length > 100) {
+                    errorMsg = 'Họ và tên không được vượt quá 100 ký tự.';
+                    isValid = false;
+                } else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(fullName)) {
+                    errorMsg = 'Họ và tên chỉ được chứa chữ cái và dấu cách.';
+                    isValid = false;
+                }
+            }
+
+            if (errorMsg) {
+                fullNameError.textContent = errorMsg;
+                fullNameInput.classList.add('border-red-500');
+            } else {
+                fullNameError.textContent = '';
+                fullNameInput.classList.remove('border-red-500');
+            }
+
+            return { isValid, errorMsg };
+        }
+
+        // Validate password
+        function validatePassword(showMessages = false) {
             const passwordInput = document.getElementById('password');
             const password = passwordInput.value;
-            const pwIssues = passwordStrengthIssues(password);
             const passwordError = document.getElementById('passwordError');
-            if (pwIssues.length) {
-                valid = false;
-                const msg = pwIssues[0];
-                passwordError.textContent = msg;
+            let isValid = true;
+            let errorMsg = '';
+
+            if (!password || password.length === 0) {
+                if (showMessages) {
+                    errorMsg = 'Mật khẩu không được để trống.';
+                    isValid = false;
+                }
+            } else {
+                const pwIssues = passwordStrengthIssues(password);
+                if (pwIssues.length > 0) {
+                    errorMsg = pwIssues[0];
+                    isValid = false;
+                }
+            }
+
+            if (errorMsg) {
+                passwordError.textContent = errorMsg;
                 passwordInput.classList.add('border-red-500');
-                if (showMessages) errors.push(...pwIssues);
             } else {
                 passwordError.textContent = '';
                 passwordInput.classList.remove('border-red-500');
             }
 
-            // Confirm password
+            return { isValid, errorMsg, issues: passwordStrengthIssues(password) };
+        }
+
+        // Validate confirm password
+        function validateConfirmPassword(showMessages = false) {
+            const passwordInput = document.getElementById('password');
             const confirmInput = document.getElementById('confirmPassword');
+            const password = passwordInput.value;
+            const confirmPassword = confirmInput.value;
             const confirmError = document.getElementById('confirmPasswordError');
-            if (password !== confirmInput.value) {
-                valid = false;
-                const msg = 'Mật khẩu không khớp';
-                confirmError.textContent = msg;
+            let isValid = true;
+            let errorMsg = '';
+
+            if (!confirmPassword || confirmPassword.length === 0) {
+                if (showMessages) {
+                    errorMsg = 'Vui lòng xác nhận mật khẩu.';
+                    isValid = false;
+                }
+            } else if (password !== confirmPassword) {
+                errorMsg = 'Mật khẩu xác nhận không khớp.';
+                isValid = false;
+            }
+
+            if (errorMsg) {
+                confirmError.textContent = errorMsg;
                 confirmInput.classList.add('border-red-500');
-                if (showMessages) errors.push(msg);
             } else {
                 confirmError.textContent = '';
                 confirmInput.classList.remove('border-red-500');
             }
 
-            // Terms
+            return { isValid, errorMsg };
+        }
+
+        // Validate terms
+        function validateTerms(showMessages = false) {
             const terms = document.getElementById('terms');
-            if (!terms.checked) {
-                valid = false;
-                if (showMessages) errors.push('Bạn phải đồng ý Điều khoản và Chính sách.');
+            let isValid = terms.checked;
+            let errorMsg = '';
+
+            if (!isValid && showMessages) {
+                errorMsg = 'Bạn phải đồng ý với Điều khoản và Chính sách.';
             }
 
+            return { isValid, errorMsg };
+        }
+
+        // Main validation function
+        function validateForm(showMessages = false) {
+            const usernameResult = validateUsername(showMessages);
+            const emailResult = validateEmail(showMessages);
+            const fullNameResult = validateFullName(showMessages);
+            const passwordResult = validatePassword(showMessages);
+            const confirmPasswordResult = validateConfirmPassword(showMessages);
+            const termsResult = validateTerms(showMessages);
+
+            const isValid = usernameResult.isValid && 
+                          emailResult.isValid && 
+                          fullNameResult.isValid && 
+                          passwordResult.isValid && 
+                          confirmPasswordResult.isValid && 
+                          termsResult.isValid;
+
+            const errors = [];
+            if (!usernameResult.isValid && usernameResult.errorMsg) errors.push(usernameResult.errorMsg);
+            if (!emailResult.isValid && emailResult.errorMsg) errors.push(emailResult.errorMsg);
+            if (!fullNameResult.isValid && fullNameResult.errorMsg) errors.push(fullNameResult.errorMsg);
+            if (!passwordResult.isValid && passwordResult.errorMsg) {
+                if (passwordResult.issues) {
+                    errors.push(...passwordResult.issues);
+                } else {
+                    errors.push(passwordResult.errorMsg);
+                }
+            }
+            if (!confirmPasswordResult.isValid && confirmPasswordResult.errorMsg) errors.push(confirmPasswordResult.errorMsg);
+            if (!termsResult.isValid && termsResult.errorMsg) errors.push(termsResult.errorMsg);
+
             // Error box handling
-            if (showMessages && errors.length) {
+            if (showMessages && errors.length > 0) {
                 errorText.innerHTML = errors.map(e => `• ${e}`).join('<br>');
                 errorBox.classList.remove('hidden');
-            } else if (errors.length === 0) {
+            } else {
                 errorText.textContent = '';
                 errorBox.classList.add('hidden');
             }
 
-            submitBtn.disabled = !valid;
-            submitBtn.classList.toggle('opacity-50', !valid);
-            submitBtn.classList.toggle('cursor-not-allowed', !valid);
-            return valid;
+            // Update submit button
+            submitBtn.disabled = !isValid;
+            submitBtn.classList.toggle('opacity-50', !isValid);
+            submitBtn.classList.toggle('cursor-not-allowed', !isValid);
+
+            return isValid;
         }
 
-        // Validate on submit
+        // ========== Event Listeners ==========
+
+        // Form submit validation
         registerForm.addEventListener('submit', function(e) {
             if (!validateForm(true)) {
                 e.preventDefault();
             }
         });
 
-        // Live validation
-        ['UserName','Email','password','confirmPassword','terms'].forEach(id => {
-            const el = document.getElementById(id);
-            const evt = id === 'terms' ? 'change' : 'input';
-            el.addEventListener(evt, () => validateForm(false));
+        // ========== Username Validation ==========
+        const userNameInput = document.getElementById('UserName');
+        
+        // Chặn dấu cách khi nhập (keypress)
+        userNameInput.addEventListener('keypress', function(e) {
+            if (e.key === ' ' || e.keyCode === 32) {
+                e.preventDefault();
+                const userNameError = document.getElementById('userNameError');
+                userNameError.textContent = 'Dấu cách không được phép trong tên đăng nhập.';
+                this.classList.add('border-red-500');
+                setTimeout(() => {
+                    if (this.value && !/\s/.test(this.value)) {
+                        validateForm(false);
+                    }
+                }, 2000);
+            }
         });
 
-        // Initial state
+        // Xử lý paste và validate real-time
+        userNameInput.addEventListener('input', function() {
+            const originalValue = this.value;
+            const newValue = originalValue.replace(/\s/g, '');
+            
+            if (originalValue !== newValue) {
+                this.value = newValue;
+                const userNameError = document.getElementById('userNameError');
+                userNameError.textContent = 'Dấu cách không được phép trong tên đăng nhập.';
+                this.classList.add('border-red-500');
+                setTimeout(() => {
+                    if (this.value === newValue) {
+                        validateForm(false);
+                    }
+                }, 2000);
+            } else {
+                validateForm(false);
+            }
+        });
+
+        // ========== Email Validation ==========
+        const emailInput = document.getElementById('Email');
+        
+        // Chặn dấu cách khi nhập (keypress)
+        emailInput.addEventListener('keypress', function(e) {
+            if (e.key === ' ' || e.keyCode === 32) {
+                e.preventDefault();
+                const emailError = document.getElementById('emailError');
+                emailError.textContent = 'Email không được chứa dấu cách.';
+                this.classList.add('border-red-500');
+                setTimeout(() => {
+                    if (this.value && !/\s/.test(this.value)) {
+                        validateForm(false);
+                    }
+                }, 2000);
+            }
+        });
+
+        // Xử lý paste và validate real-time
+        emailInput.addEventListener('input', function() {
+            const originalValue = this.value;
+            const newValue = originalValue.replace(/\s/g, '');
+            
+            if (originalValue !== newValue) {
+                this.value = newValue;
+                const emailError = document.getElementById('emailError');
+                emailError.textContent = 'Email không được chứa dấu cách.';
+                this.classList.add('border-red-500');
+                setTimeout(() => {
+                    if (this.value === newValue) {
+                        validateForm(false);
+                    }
+                }, 2000);
+            } else {
+                validateForm(false);
+            }
+        });
+
+        // ========== FullName Validation ==========
+        const fullNameInput = document.getElementById('FullName');
+        fullNameInput.addEventListener('input', function() {
+            validateForm(false);
+        });
+
+        // ========== Password Validation ==========
+        const passwordInput = document.getElementById('password');
+        passwordInput.addEventListener('input', function() {
+            validateForm(false);
+            // Validate confirm password khi password thay đổi
+            validateConfirmPassword(false);
+        });
+
+        // ========== Confirm Password Validation ==========
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        confirmPasswordInput.addEventListener('input', function() {
+            validateForm(false);
+        });
+
+        // ========== Terms Validation ==========
+        const termsInput = document.getElementById('terms');
+        termsInput.addEventListener('change', function() {
+            validateForm(false);
+        });
+
+        // Initial validation
         validateForm(false);
-
-        // Clear error on input
-        document.getElementById('UserName').addEventListener('input', function() {
-            document.getElementById('userNameError').textContent = '';
-            this.classList.remove('border-red-500');
-        });
-
-        document.getElementById('confirmPassword').addEventListener('input', function() {
-            document.getElementById('confirmPasswordError').textContent = '';
-            this.classList.remove('border-red-500');
-        });
-
-        document.getElementById('password').addEventListener('input', function() {
-            document.getElementById('passwordError').textContent = '';
-            this.classList.remove('border-red-500');
-        });
     </script>
 }

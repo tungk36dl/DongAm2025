@@ -93,7 +93,7 @@ namespace WebFindLove.Controllers
             {
                 UserId1 = UserId!.Value,
                 UserId2 = userId,
-                PageSize = 100,
+                PageSize = 1000, //Giới hạn 1000 tin nhắn gần nhất
 
             };
             // Get conversation messages
