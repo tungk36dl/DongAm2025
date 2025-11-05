@@ -6,31 +6,31 @@
 <div class="container mx-auto px-4 py-8 max-w-3xl">
     <!-- Header -->
     <div class="mb-6">
-        <a asp-action="Index" class="text-purple-600 hover:text-purple-800 mb-4 inline-block">
+        <a asp-action="Index" class="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 mb-4 inline-block">
             <i class="fas fa-arrow-left mr-2"></i>Quay Lại Sở Thích
         </a>
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">
-            <i class="fas fa-sliders-h text-purple-600 mr-2"></i>Chỉnh Sửa Sở Thích
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">
+            <i class="fas fa-sliders-h text-purple-600 dark:text-purple-400 mr-2"></i>Chỉnh Sửa Sở Thích
         </h1>
-        <p class="text-gray-600">Cho chúng tôi biết bạn đang tìm kiếm gì</p>
+        <p class="text-gray-600 dark:text-gray-400">Cho chúng tôi biết bạn đang tìm kiếm gì</p>
     </div>
 
     <!-- Free Updates Info -->
     @{
         var freeUpdates = Model.FreeUpdateCount ?? 0;
     }
-    <div class="mb-6 @(freeUpdates > 0 ? "bg-blue-50" : "bg-red-50") border-l-4 @(freeUpdates > 0 ? "border-blue-500" : "border-red-500") p-4 rounded-lg">
+    <div class="mb-6 @(freeUpdates > 0 ? "bg-blue-50 dark:bg-blue-900/30" : "bg-red-50 dark:bg-red-900/30") border-l-4 @(freeUpdates > 0 ? "border-blue-500" : "border-red-500") p-4 rounded-lg">
         <div class="flex items-center justify-between">
             <div class="flex items-center">
                 <i class="fas fa-sync-alt mr-3 @(freeUpdates > 0 ? "text-blue-500" : "text-red-500")"></i>
                 <div>
-                    <p class="font-semibold @(freeUpdates > 0 ? "text-blue-800" : "text-red-800")">
+                    <p class="font-semibold @(freeUpdates > 0 ? "text-blue-800 dark:text-blue-200" : "text-red-800 dark:text-red-200")">
                         Số lần cập nhật sở thích còn lại: 
                         <span class="text-2xl font-bold">@freeUpdates</span> lần
                     </p>
                     @if (freeUpdates == 0)
                     {
-                        <p class="text-sm text-red-700 mt-1">
+                        <p class="text-sm text-red-700 dark:text-red-300 mt-1">
                             Bạn đã hết lượt cập nhật miễn phí. Vui lòng liên hệ admin để được hỗ trợ.
                         </p>
                     }
@@ -38,8 +38,8 @@
             </div>
             @if (freeUpdates > 0)
             {
-                <div class="px-4 py-2 bg-blue-100 rounded-full">
-                    <span class="text-blue-800 font-semibold">
+                <div class="px-4 py-2 bg-blue-100 dark:bg-blue-800 rounded-full">
+                    <span class="text-blue-800 dark:text-blue-200 font-semibold">
                         @(freeUpdates == 1 ? "Lượt cuối cùng" : "")
                     </span>
                 </div>
@@ -48,7 +48,7 @@
     </div>
 
     <!-- Form -->
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <form asp-action="Edit" method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
@@ -57,12 +57,12 @@
             <div class="space-y-6">
                 <!-- Gender Preference -->
                 <div>
-                    <label asp-for="PreferredGender" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label asp-for="PreferredGender" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <i class="fas fa-venus-mars text-pink-500 mr-1"></i>
                         Giới Tính Mong Muốn <span class="text-red-500">*</span>
                     </label>
                     <select asp-for="PreferredGender" 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             required>
                         <option value="">Chọn giới tính</option>
                         <option value="male">Nam</option>
@@ -70,81 +70,81 @@
                         <option value="other">Khác</option>
                         <option value="all">Bất kỳ</option>
                     </select>
-                    <span asp-validation-for="PreferredGender" class="text-red-600 text-sm"></span>
+                    <span asp-validation-for="PreferredGender" class="text-red-600 dark:text-red-400 text-sm"></span>
                 </div>
 
                 <!-- Age Range -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label asp-for="AgeMin" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label asp-for="AgeMin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <i class="fas fa-birthday-cake text-blue-500 mr-1"></i>
                             Tuổi Tối Thiểu <span class="text-red-500">*</span>
                         </label>
                         <input asp-for="AgeMin" type="number" min="18" max="100"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                placeholder="VD: 25"
                                required>
-                        <span asp-validation-for="AgeMin" class="text-red-600 text-sm"></span>
+                        <span asp-validation-for="AgeMin" class="text-red-600 dark:text-red-400 text-sm"></span>
                     </div>
                     <div>
-                        <label asp-for="AgeMax" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label asp-for="AgeMax" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Tuổi Tối Đa <span class="text-red-500">*</span>
                         </label>
                         <input asp-for="AgeMax" type="number" min="18" max="100"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                placeholder="VD: 35"
                                required>
-                        <span asp-validation-for="AgeMax" class="text-red-600 text-sm"></span>
+                        <span asp-validation-for="AgeMax" class="text-red-600 dark:text-red-400 text-sm"></span>
                     </div>
                 </div>
 
                 <!-- Height Range -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label asp-for="MinHeight" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label asp-for="MinHeight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <i class="fas fa-ruler-vertical text-green-500 mr-1"></i>
                             Chiều Cao Tối Thiểu (cm)
                         </label>
                         <input asp-for="MinHeight" type="number" min="100" max="250"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                placeholder="VD: 160">
-                        <span asp-validation-for="MinHeight" class="text-red-600 text-sm"></span>
+                        <span asp-validation-for="MinHeight" class="text-red-600 dark:text-red-400 text-sm"></span>
                     </div>
                     <div>
-                        <label asp-for="MaxHeight" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label asp-for="MaxHeight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Chiều Cao Tối Đa (cm)
                         </label>
                         <input asp-for="MaxHeight" type="number" min="100" max="250"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                placeholder="VD: 185">
-                        <span asp-validation-for="MaxHeight" class="text-red-600 text-sm"></span>
+                        <span asp-validation-for="MaxHeight" class="text-red-600 dark:text-red-400 text-sm"></span>
                     </div>
                 </div>
 
                 <!-- Location Preference -->
                 <div>
-                    <label asp-for="LocationPreference" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label asp-for="LocationPreference" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <i class="fas fa-map-marker-alt text-red-500 mr-1"></i>
                         Khu Vực Mong Muốn
                     </label>
                     <input asp-for="LocationPreference" 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                            placeholder="VD: Hà Nội, Việt Nam">
-                    <span asp-validation-for="LocationPreference" class="text-red-600 text-sm"></span>
-                    <p class="text-sm text-gray-500 mt-1">Nhập thành phố hoặc khu vực mong muốn</p>
+                    <span asp-validation-for="LocationPreference" class="text-red-600 dark:text-red-400 text-sm"></span>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Nhập thành phố hoặc khu vực mong muốn</p>
                 </div>
 
                 <!-- Personality Preference -->
                 <div>
-                    <label asp-for="PersonalityPreference" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label asp-for="PersonalityPreference" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <i class="fas fa-brain text-purple-500 mr-1"></i>
                         Tính Cách Mong Muốn
                     </label>
                     <textarea asp-for="PersonalityPreference" rows="3"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"
+                              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"
                               placeholder='Nhập tính cách mong muốn: thân thiện, hài hước, chín chắn, nhiệt tình'></textarea>
-                    <span asp-validation-for="PersonalityPreference" class="text-red-600 text-sm"></span>
-                    <p class="text-sm text-gray-500 mt-1">
+                    <span asp-validation-for="PersonalityPreference" class="text-red-600 dark:text-red-400 text-sm"></span>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         <i class="fas fa-info-circle mr-1"></i>
                         Nhập các tính cách bạn mong muốn (cách nhau bởi dấu phẩy)
                     </p>
@@ -152,15 +152,15 @@
 
                 <!-- Interest Preference -->
                 <div>
-                    <label asp-for="InterestPreference" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label asp-for="InterestPreference" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <i class="fas fa-heart text-pink-500 mr-1"></i>
                         Sở Thích Mong Muốn
                     </label>
                     <textarea asp-for="InterestPreference" rows="3"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"
+                              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"
                               placeholder='Nhập sở thích mong muốn: đọc sách, du lịch, âm nhạc, thể thao'></textarea>
-                    <span asp-validation-for="InterestPreference" class="text-red-600 text-sm"></span>
-                    <p class="text-sm text-gray-500 mt-1">
+                    <span asp-validation-for="InterestPreference" class="text-red-600 dark:text-red-400 text-sm"></span>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         <i class="fas fa-info-circle mr-1"></i>
                         Nhập các sở thích bạn mong muốn (cách nhau bởi dấu phẩy)
                     </p>
@@ -186,12 +186,12 @@
     </div>
 
     <!-- Help Section -->
-    <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 mt-6">
-        <h3 class="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+    <div class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 rounded-lg p-4 mt-6">
+        <h3 class="font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
             <i class="fas fa-lightbulb"></i>
             Mẹo Hay
         </h3>
-        <p class="text-blue-700 text-sm">
+        <p class="text-blue-700 dark:text-blue-300 text-sm">
             Để trống các trường nếu bạn không có yêu cầu cụ thể. AI của chúng tôi sẽ sử dụng thông tin hồ sơ để tìm người phù hợp!
         </p>
     </div>

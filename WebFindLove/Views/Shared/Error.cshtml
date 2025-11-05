@@ -1,25 +1,53 @@
 ﻿@model ErrorViewModel
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = "Lỗi";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<div class="min-h-[80vh] flex items-center justify-center py-12">
+    <div class="max-w-2xl w-full mx-auto px-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
+            <div class="mb-6">
+                <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+                <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-2">Đã xảy ra lỗi</h1>
+                <h2 class="text-xl text-gray-600 dark:text-gray-400">Có vấn đề xảy ra khi xử lý yêu cầu của bạn</h2>
+            </div>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+            @if (Model.ShowRequestId)
+            {
+                <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        <strong>Mã yêu cầu:</strong> 
+                        <code class="bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded text-xs font-mono">@Model.RequestId</code>
+                    </p>
+                </div>
+            }
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+            <div class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 rounded-lg mb-6 text-left">
+                <div class="flex items-start">
+                    <i class="fas fa-info-circle text-blue-500 mr-3 mt-1"></i>
+                    <div>
+                        <h3 class="font-semibold text-blue-800 dark:text-blue-200 mb-2">Chế độ Phát triển</h3>
+                        <p class="text-sm text-blue-700 dark:text-blue-300 mb-2">
+                            Chuyển sang môi trường <strong>Development</strong> sẽ hiển thị thông tin chi tiết hơn về lỗi đã xảy ra.
+                        </p>
+                        <p class="text-sm text-blue-700 dark:text-blue-300">
+                            <strong>Lưu ý:</strong> Môi trường Development không nên được bật cho các ứng dụng đã triển khai. 
+                            Nó có thể dẫn đến việc hiển thị thông tin nhạy cảm từ các ngoại lệ cho người dùng cuối.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-4 justify-center">
+                <a asp-controller="Home" asp-action="Index" 
+                   class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium">
+                    <i class="fas fa-home mr-2"></i>Về Trang Chủ
+                </a>
+                <button onclick="history.back()" 
+                        class="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>Quay Lại
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

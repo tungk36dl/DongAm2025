@@ -15,7 +15,7 @@ namespace WebFindLove.Models.Repositories.MatchResultRepo
             return await _context.MatchResults
                 .Include(m => m.User)
                 .Include(m => m.MatchedUser)
-                .Where(m => (m.UserId == userId) && m.IsActive)
+                .Where(m => (m.UserId == userId))
                 .OrderByDescending(m => m.MatchScore)
                 .ToListAsync();
         }
