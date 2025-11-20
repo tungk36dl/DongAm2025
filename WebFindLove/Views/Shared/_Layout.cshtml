@@ -29,35 +29,38 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-    <header class="bg-white dark:bg-gray-800 shadow-md transition-colors duration-200 sticky top-0 z-50">
+<body class="bg-gray-50 dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 transition-colors duration-300">
+    <header class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg transition-all duration-300 sticky top-0 z-50 border-b border-gray-200/50 dark:border-gray-700/50">
         <nav class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
-                <a class="text-2xl font-bold text-primary hover:text-pink-600 transition" asp-controller="Home" asp-action="Index">
-                    <i class="fas fa-heart mr-2"></i>WebFindLove
+                <a class="text-2xl font-bold text-primary hover:text-pink-600 transition-all duration-300 transform hover:scale-105 group" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-heart mr-2 group-hover:animate-pulse"></i>WebFindLove
                 </a>
                 
-                <button class="lg:hidden text-gray-700 dark:text-gray-300 focus:outline-none" id="mobile-menu-button">
+                <button class="lg:hidden text-gray-700 dark:text-gray-300 focus:outline-none hover:text-primary transition-all duration-300 transform hover:scale-110" id="mobile-menu-button">
                     <i class="fas fa-bars text-2xl"></i>
                 </button>
 
                 <div class="hidden lg:flex items-center space-x-6" id="desktop-menu">
                     <!-- Dark Mode Toggle -->
-                    <button id="theme-toggle" class="text-gray-700 dark:text-gray-300 hover:text-primary transition">
-                        <i class="fas fa-moon dark:hidden"></i>
-                        <i class="fas fa-sun hidden dark:inline"></i>
+                    <button id="theme-toggle" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-all duration-300 transform hover:scale-110 hover:rotate-12 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-moon dark:hidden text-lg"></i>
+                        <i class="fas fa-sun hidden dark:inline text-lg"></i>
                     </button>
                     
-                    <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Home" asp-action="Index">
-                        <i class="fas fa-home mr-1"></i>Trang chủ
+                    <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition-all duration-300 font-medium relative group" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-home mr-1 group-hover:animate-bounce"></i>Trang chủ
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                     </a>
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Matching" asp-action="Index">
-                            <i class="fas fa-heart text-pink-500 mr-1"></i>Ghép đôi
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition-all duration-300 font-medium relative group" asp-controller="Matching" asp-action="Index">
+                            <i class="fas fa-heart text-pink-500 mr-1 group-hover:animate-pulse"></i>Ghép đôi
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Messages" asp-action="Index">
-                            <i class="fas fa-comments text-blue-500 mr-1"></i>Tin nhắn
+                        <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition-all duration-300 font-medium relative group" asp-controller="Messages" asp-action="Index">
+                            <i class="fas fa-comments text-blue-500 mr-1 group-hover:animate-bounce"></i>Tin nhắn
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                         </a>
                         
                         <!-- Notification Bell -->
@@ -104,15 +107,18 @@
                         <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Auth" asp-action="Login">
                             <i class="fas fa-sign-in-alt mr-1"></i>Đăng nhập
                         </a>
-                        <a class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full hover:shadow-lg transition font-medium" asp-controller="Auth" asp-action="Register">
-                            <i class="fas fa-user-plus mr-1"></i>Đăng ký
+                        <a class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-medium relative overflow-hidden group" asp-controller="Auth" asp-action="Register">
+                            <span class="relative z-10 flex items-center">
+                                <i class="fas fa-user-plus mr-1 group-hover:animate-bounce"></i>Đăng ký
+                            </span>
+                            <span class="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                         </a>
                     }
                 </div>
             </div>
 
             <!-- Mobile menu -->
-            <div class="lg:hidden mt-4 hidden bg-white dark:bg-gray-800 rounded-lg p-4 shadow-lg" id="mobile-menu">
+            <div class="lg:hidden mt-4 hidden bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-lg p-4 shadow-xl border border-gray-200/50 dark:border-gray-700/50 animate-slideDown" id="mobile-menu">
                 <!-- Dark Mode Toggle Mobile -->
                 <div class="flex items-center justify-between mb-4 pb-4 border-b dark:border-gray-700">
                     <button id="theme-toggle-mobile" class="text-gray-700 dark:text-gray-300 hover:text-primary transition flex items-center">
@@ -183,21 +189,32 @@
     <!-- Chat Widget -->
     @await Html.PartialAsync("_ChatWidget")
 
-    <main class="container mx-auto px-4 py-8 min-h-screen">
+    <main class="container mx-auto px-4 py-8 min-h-screen dark:bg-gradient-to-br dark:from-gray-950 dark:via-slate-900 dark:to-gray-950">
         @RenderBody()
     </main>
 
-    <footer class="bg-white dark:bg-gray-800 border-t dark:border-gray-700 mt-12 transition-colors duration-200">
-        <div class="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400">
-            <p>&copy; 2025 - WebFindLove - <a class="text-primary hover:text-pink-600" asp-controller="Home" asp-action="Privacy">Quyền riêng tư</a></p>
+    <footer class="bg-white dark:bg-gray-800 border-t dark:border-gray-700 mt-12 transition-all duration-300 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-secondary/5"></div>
+        <div class="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400 relative z-10">
+            <p class="flex items-center justify-center gap-2">
+                <span>&copy; 2025 - WebFindLove</span>
+                <span class="text-primary animate-pulse">❤️</span>
+                <a class="text-primary hover:text-pink-600 transition-all duration-300 font-medium hover:underline" asp-controller="Home" asp-action="Privacy">Quyền riêng tư</a>
+            </p>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
-        // Mobile menu toggle
+        // Mobile menu toggle with animation
         document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
-            document.getElementById('mobile-menu')?.classList.toggle('hidden');
+            const menu = document.getElementById('mobile-menu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+                if (!menu.classList.contains('hidden')) {
+                    menu.style.animation = 'slideDown 0.3s ease-out';
+                }
+            }
         });
 
         // Dark mode toggle

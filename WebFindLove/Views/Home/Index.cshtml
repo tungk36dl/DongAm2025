@@ -15,18 +15,24 @@
     </style>
 }
 
-<div class="min-h-[80vh]">
+<div class="min-h-[80vh] dark:bg-gradient-to-br dark:from-gray-950 dark:via-slate-900 dark:to-gray-950">
     <!-- Hero Section -->
-    <div class="home-hero home-gradient-bg rounded-2xl shadow-2xl p-12 text-white mb-12">
-        <div class="text-center">
-            <i class="fas fa-heart text-6xl mb-6 home-hero-icon home-text-glow"></i>
-            <h1 class="text-5xl font-bold mb-4 home-hero-title">Chào mừng đến với WebFindLove</h1>
-            <p class="text-xl text-pink-100 mb-8 home-hero-subtitle">Hành trình tìm kiếm tình yêu của bạn bắt đầu từ đây</p>
+    <div class="home-hero home-gradient-bg rounded-3xl shadow-2xl p-12 text-white mb-12 relative overflow-hidden">
+        <!-- Animated Background Elements -->
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-10 left-10 w-20 h-20 bg-white rounded-full animate-float" style="animation-delay: 0s;"></div>
+            <div class="absolute top-40 right-20 w-16 h-16 bg-white rounded-full animate-float" style="animation-delay: 1s;"></div>
+            <div class="absolute bottom-20 left-1/4 w-12 h-12 bg-white rounded-full animate-float" style="animation-delay: 2s;"></div>
+        </div>
+        <div class="text-center relative z-10">
+            <i class="fas fa-heart text-6xl mb-6 home-hero-icon home-text-glow animate-pulse"></i>
+            <h1 class="text-5xl font-bold mb-4 home-hero-title bg-clip-text text-transparent bg-gradient-to-r from-white to-pink-200">Chào mừng đến với WebFindLove</h1>
+            <p class="text-xl text-pink-100 mb-8 home-hero-subtitle drop-shadow-lg">Hành trình tìm kiếm tình yêu của bạn bắt đầu từ đây</p>
             @if (User.Identity?.IsAuthenticated == true)
             {
-                <div class="bg-white/20 backdrop-blur-sm rounded-lg p-6 max-w-md mx-auto mb-6">
-                    <p class="text-lg mb-4">Chào mừng trở lại, <strong>@User.Identity.Name</strong>!</p>
-                    <p class="text-pink-100">Bạn đang đăng nhập với vai trò <strong>@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</strong></p>
+                <div class="bg-white/20 backdrop-blur-md rounded-xl p-6 max-w-md mx-auto mb-6 border border-white/30 shadow-xl animate-scaleIn">
+                    <p class="text-lg mb-4 font-semibold">Chào mừng trở lại, <strong class="text-yellow-300">@User.Identity.Name</strong>! 👋</p>
+                    <p class="text-pink-100">Bạn đang đăng nhập với vai trò <strong class="text-yellow-200">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</strong></p>
                 </div>
                 
                 <!-- Search Form -->
@@ -49,18 +55,24 @@
                 <!-- Quick Action: Ghép đôi -->
                 <div class="flex justify-center home-hero-actions">
                     <a asp-controller="Matching" asp-action="Index" 
-                       class="home-pulse-button bg-white/20 backdrop-blur-sm border-2 border-white/50 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/30 hover:border-white transition transform hover:scale-105 shadow-lg relative">
-                        <i class="fas fa-heart mr-2"></i>Ghép đôi ngay
+                       class="home-pulse-button bg-white/20 backdrop-blur-md border-2 border-white/50 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/30 hover:border-white transition-all duration-300 transform hover:scale-110 shadow-xl relative overflow-hidden group">
+                        <span class="relative z-10 flex items-center">
+                            <i class="fas fa-heart mr-2 group-hover:animate-pulse"></i>Ghép đôi ngay
+                        </span>
+                        <span class="absolute inset-0 bg-gradient-to-r from-pink-500/30 to-purple-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                     </a>
                 </div>
             }
             else
             {
-                <div class="flex justify-center space-x-4">
-                    <a asp-controller="Auth" asp-action="Register" class="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-pink-50 transition transform hover:scale-105">
-                        <i class="fas fa-user-plus mr-2"></i>Bắt đầu ngay
+                <div class="flex justify-center space-x-4 home-hero-actions">
+                    <a asp-controller="Auth" asp-action="Register" class="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-pink-50 transition-all duration-300 transform hover:scale-110 shadow-xl relative overflow-hidden group">
+                        <span class="relative z-10 flex items-center">
+                            <i class="fas fa-user-plus mr-2 group-hover:animate-bounce"></i>Bắt đầu ngay
+                        </span>
+                        <span class="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                     </a>
-                    <a asp-controller="Auth" asp-action="Login" class="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10 transition">
+                    <a asp-controller="Auth" asp-action="Login" class="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white/20 transition-all duration-300 transform hover:scale-110 backdrop-blur-sm">
                         <i class="fas fa-sign-in-alt mr-2"></i>Đăng nhập
                     </a>
                 </div>
@@ -84,7 +96,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach (var user in searchResults)
                     {
-                        <div class="home-search-result-card bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition p-6">
+                        <div class="home-search-result-card bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 p-6 border border-gray-100 dark:border-gray-700 hover:border-primary/50">
                             <div class="flex items-start gap-4">
                                 <!-- Avatar -->
                                 <div class="flex-shrink-0">
@@ -152,10 +164,11 @@
         <h2 class="home-section-title text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8 animated">
             <i class="fas fa-star text-primary mr-2"></i>Tại sao chọn chúng tôi?
         </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="home-feature-card bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
-                <div class="text-center">
-                    <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="home-feature-card bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-gray-100 dark:border-gray-700 hover:border-primary/50 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="text-center relative z-10">
+                    <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:rotate-12">
                         <i class="fas fa-shield-alt text-3xl text-white home-feature-icon"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">An toàn & Riêng tư</h3>
@@ -163,9 +176,10 @@
                 </div>
             </div>
 
-            <div class="home-feature-card bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
-                <div class="text-center">
-                    <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="home-feature-card bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-gray-100 dark:border-gray-700 hover:border-primary/50 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="text-center relative z-10">
+                    <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:rotate-12">
                         <i class="fas fa-users text-3xl text-white home-feature-icon"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">Cộng đồng sôi động</h3>
@@ -173,9 +187,10 @@
                 </div>
             </div>
 
-            <div class="home-feature-card bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
-                <div class="text-center">
-                    <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="home-feature-card bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-gray-100 dark:border-gray-700 hover:border-primary/50 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="text-center relative z-10">
+                    <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:rotate-12">
                         <i class="fas fa-heart text-3xl text-white home-feature-icon"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">Ghép đôi hoàn hảo</h3>
@@ -195,9 +210,10 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Ghép đôi -->
                 <a asp-controller="Matching" asp-action="Index" 
-                   class="home-quick-action bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105 border-2 border-transparent hover:border-primary">
-                    <div class="flex items-center gap-4">
-                        <div class="bg-gradient-to-r from-primary to-secondary w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0">
+                   class="home-quick-action bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-primary/50 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="bg-gradient-to-r from-primary to-secondary w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:rotate-12">
                             <i class="fas fa-heart text-2xl text-white home-quick-action-icon"></i>
                         </div>
                         <div>
@@ -271,12 +287,21 @@
     else
     {
         <!-- Call to Action -->
-        <div class="home-cta bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-xl p-12 text-white text-center">
-            <h2 class="text-3xl font-bold mb-4">Sẵn sàng tìm kiếm nửa kia hoàn hảo?</h2>
-            <p class="text-xl mb-8 text-purple-100">Tham gia cùng hàng ngàn cặp đôi hạnh phúc đã tìm thấy tình yêu ở đây</p>
-            <a asp-controller="Auth" asp-action="Register" class="home-cta-button inline-block bg-white text-purple-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-purple-50 transition transform hover:scale-105 relative">
-                <i class="fas fa-heart mr-2"></i>Bắt đầu hành trình của bạn ngay hôm nay
-            </a>
+        <div class="home-cta bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl shadow-2xl p-12 text-white text-center relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20">
+                <div class="absolute top-10 left-10 w-32 h-32 bg-white rounded-full animate-float" style="animation-delay: 0s;"></div>
+                <div class="absolute bottom-10 right-10 w-24 h-24 bg-white rounded-full animate-float" style="animation-delay: 1.5s;"></div>
+            </div>
+            <div class="relative z-10">
+                <h2 class="text-3xl font-bold mb-4 drop-shadow-lg">Sẵn sàng tìm kiếm nửa kia hoàn hảo?</h2>
+                <p class="text-xl mb-8 text-purple-100 drop-shadow-md">Tham gia cùng hàng ngàn cặp đôi hạnh phúc đã tìm thấy tình yêu ở đây</p>
+                <a asp-controller="Auth" asp-action="Register" class="home-cta-button inline-block bg-white text-purple-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-purple-50 transition-all duration-300 transform hover:scale-110 relative overflow-hidden group shadow-xl">
+                    <span class="relative z-10 flex items-center justify-center">
+                        <i class="fas fa-heart mr-2 group-hover:animate-pulse"></i>Bắt đầu hành trình của bạn ngay hôm nay
+                    </span>
+                    <span class="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                </a>
+            </div>
         </div>
     }
 </div>

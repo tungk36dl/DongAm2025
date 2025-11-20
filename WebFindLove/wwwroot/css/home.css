@@ -570,6 +570,54 @@
     box-shadow: 0 15px 35px rgba(236, 72, 153, 0.35);
 }
 
+.dark .home-hero {
+    background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e1b4b, #0f172a) !important;
+    /* background: linear-gradient(-45deg, #6b21a8, #9f1239, #6b21a8, #9f1239) !important; */
+    background-size: 400% 400% !important;
+    animation: gradient 15s ease infinite !important;
+}
+
+.dark .home-cta {
+    background: linear-gradient(-45deg, #6b21a8, #9f1239, #6b21a8, #9f1239) !important;
+}
+
+/* ========== Enhanced Animations ========== */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(5deg);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(236, 72, 153, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(236, 72, 153, 0.8), 0 0 30px rgba(236, 72, 153, 0.6);
+    }
+}
+
+.animate-glow {
+    animation: glow 2s ease-in-out infinite;
+}
+
+/* ========== Smooth Hover Effects ========== */
+.hover-lift {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.dark .hover-lift:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
 /* ========== Smooth Scroll Behavior ========== */
 .home-smooth-scroll {
     scroll-behavior: smooth;

@@ -10,20 +10,23 @@
 }
 
 <div class="mb-6">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-center mb-6 animate-fadeIn">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
-                <i class="fas fa-users text-primary mr-2"></i>Quản Lý Người Dùng
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+                <i class="fas fa-users text-primary mr-2 animate-pulse"></i>Quản Lý Người Dùng
             </h1>
             <p class="text-gray-600 dark:text-gray-400 mt-1">Quản lý tất cả người dùng trong hệ thống</p>
         </div>
-        <a asp-action="Create" class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium">
-            <i class="fas fa-plus mr-2"></i>Thêm Người Dùng Mới
+        <a asp-action="Create" class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-medium relative overflow-hidden group">
+            <span class="relative z-10 flex items-center">
+                <i class="fas fa-plus mr-2 group-hover:animate-bounce"></i>Thêm Người Dùng Mới
+            </span>
+            <span class="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
         </a>
     </div>
 
     <!-- Search and Filter Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-xl p-6 mb-6 border border-gray-200/50 dark:border-gray-700/50 animate-scaleIn">
         <form method="get" asp-action="Index" class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
                 <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
@@ -72,7 +75,7 @@
             </div>
 
             <div class="flex items-end">
-                <button type="submit" class="w-full bg-primary text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition font-medium">
+                <button type="submit" class="w-full bg-primary text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition-all duration-300 transform hover:scale-105 font-medium shadow-md hover:shadow-lg">
                     <i class="fas fa-filter mr-2"></i>Lọc
                 </button>
             </div>
@@ -91,7 +94,7 @@
     }
 
     <!-- Users Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+    <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-xl overflow-hidden border border-gray-200/50 dark:border-gray-700/50 animate-fadeIn">
         @if (Model != null && Model.Any())
         {
             <div class="overflow-x-auto">
@@ -121,7 +124,7 @@
                     <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         @foreach (var user in Model)
                         {
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-[1.01]">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
@@ -176,13 +179,13 @@
                                     @user.CreatedAt?.ToString("dd/MM/yyyy")
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a asp-action="Details" asp-route-id="@user.Id" class="text-blue-600 hover:text-blue-900 mr-3" title="Xem Chi Tiết">
+                                    <a asp-action="Details" asp-route-id="@user.Id" class="text-blue-600 hover:text-blue-900 mr-3 transition-all duration-300 transform hover:scale-125 inline-block" title="Xem Chi Tiết">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a asp-action="Edit" asp-route-id="@user.Id" class="text-green-600 hover:text-green-900 mr-3" title="Chỉnh Sửa">
+                                    <a asp-action="Edit" asp-route-id="@user.Id" class="text-green-600 hover:text-green-900 mr-3 transition-all duration-300 transform hover:scale-125 inline-block" title="Chỉnh Sửa">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a asp-action="Delete" asp-route-id="@user.Id" class="text-red-600 hover:text-red-900" title="Xóa">
+                                    <a asp-action="Delete" asp-route-id="@user.Id" class="text-red-600 hover:text-red-900 transition-all duration-300 transform hover:scale-125 inline-block" title="Xóa">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>

@@ -8,13 +8,15 @@
 
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-center mb-6 animate-fadeIn">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Messages</h1>
-            <p class="text-gray-600 mt-1">Your conversations</p>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
+                <i class="fas fa-comments text-blue-500 mr-2 animate-pulse"></i>Messages
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">Your conversations</p>
             @if (unreadCount > 0)
             {
-                <span class="inline-block mt-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                <span class="inline-block mt-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse shadow-lg">
                     @unreadCount unread message(s)
                 </span>
             }
@@ -24,7 +26,7 @@
     <!-- Conversations List -->
     @if (Model != null && Model.Any())
     {
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-xl overflow-hidden border border-gray-200/50 dark:border-gray-700/50 animate-fadeIn">
             @foreach (var conversation in Model)
             {
                 // Tìm người dùng khác trong conversation (không phải current user)
@@ -40,7 +42,7 @@
                 var lastMessageTime = tempTime.ToString("MMM dd, HH:mm");
 
                 <a href="@Url.Action("Conversation", new { userId = otherUserId })" 
-                   class="block border-b hover:bg-gray-50 transition @(hasUnread ? "bg-blue-50" : "")">
+                   class="block border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-[1.01] @(hasUnread ? "bg-blue-50 dark:bg-blue-900/20" : "")">
                     <div class="p-6 flex items-start gap-4">
                         <!-- Avatar -->
                         <div class="flex-shrink-0">
@@ -94,10 +96,10 @@
     }
     else
     {
-        <div class="bg-white rounded-lg shadow-md p-12 text-center">
-            <i class="fas fa-comments text-gray-400 text-6xl mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-700 mb-2">No Messages Yet</h3>
-            <p class="text-gray-500">Start a conversation with other users to see messages here.</p>
+        <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-xl p-12 text-center border border-gray-200/50 dark:border-gray-700/50 animate-fadeIn">
+            <i class="fas fa-comments text-gray-400 dark:text-gray-600 text-6xl mb-4 animate-pulse"></i>
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No Messages Yet</h3>
+            <p class="text-gray-500 dark:text-gray-400">Start a conversation with other users to see messages here.</p>
         </div>
     }
 </div>

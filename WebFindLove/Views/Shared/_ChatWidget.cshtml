@@ -11,27 +11,28 @@
     <!-- Chat Widget Button -->
     <div id="chatWidget" class="fixed bottom-6 right-6 z-50">
         <!-- Notification Badge -->
-        <span id="chatNotificationBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center z-55">0</span>
+        <span id="chatNotificationBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center z-55 animate-pulse shadow-lg">0</span>
         
         <!-- Chat Button -->
-        <button id="chatWidgetBtn" class="bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-52">
-            <i class="fas fa-comments text-2xl"></i>
+        <button id="chatWidgetBtn" class="bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 hover:rotate-12 z-52 relative overflow-hidden group">
+            <i class="fas fa-comments text-2xl relative z-10 group-hover:animate-bounce"></i>
+            <span class="absolute inset-0 bg-gradient-to-br from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></span>
         </button>
 
         <!-- Chat Popup -->
-        <div id="chatPopup" class="hidden absolute bottom-20 right-0 w-96 bg-white rounded-lg shadow-2xl overflow-hidden border border-gray-200" style="height: 600px;">
+        <div id="chatPopup" class="hidden absolute bottom-20 right-0 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-2xl overflow-hidden border border-gray-200/50 dark:border-gray-700/50 animate-scaleIn" style="height: 600px;">
             <!-- Header -->
-            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex justify-between items-center">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex justify-between items-center shadow-lg">
                 <div class="flex items-center gap-2">
-                    <i class="fas fa-comments text-xl"></i>
+                    <i class="fas fa-comments text-xl animate-pulse"></i>
                     <h3 class="font-bold text-lg">Messages</h3>
-                    <span id="unreadCountBadge" class="hidden bg-white text-blue-600 text-xs font-bold px-2 py-1 rounded-full">0</span>
+                    <span id="unreadCountBadge" class="hidden bg-white text-blue-600 text-xs font-bold px-2 py-1 rounded-full shadow-md animate-pulse">0</span>
                 </div>
                 <div class="flex gap-2">
-                    <button id="refreshChatBtn" class="hover:bg-white/20 p-2 rounded-lg transition">
+                    <button id="refreshChatBtn" class="hover:bg-white/20 p-2 rounded-lg transition-all duration-300 transform hover:scale-110 hover:rotate-180">
                         <i class="fas fa-sync-alt"></i>
                     </button>
-                    <button id="closeChatBtn" class="hover:bg-white/20 p-2 rounded-lg transition">
+                    <button id="closeChatBtn" class="hover:bg-white/20 p-2 rounded-lg transition-all duration-300 transform hover:scale-110 hover:rotate-90">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>

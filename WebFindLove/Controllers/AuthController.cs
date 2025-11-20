@@ -404,8 +404,8 @@ namespace WebFindLove.Controllers
             if (user == null)
             {
                 _logger.LogWarning("Login failed: User not found for username/email: {UsernameOrEmail}", usernameOrEmail);
-                if (isAjax) return Json(new { success = false, message = "Invalid credentials" });
-                ModelState.AddModelError(string.Empty, "Invalid credentials");
+                if (isAjax) return Json(new { success = false, message = "Username không tồn tại" });
+                ModelState.AddModelError(string.Empty, "Username không tồn tại");
                 return View();
             }
             
@@ -425,8 +425,8 @@ namespace WebFindLove.Controllers
             if (verify == PasswordVerificationResult.Failed)
             {
                 _logger.LogWarning("Login failed: Invalid password for user: {Username}", user.UserName);
-                if (isAjax) return Json(new { success = false, message = "Invalid credentials" });
-                ModelState.AddModelError(string.Empty, "Invalid credentials");
+                if (isAjax) return Json(new { success = false, message = "Mật khẩu không chính xác" });
+                ModelState.AddModelError(string.Empty, "Mật khẩu không chính xác");
                 return View();
             }
 

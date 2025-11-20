@@ -4,25 +4,25 @@
 <div class="relative notification-dropdown">
     <button type="button" 
             id="notification-bell" 
-            class="relative text-gray-600 hover:text-gray-800 focus:outline-none transition"
+            class="relative text-gray-600 dark:text-gray-300 hover:text-primary focus:outline-none transition-all duration-300 transform hover:scale-110 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
             aria-label="Thông báo">
         <i class="fas fa-bell text-2xl"></i>
         <!-- Badge for unread count -->
         <span id="notification-count-badge" 
-              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">
+              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden animate-pulse shadow-lg">
             0
         </span>
     </button>
 
     <!-- Dropdown Menu -->
     <div id="notification-dropdown-menu" 
-         class="hidden absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50"
+         class="hidden absolute right-0 mt-2 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 z-50 animate-scaleIn"
          style="max-height: 500px; overflow-y: auto;">
         
         <!-- Header -->
-        <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="font-semibold text-gray-800">Thông báo</h3>
-            <a href="/Notification/Index" class="text-sm text-blue-500 hover:text-blue-700">Xem tất cả</a>
+        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-primary/5 to-secondary/5">
+            <h3 class="font-semibold text-gray-800 dark:text-gray-100">Thông báo</h3>
+            <a href="/Notification/Index" class="text-sm text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 font-medium hover:underline">Xem tất cả</a>
         </div>
 
         <!-- Notifications List -->
