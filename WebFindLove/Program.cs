@@ -23,6 +23,18 @@ using Microsoft.AspNetCore.Authentication;
 // 🔹 Load environment variables from .env file
 Env.Load();
 
+var testAdmin = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
+
+if (!string.IsNullOrEmpty(testAdmin))
+{
+    Log.Information("ENV LOADED: ADMIN_USERNAME = {User}", testAdmin);
+}
+else
+{
+    Log.Warning("ENV NOT LOADED: ADMIN_USERNAME is NULL or EMPTY");
+}
+
+
 // 🔹 Cấu hình Serilog trước khi build
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
