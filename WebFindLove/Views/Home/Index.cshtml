@@ -5,13 +5,23 @@
     var searchQuery = ViewBag.SearchQuery as string ?? "";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    <style>
+        /* Test để đảm bảo CSS được load */
+        .home-hero {
+            position: relative !important;
+        }
+    </style>
+}
+
 <div class="min-h-[80vh]">
     <!-- Hero Section -->
-    <div class="bg-gradient-to-r from-primary to-secondary rounded-2xl shadow-2xl p-12 text-white mb-12">
+    <div class="home-hero home-gradient-bg rounded-2xl shadow-2xl p-12 text-white mb-12">
         <div class="text-center">
-            <i class="fas fa-heart text-6xl mb-6 animate-pulse"></i>
-            <h1 class="text-5xl font-bold mb-4">Chào mừng đến với WebFindLove</h1>
-            <p class="text-xl text-pink-100 mb-8">Hành trình tìm kiếm tình yêu của bạn bắt đầu từ đây</p>
+            <i class="fas fa-heart text-6xl mb-6 home-hero-icon home-text-glow"></i>
+            <h1 class="text-5xl font-bold mb-4 home-hero-title">Chào mừng đến với WebFindLove</h1>
+            <p class="text-xl text-pink-100 mb-8 home-hero-subtitle">Hành trình tìm kiếm tình yêu của bạn bắt đầu từ đây</p>
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <div class="bg-white/20 backdrop-blur-sm rounded-lg p-6 max-w-md mx-auto mb-6">
@@ -20,27 +30,27 @@
                 </div>
                 
                 <!-- Search Form -->
-                <div class="max-w-2xl mx-auto mb-6">
+                <div class="max-w-2xl mx-auto mb-6 home-search-form">
                     <form method="get" asp-controller="Home" asp-action="Index" class="flex gap-2">
                         <div class="flex-1 relative">
                             <input type="text" 
                                    name="searchQuery" 
                                    value="@searchQuery"
                                    placeholder="Tìm kiếm chính xác theo tên người dùng : VD Phạm Thị Nở"
-                                   class="w-full px-6 py-3 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-white/50 pl-12">
+                                   class="home-search-input w-full px-6 py-3 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-white/50 pl-12">
                             <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
                         </div>
-                        <button type="submit" class="bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-pink-50 transition transform hover:scale-105">
+                        <button type="submit" class="home-search-button bg-white text-primary px-8 py-3 rounded-full font-semibold hover:bg-pink-50 transition transform hover:scale-105 relative">
                             <i class="fas fa-search mr-2"></i>Tìm kiếm
                         </button>
                     </form>
                 </div>
 
                 <!-- Quick Action: Ghép đôi -->
-                <div class="flex justify-center">
+                <div class="flex justify-center home-hero-actions">
                     <a asp-controller="Matching" asp-action="Index" 
-                       class="bg-white/20 backdrop-blur-sm border-2 border-white/50 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/30 hover:border-white transition transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-heart mr-2 animate-pulse"></i>Ghép đôi ngay
+                       class="home-pulse-button bg-white/20 backdrop-blur-sm border-2 border-white/50 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/30 hover:border-white transition transform hover:scale-105 shadow-lg relative">
+                        <i class="fas fa-heart mr-2"></i>Ghép đôi ngay
                     </a>
                 </div>
             }
@@ -74,17 +84,17 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach (var user in searchResults)
                     {
-                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition p-6">
+                        <div class="home-search-result-card bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition p-6">
                             <div class="flex items-start gap-4">
                                 <!-- Avatar -->
                                 <div class="flex-shrink-0">
                                     @if (!string.IsNullOrEmpty(user.Avatar))
                                     {
-                                        <img src="@user.Avatar" alt="@user.UserName" class="w-16 h-16 rounded-full object-cover border-2 border-primary">
+                                        <img src="@user.Avatar" alt="@user.UserName" class="home-search-result-avatar w-16 h-16 rounded-full object-cover border-2 border-primary">
                                     }
                                     else
                                     {
-                                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                                        <div class="home-search-result-avatar w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
                                             <i class="fas fa-user text-2xl text-white"></i>
                                         </div>
                                     }
@@ -112,11 +122,11 @@
                                     <!-- Action Buttons -->
                                     <div class="flex gap-2 mt-4">
                                         <a asp-controller="Users" asp-action="Details" asp-route-id="@user.Id" 
-                                           class="flex-1 text-center bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm">
+                                           class="home-search-result-button flex-1 text-center bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm">
                                             <i class="fas fa-user mr-1"></i>Xem
                                         </a>
                                         <a asp-controller="Messages" asp-action="Conversation" asp-route-userId="@user.Id" 
-                                           class="flex-1 text-center bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg hover:opacity-90 transition text-sm font-semibold">
+                                           class="home-search-result-button flex-1 text-center bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg hover:opacity-90 transition text-sm font-semibold">
                                             <i class="fas fa-comments mr-1"></i>Nhắn tin
                                         </a>
                                     </div>
@@ -138,35 +148,35 @@
     }
 
     <!-- Features Section -->
-    <div class="mb-12">
-        <h2 class="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8">
+    <div class="mb-12 home-fade-in-on-scroll">
+        <h2 class="home-section-title text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8 animated">
             <i class="fas fa-star text-primary mr-2"></i>Tại sao chọn chúng tôi?
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
+            <div class="home-feature-card bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
                 <div class="text-center">
                     <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-shield-alt text-3xl text-white"></i>
+                        <i class="fas fa-shield-alt text-3xl text-white home-feature-icon"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">An toàn & Riêng tư</h3>
                     <p class="text-gray-600 dark:text-gray-400">Thông tin của bạn được bảo vệ bằng các biện pháp bảo mật hàng đầu trong ngành</p>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
+            <div class="home-feature-card bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
                 <div class="text-center">
                     <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-users text-3xl text-white"></i>
+                        <i class="fas fa-users text-3xl text-white home-feature-icon"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">Cộng đồng sôi động</h3>
                     <p class="text-gray-600 dark:text-gray-400">Kết nối với hàng ngàn người độc thân đang tìm kiếm mối quan hệ có ý nghĩa</p>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
+            <div class="home-feature-card bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105">
                 <div class="text-center">
                     <div class="bg-gradient-to-r from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-heart text-3xl text-white"></i>
+                        <i class="fas fa-heart text-3xl text-white home-feature-icon"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">Ghép đôi hoàn hảo</h3>
                     <p class="text-gray-600 dark:text-gray-400">Thuật toán thông minh của chúng tôi giúp bạn tìm thấy người phù hợp nhất</p>
@@ -178,17 +188,17 @@
     @if (User.Identity?.IsAuthenticated == true)
     {
         <!-- Quick Actions Section -->
-        <div class="mb-12">
-            <h2 class="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8">
+        <div class="mb-12 home-fade-in-on-scroll">
+            <h2 class="home-section-title text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-8 animated">
                 <i class="fas fa-bolt text-primary mr-2"></i>Thao tác nhanh
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Ghép đôi -->
                 <a asp-controller="Matching" asp-action="Index" 
-                   class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105 border-2 border-transparent hover:border-primary">
+                   class="home-quick-action bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105 border-2 border-transparent hover:border-primary">
                     <div class="flex items-center gap-4">
                         <div class="bg-gradient-to-r from-primary to-secondary w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-heart text-2xl text-white"></i>
+                            <i class="fas fa-heart text-2xl text-white home-quick-action-icon"></i>
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Ghép đôi</h3>
@@ -199,10 +209,10 @@
 
                 <!-- Tin nhắn -->
                 <a asp-controller="Messages" asp-action="Index" 
-                   class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105 border-2 border-transparent hover:border-primary">
+                   class="home-quick-action bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105 border-2 border-transparent hover:border-primary">
                     <div class="flex items-center gap-4">
                         <div class="bg-gradient-to-r from-blue-500 to-cyan-500 w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-comments text-2xl text-white"></i>
+                            <i class="fas fa-comments text-2xl text-white home-quick-action-icon"></i>
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Tin nhắn</h3>
@@ -213,10 +223,10 @@
 
                 <!-- Hồ sơ -->
                 <a asp-controller="Users" asp-action="Details" asp-route-id="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" 
-                   class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105 border-2 border-transparent hover:border-primary">
+                   class="home-quick-action bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-xl transition transform hover:scale-105 border-2 border-transparent hover:border-primary">
                     <div class="flex items-center gap-4">
                         <div class="bg-gradient-to-r from-purple-500 to-pink-500 w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-user text-2xl text-white"></i>
+                            <i class="fas fa-user text-2xl text-white home-quick-action-icon"></i>
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Hồ sơ</h3>
@@ -230,14 +240,14 @@
         <!-- Quick Actions for Admins -->
         @if (User.IsInRole("Admin"))
         {
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 mb-12">
+            <div class="home-admin-panel bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 mb-12">
                 <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
                     <i class="fas fa-cog text-primary mr-2"></i>Bảng điều khiển Admin
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <a asp-controller="Users" asp-action="Index" class="flex items-center p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary hover:bg-pink-50 dark:hover:bg-gray-700 transition">
+                    <a asp-controller="Users" asp-action="Index" class="home-admin-link flex items-center p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary hover:bg-pink-50 dark:hover:bg-gray-700 transition">
                         <div class="bg-gradient-to-r from-primary to-secondary w-12 h-12 rounded-full flex items-center justify-center mr-4">
-                            <i class="fas fa-users text-xl text-white"></i>
+                            <i class="fas fa-users text-xl text-white home-admin-icon"></i>
                         </div>
                         <div>
                             <h3 class="font-bold text-gray-800 dark:text-gray-100">Quản lý người dùng</h3>
@@ -245,9 +255,9 @@
                         </div>
                     </a>
 
-                    <a asp-controller="Roles" asp-action="Index" class="flex items-center p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary hover:bg-pink-50 dark:hover:bg-gray-700 transition">
+                    <a asp-controller="Roles" asp-action="Index" class="home-admin-link flex items-center p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary hover:bg-pink-50 dark:hover:bg-gray-700 transition">
                         <div class="bg-gradient-to-r from-primary to-secondary w-12 h-12 rounded-full flex items-center justify-center mr-4">
-                            <i class="fas fa-user-shield text-xl text-white"></i>
+                            <i class="fas fa-user-shield text-xl text-white home-admin-icon"></i>
                         </div>
                         <div>
                             <h3 class="font-bold text-gray-800 dark:text-gray-100">Quản lý vai trò</h3>
@@ -261,12 +271,45 @@
     else
     {
         <!-- Call to Action -->
-        <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-xl p-12 text-white text-center">
+        <div class="home-cta bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-xl p-12 text-white text-center">
             <h2 class="text-3xl font-bold mb-4">Sẵn sàng tìm kiếm nửa kia hoàn hảo?</h2>
             <p class="text-xl mb-8 text-purple-100">Tham gia cùng hàng ngàn cặp đôi hạnh phúc đã tìm thấy tình yêu ở đây</p>
-            <a asp-controller="Auth" asp-action="Register" class="inline-block bg-white text-purple-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-purple-50 transition transform hover:scale-105">
+            <a asp-controller="Auth" asp-action="Register" class="home-cta-button inline-block bg-white text-purple-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-purple-50 transition transform hover:scale-105 relative">
                 <i class="fas fa-heart mr-2"></i>Bắt đầu hành trình của bạn ngay hôm nay
             </a>
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        // Scroll animation observer
+        document.addEventListener('DOMContentLoaded', function() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all fade-in elements
+            document.querySelectorAll('.home-fade-in-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Trigger initial animations for elements already in view
+            document.querySelectorAll('.home-fade-in-on-scroll').forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    el.classList.add('visible');
+                }
+            });
+        });
+    </script>
+}

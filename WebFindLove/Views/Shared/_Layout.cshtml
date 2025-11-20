@@ -4,9 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - WebFindLove</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    @await RenderSectionAsync("Styles", required: false)
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -33,7 +34,7 @@
         <nav class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 <a class="text-2xl font-bold text-primary hover:text-pink-600 transition" asp-controller="Home" asp-action="Index">
-                    <i class="fas fa-heart mr-2"></i>WebFindLove123 
+                    <i class="fas fa-heart mr-2"></i>WebFindLove
                 </a>
                 
                 <button class="lg:hidden text-gray-700 dark:text-gray-300 focus:outline-none" id="mobile-menu-button">
