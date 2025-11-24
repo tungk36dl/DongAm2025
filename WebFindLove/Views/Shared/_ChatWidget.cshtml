@@ -480,20 +480,23 @@
                     console.log('Sending message to:', receiverId);
 
                     try {
-                        // Get CSRF token
-                        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-                        
                         const response = await fetch('/Messages/SendMessageJson', {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json',
-                                'RequestVerificationToken': token || ''
+                                'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
                                 receiverId: receiverId,
                                 content: message
                             })
                         });
+
+                        // Kiểm tra response status trước khi parse JSON
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            console.error('HTTP Error:', response.status, errorText);
+                            throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
+                        }
 
                         const data = await response.json();
                         console.log('Send response:', data);
@@ -514,11 +517,12 @@
                             console.log('Message sent successfully');
                         } else {
                             console.error('Failed to send:', data.message);
-                            alert('Failed to send message: ' + data.message);
+                            alert('Failed to send message: ' + (data.message || 'Unknown error'));
                         }
                     } catch (error) {
                         console.error('Error sending message:', error);
-                        alert('Failed to send message. Please check your connection and try again.');
+                        const errorMessage = error.message || 'Please check your connection and try again.';
+                        alert('Failed to send message: ' + errorMessage);
                     }
                 },
 

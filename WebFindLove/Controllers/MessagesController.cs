@@ -376,10 +376,17 @@ namespace WebFindLove.Controllers
                 // SIGNALR
                 try
                 {
+                    // Lấy thông tin đầy đủ của sender (bao gồm avatar)
+                    var senderInfo = await _userService.GetByIdAsync(UserId.Value);
+                    var senderName = senderInfo.Data?.UserName ?? "Unknown";
+                    var senderAvatar = senderInfo.Data?.Avatar ?? "";
+
                     await _hubContext.Clients.User(request.ReceiverId.ToString())
                         .SendAsync("ReceiveMessage", new
                         {
                             senderId = UserId.ToString(),
+                            senderName = senderName,
+                            senderAvatar = senderAvatar,
                             messageId = response.Data?.Id,
                             message = request.Content,
                             timestamp = DateTime.UtcNow
@@ -390,7 +397,19 @@ namespace WebFindLove.Controllers
                     _logger.LogError(ex, "SignalR error.");
                 }
 
-                return Json(new { success = true, message = response.Data });
+                // Trả về chỉ dữ liệu cần thiết, tránh object cycle
+                return Json(new { 
+                    success = true, 
+                    message = new
+                    {
+                        id = response.Data?.Id,
+                        senderId = response.Data?.SenderId,
+                        receiverId = response.Data?.ReceiverId,
+                        content = response.Data?.Content,
+                        sentAt = response.Data?.SentAt,
+                        isRead = response.Data?.IsRead
+                    }
+                });
             }
             catch (Exception ex)
             {
