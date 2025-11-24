@@ -12,6 +12,7 @@ using WebFindLove.Models.Services.NotificationService;
 using WebFindLove.Models.Services.PasswordResetService;
 using WebFindLove.Helper.HelperServices;
 using WebFindLove.Models.Services.OpenAIChatService;
+using WebFindLove.Helper.HelperServices.Mapper;
 
 namespace WebFindLove.Models.Services
 {
@@ -53,6 +54,7 @@ namespace WebFindLove.Models.Services
 
             // UrlHelperService
             services.AddScoped<IUrlHelperService, UrlHelperService>();
+            services.AddScoped<IMapper, Mapper>();
 
 
             return services;

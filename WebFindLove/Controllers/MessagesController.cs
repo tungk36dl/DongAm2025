@@ -10,6 +10,8 @@ using WebFindLove.Models.Services.NotificationService;
 using WebFindLove.Models.Services.NotificationService.Dto;
 using WebFindLove.Hubs;
 using WebFindLove.Models.Services.MessageService.Dto;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using WebFindLove.Helper.HelperServices.Mapper;
 
 namespace WebFindLove.Controllers
 {
@@ -21,6 +23,7 @@ namespace WebFindLove.Controllers
         private readonly IUserService _userService;
         private readonly INotificationService _notificationService;
         private readonly IHubContext<ChatHub> _hubContext;
+        private readonly IMapper _mapper;
         private readonly ILogger<MessagesController> _logger;
 
         public MessagesController(
@@ -29,6 +32,7 @@ namespace WebFindLove.Controllers
             IUserService userService,
             INotificationService notificationService,
             IHubContext<ChatHub> hubContext,
+            IMapper mapper,
             ILogger<MessagesController> logger)
         {
             _messageService = messageService;
@@ -36,6 +40,7 @@ namespace WebFindLove.Controllers
             _userService = userService;
             _notificationService = notificationService;
             _hubContext = hubContext;
+            _mapper = mapper;
             _logger = logger;
             Logger = logger;
         }
@@ -126,8 +131,8 @@ namespace WebFindLove.Controllers
                 // Mark as read
                 await _messageService.MarkAsReadAsync(UserId.Value, userId);
                 await _conversationService.MarkConversationAsReadAsync(conversationResponse.Data.Id, UserId.Value);
-
-                ViewData["OtherUser"] = userResponse.Data;
+                var dataResopnse = _mapper.Map<User, UserDto>(userResponse.Data);
+                ViewData["OtherUser"] = dataResopnse;
                 ViewData["OtherUserId"] = userId;
                 ViewData["ConversationId"] = conversationResponse.Data.Id;
 
