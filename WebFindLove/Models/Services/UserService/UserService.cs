@@ -27,6 +27,7 @@ namespace WebFindLove.Models.Services.UserService
         private readonly ILogger<UserService> _logger;
         private readonly IUrlHelperService _urlHelperService;
 
+
         public UserService(
             IUnitOfWork unitOfWork, 
             IUserRepository userRepository, 

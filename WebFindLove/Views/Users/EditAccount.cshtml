@@ -27,7 +27,16 @@
                 </div>
             }
 
-            <form asp-action="EditAccount" method="post" enctype="multipart/form-data" class="space-y-6">
+            <!-- Loading Overlay -->
+            <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-8 flex flex-col items-center">
+                    <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-600 mb-4"></div>
+                    <p class="text-gray-700 dark:text-gray-300 text-lg font-semibold">Đang xử lý...</p>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">Vui lòng đợi trong giây lát</p>
+                </div>
+            </div>
+            
+            <form asp-action="EditAccount" method="post" enctype="multipart/form-data" class="space-y-6" id="editForm">
                 <input type="hidden" asp-for="Id" />
                 <div asp-validation-summary="ModelOnly" class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg mb-4"></div>
 
@@ -100,9 +109,9 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap gap-3">
-                    <button type="submit" class="bg-gradient-to-r from-primary to-pink-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium flex items-center">
+                    <button type="submit" id="submitBtn" class="bg-gradient-to-r from-primary to-pink-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium flex items-center">
                         <i class="fas fa-save mr-2"></i>
-                        Lưu Thay Đổi
+                        <span id="submitText">Lưu Thay Đổi</span>
                     </button>
                     <a asp-action="EditProfile" class="bg-gradient-to-r from-secondary to-purple-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium flex items-center">
                         <i class="fas fa-user-edit mr-2"></i>
@@ -121,10 +130,17 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
+        // Loading indicator và password validation
+        const form = document.getElementById('editForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
         // Client-side password validation
-        document.querySelector('form').addEventListener('submit', function(e) {
+        form.addEventListener('submit', function(e) {
             const newPassword = document.querySelector('input[name="NewPassword"]');
             const confirmPassword = document.querySelector('input[name="ConfirmPassword"]');
+            let isValid = true;
             
             // Only validate if password fields have values
             if (newPassword && confirmPassword && newPassword.value && confirmPassword.value) {
@@ -133,6 +149,7 @@
                     alert('Mật khẩu xác nhận không khớp với mật khẩu mới.');
                     confirmPassword.focus();
                     confirmPassword.classList.add('border-red-500');
+                    isValid = false;
                     return false;
                 }
                 
@@ -142,8 +159,20 @@
                     alert('Mật khẩu phải có ít nhất 6 ký tự.');
                     newPassword.focus();
                     newPassword.classList.add('border-red-500');
+                    isValid = false;
                     return false;
                 }
+            }
+            
+            // Nếu validation thành công, hiển thị loading
+            if (isValid && !submitBtn.disabled) {
+                // Hiển thị loading overlay
+                loadingOverlay.classList.remove('hidden');
+                
+                // Disable nút submit
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
             }
         });
         

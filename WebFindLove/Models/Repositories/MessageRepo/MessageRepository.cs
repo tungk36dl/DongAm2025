@@ -20,7 +20,7 @@ namespace WebFindLove.Models.Repositories.MessageRepo
                     ((m.SenderId == search.UserId1 && m.ReceiverId == search.UserId2) ||
                      (m.SenderId == search.UserId2 && m.ReceiverId == search.UserId1)) &&
                     m.IsActive)
-                .OrderByDescending(m => m.SentAt).Take(search.PageSize)
+                .OrderBy(m => m.SentAt).Take(search.PageSize)
                 .ToListAsync();
         }
 

@@ -19,10 +19,19 @@
             <p class="text-gray-600 dark:text-gray-400 mt-2">Cập nhật thông tin người dùng</p>
         </div>
 
-        <form method="post" asp-action="Edit">
+        <form method="post" asp-action="Edit" id="editForm">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
             <div asp-validation-summary="ModelOnly" class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg mb-4"></div>
+            
+            <!-- Loading Overlay -->
+            <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-8 flex flex-col items-center">
+                    <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mb-4"></div>
+                    <p class="text-gray-700 dark:text-gray-300 text-lg font-semibold">Đang xử lý...</p>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">Vui lòng đợi trong giây lát</p>
+                </div>
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -112,8 +121,8 @@
                 <a asp-action="Index" class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition font-medium">
                     <i class="fas fa-times mr-2"></i>Hủy
                 </a>
-                <button type="submit" class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium">
-                    <i class="fas fa-save mr-2"></i>Lưu Thay Đổi
+                <button type="submit" id="submitBtn" class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium">
+                    <i class="fas fa-save mr-2"></i><span id="submitText">Lưu Thay Đổi</span>
                 </button>
             </div>
         </form>
@@ -123,4 +132,23 @@
 @section Scripts {
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        // Loading indicator khi submit form
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            // Kiểm tra validation trước khi hiển thị loading
+            if (this.checkValidity()) {
+                // Hiển thị loading overlay
+                loadingOverlay.classList.remove('hidden');
+                
+                // Disable nút submit
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
+            }
+        });
+    </script>
 }

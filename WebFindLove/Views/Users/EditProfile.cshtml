@@ -58,7 +58,16 @@
                 </div>
             }
 
-            <form asp-action="EditProfile" method="post" enctype="multipart/form-data" class="space-y-6">
+            <!-- Loading Overlay -->
+            <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-8 flex flex-col items-center">
+                    <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mb-4"></div>
+                    <p class="text-gray-700 dark:text-gray-300 text-lg font-semibold">Đang xử lý...</p>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">Vui lòng đợi trong giây lát</p>
+                </div>
+            </div>
+            
+            <form asp-action="EditProfile" method="post" enctype="multipart/form-data" class="space-y-6" id="editForm">
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="Avatar" />
                 <div asp-validation-summary="ModelOnly" class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg mb-4"></div>
@@ -318,7 +327,7 @@
                             }
                             class="@(freeUpdates == 0 ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-secondary to-purple-600 hover:shadow-lg") text-white px-6 py-3 rounded-lg transition font-medium flex items-center">
                         <i class="fas fa-save mr-2"></i>
-                        @(freeUpdates == 0 ? "Đã Hết Lượt" : "Lưu Hồ Sơ")
+                        <span id="submitText">@(freeUpdates == 0 ? "Đã Hết Lượt" : "Lưu Hồ Sơ")</span>
                     </button>
                     <a asp-action="EditAccount" class="bg-gradient-to-r from-primary to-pink-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition font-medium flex items-center">
                         <i class="fas fa-user-circle mr-2"></i>
@@ -355,8 +364,14 @@
             }
         });
 
+        // Loading indicator và form validation
+        const form = document.getElementById('editForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
         // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
+        form.addEventListener('submit', function(e) {
             let isValid = true;
             let errorMessages = [];
 
@@ -410,6 +425,17 @@
                 e.preventDefault();
                 alert('Vui lòng kiểm tra lại:\n' + errorMessages.join('\n'));
                 return false;
+            }
+            
+            // Nếu validation thành công, hiển thị loading
+            if (isValid && !submitBtn.disabled) {
+                // Hiển thị loading overlay
+                loadingOverlay.classList.remove('hidden');
+                
+                // Disable nút submit
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
             }
         });
 

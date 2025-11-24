@@ -48,8 +48,17 @@
     </div>
 
     <!-- Form -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <form asp-action="Edit" method="post">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 relative">
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-8 flex flex-col items-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mb-4"></div>
+                <p class="text-gray-700 dark:text-gray-300 text-lg font-semibold">Đang xử lý...</p>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">Vui lòng đợi trong giây lát</p>
+            </div>
+        </div>
+        
+        <form asp-action="Edit" method="post" id="editForm">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="UserId" />
@@ -175,7 +184,7 @@
                         }
                         class="@(freeUpdates == 0 ? "bg-gray-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700") text-white px-6 py-3 rounded-lg transition flex items-center gap-2">
                     <i class="fas fa-save"></i>
-                    @(freeUpdates == 0 ? "Đã Hết Lượt" : "Lưu Sở Thích")
+                    <span id="submitText">@(freeUpdates == 0 ? "Đã Hết Lượt" : "Lưu Sở Thích")</span>
                 </button>
                 <a asp-action="Index" 
                    class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition">
@@ -200,8 +209,14 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
+        // Loading indicator khi submit form
+        const form = document.getElementById('editForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
         // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
+        form.addEventListener('submit', function(e) {
             let isValid = true;
             let errorMessages = [];
 
@@ -283,6 +298,17 @@
                 e.preventDefault();
                 alert('Vui lòng kiểm tra lại:\n' + errorMessages.join('\n'));
                 return false;
+            }
+            
+            // Nếu validation thành công, hiển thị loading
+            if (isValid && !submitBtn.disabled) {
+                // Hiển thị loading overlay
+                loadingOverlay.classList.remove('hidden');
+                
+                // Disable nút submit
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
             }
         });
 
