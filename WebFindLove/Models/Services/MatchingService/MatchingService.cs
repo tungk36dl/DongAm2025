@@ -251,7 +251,7 @@ namespace WebFindLove.Models.Services.MatchingService
                     return new DataResponse<List<MatchResult>>
                     {
                         Success = false,
-                        Message = "User preference not found. Please set your preferences first."
+                        Message = "Hãy hoàn thiện hồ sơ cá nhân của bạn và gu người yêuyêu trước khi tìm kiếm người phù hợp."
                     };
                 }
 
@@ -478,7 +478,7 @@ namespace WebFindLove.Models.Services.MatchingService
                     return new DataResponse<List<MatchResult>>
                     {
                         Success = false,
-                        Message = "User preference not found. Please set your preferences first."
+                        Message = "Hãy hoàn thiện hồ sơ cá nhân của bạn và gu người yêuyêu trước khi tìm kiếm người phù hợp."
                     };
                 }
 
@@ -488,7 +488,7 @@ namespace WebFindLove.Models.Services.MatchingService
                     return new DataResponse<List<MatchResult>>
                     {
                         Success = false,
-                        Message = "User profile embedding not found. Please update your profile."
+                        Message = "Hãy hoàn thiện hồ sơ cá nhân của bạn và gu người yêu trước khi tìm kiếm người phù hợp."
                     };
                 }
 
@@ -497,7 +497,7 @@ namespace WebFindLove.Models.Services.MatchingService
                     return new DataResponse<List<MatchResult>>
                     {
                         Success = false,
-                        Message = "User preference embedding not found. Please update your preferences."
+                        Message = "Hãy hoàn thiện hồ sơ cá nhân của bạn và gu người yêu trước khi tìm kiếm người phù hợp."
                     };
                 }
 
@@ -518,16 +518,16 @@ namespace WebFindLove.Models.Services.MatchingService
                 var candidates = await GetCandidateUsersAsync(userId, preferenceA);
                 if (candidates.Count == 0)
                 {
-                    _logger.LogInformation("No candidates found for user {UserId}", userId);
+                    _logger.LogInformation("Không tìm thấy ứng viên phù hợp cho user {UserId}", userId);
                     return new DataResponse<List<MatchResult>>
                     {
                         Success = true,
                         Data = new List<MatchResult>(),
-                        Message = "No matching candidates found"
+                        Message = "Không tìm thấy ứng viên phù hợp. Vui lòng thử lại sau."
                     };
                 }
 
-                _logger.LogInformation("Computing match scores for {Count} candidates", candidates.Count);
+                _logger.LogInformation("Tính điểm tương thích cho {Count} ứng viên", candidates.Count);
 
                 // Compute match scores for each candidate
                 var matchResults = new List<MatchResult>();
