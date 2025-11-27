@@ -125,10 +125,10 @@ namespace WebFindLove.Controllers
                     return NotFound();
                 }
 
-                // Apply UrlHelperService to avatar
+                // Convert avatar path từ DB (uploads/avatars/filename.jpg) sang full URL cho view
                 if (!string.IsNullOrEmpty(resp.Data.Avatar))
                 {
-                    resp.Data.Avatar = _urlHelperService.GetFullUrl(resp.Data.Avatar);
+                    resp.Data.Avatar = _urlHelperService.GetUrl(resp.Data.Avatar);
                 }
 
                 _logger.LogDebug("User details retrieved - Username: {Username}, Email: {Email}", resp.Data.UserName, resp.Data.Email);
@@ -159,10 +159,10 @@ namespace WebFindLove.Controllers
                     return NotFound();
                 }
 
-                // Apply UrlHelperService to avatar
+                // Convert avatar path từ DB (uploads/avatars/filename.jpg) sang full URL cho view
                 if (!string.IsNullOrEmpty(resp.Data.Avatar))
                 {
-                    resp.Data.Avatar = _urlHelperService.GetFullUrl(resp.Data.Avatar);
+                    resp.Data.Avatar = _urlHelperService.GetUrl(resp.Data.Avatar);
                 }
 
                 _logger.LogDebug("User details retrieved - Username: {Username}, Email: {Email}", resp.Data.UserName, resp.Data.Email);
@@ -258,6 +258,10 @@ namespace WebFindLove.Controllers
                 Role = resp.Data.RoleName,
                 FreeProfileUpdatesLeft = resp.Data.FreeProfileUpdatesLeft
             };
+            if (!string.IsNullOrEmpty(resp.Data.Avatar))
+            {
+                model.Avatar = _urlHelperService.GetUrl(resp.Data.Avatar);
+            }
             
             _logger.LogDebug("Loaded user for edit - Username: {Username}, Email: {Email}", resp.Data.UserName, resp.Data.Email);
             await LoadRolesAsync();
@@ -478,11 +482,14 @@ namespace WebFindLove.Controllers
                 Interests = resp.Data.Interests,
                 PersonalityType = resp.Data.PersonalityType,
                 PersonalityText = resp.Data.PersonalityText,
-                Avatar = _urlHelperService.GetFullUrl(resp.Data.Avatar)
             };
 
             // Pass free update count to view
             ViewBag.FreeProfileUpdatesLeft = resp.Data.FreeProfileUpdatesLeft ?? 0;
+            if (!string.IsNullOrEmpty(resp.Data.Avatar))
+            {
+                model.Avatar = _urlHelperService.GetUrl(resp.Data.Avatar);
+            }
 
             _logger.LogDebug("Loaded user for edit profile - FullName: {FullName}", resp.Data.FullName);
             return View(model);

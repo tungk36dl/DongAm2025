@@ -43,7 +43,7 @@ namespace WebFindLove.Models.Services.ConversationService
                     {
                         if(participant != null && participant.User != null)
                         {
-                            participant.User.Avatar = _urlHelperService.GetFullUrl(participant.User.Avatar);
+                            participant.User.Avatar = _urlHelperService.GetUrl(participant.User.Avatar);
                         }
                     }
                     _logger.LogInformation("Found existing conversation: {ConversationId}", existingConversation.Id);
@@ -109,19 +109,19 @@ namespace WebFindLove.Models.Services.ConversationService
                 
                 var conversations = await _conversationRepository.GetUserConversationsAsync(userId);
 
-                foreach(var conversation in conversations)
+                foreach (var conversation in conversations)
                 {
-                    if(conversation != null && conversation.Participants != null)
+                    if (conversation != null && conversation.Participants != null)
                     {
                         foreach (var u in conversation.Participants)
                         {
-                            if(u != null && u.User != null && u.User.Avatar != null)
+                            if (u != null && u.User != null && u.User.Avatar != null)
                             {
-                                u.User.Avatar = _urlHelperService.GetFullUrl(u.User.Avatar);
+                                u.User.Avatar = _urlHelperService.GetUrl(u.User.Avatar);
                             }
                         }
                     }
-                    
+
                 }
                 return new DataResponse<List<Conversation>> 
                 { 

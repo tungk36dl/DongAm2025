@@ -12,6 +12,7 @@ using WebFindLove.Hubs;
 using WebFindLove.Models.Services.MessageService.Dto;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using WebFindLove.Helper.HelperServices.Mapper;
+using WebFindLove.Helper.HelperServices;
 
 namespace WebFindLove.Controllers
 {
@@ -23,6 +24,7 @@ namespace WebFindLove.Controllers
         private readonly IUserService _userService;
         private readonly INotificationService _notificationService;
         private readonly IHubContext<ChatHub> _hubContext;
+        private readonly IUrlHelperService _urlHelperService;
         private readonly IMapper _mapper;
         private readonly ILogger<MessagesController> _logger;
 
@@ -32,6 +34,7 @@ namespace WebFindLove.Controllers
             IUserService userService,
             INotificationService notificationService,
             IHubContext<ChatHub> hubContext,
+            IUrlHelperService urlHelperService,
             IMapper mapper,
             ILogger<MessagesController> logger)
         {
@@ -40,6 +43,7 @@ namespace WebFindLove.Controllers
             _userService = userService;
             _notificationService = notificationService;
             _hubContext = hubContext;
+            _urlHelperService = urlHelperService;
             _mapper = mapper;
             _logger = logger;
             Logger = logger;
@@ -105,6 +109,10 @@ namespace WebFindLove.Controllers
                     TempData["ErrorMessage"] = "User not found.";
                     return RedirectToAction(nameof(Index));
                 }
+                if (!string.IsNullOrEmpty(userResponse.Data.Avatar))
+                {
+                    userResponse.Data.Avatar = _urlHelperService.GetUrl(userResponse.Data.Avatar);
+                }
 
                 // Conversation
                 var conversationResponse = await _conversationService
@@ -132,6 +140,7 @@ namespace WebFindLove.Controllers
                 await _messageService.MarkAsReadAsync(UserId.Value, userId);
                 await _conversationService.MarkConversationAsReadAsync(conversationResponse.Data.Id, UserId.Value);
                 var dataResopnse = _mapper.Map<User, UserDto>(userResponse.Data);
+
                 ViewData["OtherUser"] = dataResopnse;
                 ViewData["OtherUserId"] = userId;
                 ViewData["ConversationId"] = conversationResponse.Data.Id;
@@ -183,8 +192,16 @@ namespace WebFindLove.Controllers
                     {
                         var senderInfo = await _userService.GetByIdAsync(UserId.Value);
 
+                        if(senderInfo == null || senderInfo.Data == null)
+                        {
+                            TempData["ErrorMessage"] = "Không thấy người gửi.";
+                            return RedirectToAction(nameof(Conversation), new { userId = receiverId });
+                        }
                         var senderName = senderInfo.Data?.UserName ?? "Unknown";
-                        var senderAvatar = senderInfo.Data?.Avatar ?? "";
+                        // Normalize avatar TRƯỚC khi gán vào senderAvatar để đảm bảo có full URL
+                        var senderAvatar = !string.IsNullOrEmpty(senderInfo.Data?.Avatar)
+                            ? _urlHelperService.GetUrl(senderInfo.Data.Avatar)
+                            : null;
 
                         var messageData = new
                         {
@@ -273,7 +290,7 @@ namespace WebFindLove.Controllers
                         conversationId = c.Id,
                         otherUserId = other?.Id,
                         otherUserName = other?.UserName ?? "Unknown",
-                        otherUserAvatar = other?.Avatar,
+                        otherUserAvatar = _urlHelperService.GetUrl(other?.Avatar),
                         lastMessage = c.LastMessage,
                         lastMessageAt = c.LastMessageAt ?? c.CreatedAt,
                         unreadCount = c.Messages?.Count(m => !m.IsRead && m.ReceiverId == UserId.Value) ?? 0
@@ -347,7 +364,7 @@ namespace WebFindLove.Controllers
                     {
                         userResponse.Data.Id,
                         userName = userResponse.Data.UserName,
-                        avatar = userResponse.Data.Avatar
+                        avatar = _urlHelperService.GetUrl(userResponse.Data.Avatar)
                     }
                 });
             }
@@ -384,7 +401,10 @@ namespace WebFindLove.Controllers
                     // Lấy thông tin đầy đủ của sender (bao gồm avatar)
                     var senderInfo = await _userService.GetByIdAsync(UserId.Value);
                     var senderName = senderInfo.Data?.UserName ?? "Unknown";
-                    var senderAvatar = senderInfo.Data?.Avatar ?? "";
+                    // Normalize avatar TRƯỚC khi gán vào senderAvatar để đảm bảo có full URL
+                    var senderAvatar = !string.IsNullOrEmpty(senderInfo.Data?.Avatar)
+                        ? _urlHelperService.GetUrl(senderInfo.Data.Avatar)
+                        : "";
 
                     await _hubContext.Clients.User(request.ReceiverId.ToString())
                         .SendAsync("ReceiveMessage", new

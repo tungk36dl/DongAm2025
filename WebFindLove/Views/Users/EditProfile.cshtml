@@ -66,6 +66,20 @@
                     <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">Vui lòng đợi trong giây lát</p>
                 </div>
             </div>
+
+            <!-- Notification Popup -->
+            <div id="notificationPopup" class="hidden fixed top-4 right-4 z-[60] max-w-md w-full">
+                <div id="notificationContent" class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border-l-4 p-4 flex items-start space-x-3 animate-slide-in-right">
+                    <div id="notificationIcon" class="flex-shrink-0 text-2xl"></div>
+                    <div class="flex-1 min-w-0">
+                        <p id="notificationTitle" class="text-sm font-semibold mb-1"></p>
+                        <p id="notificationMessage" class="text-sm"></p>
+                    </div>
+                    <button onclick="closeNotification()" class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
             
             <form asp-action="EditProfile" method="post" enctype="multipart/form-data" class="space-y-6" id="editForm">
                 <input type="hidden" asp-for="Id" />
@@ -345,6 +359,22 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <style>
+        @@keyframes slide-in-right {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .animate-slide-in-right {
+            animation: slide-in-right 0.3s ease-out;
+        }
+    </style>
     <script>
         // Preview image before upload
         document.querySelector('input[type="file"]').addEventListener('change', function(e) {
@@ -369,13 +399,117 @@
         const submitBtn = document.getElementById('submitBtn');
         const submitText = document.getElementById('submitText');
         const loadingOverlay = document.getElementById('loadingOverlay');
+        let isSubmitting = false; // Flag để tránh submit nhiều lần
+        
+        // Hàm hiển thị notification popup
+        function showNotification(type, title, message) {
+            const popup = document.getElementById('notificationPopup');
+            const content = document.getElementById('notificationContent');
+            const icon = document.getElementById('notificationIcon');
+            const titleEl = document.getElementById('notificationTitle');
+            const messageEl = document.getElementById('notificationMessage');
+            
+            // Reset classes
+            content.className = 'bg-white dark:bg-gray-800 rounded-lg shadow-2xl border-l-4 p-4 flex items-start space-x-3 animate-slide-in-right';
+            icon.className = 'flex-shrink-0 text-2xl';
+            
+            if (type === 'error') {
+                content.classList.add('border-red-500');
+                icon.innerHTML = '<i class="fas fa-exclamation-circle text-red-500"></i>';
+                titleEl.className = 'text-sm font-semibold mb-1 text-red-800 dark:text-red-200';
+                messageEl.className = 'text-sm text-red-700 dark:text-red-300';
+            } else if (type === 'success') {
+                content.classList.add('border-green-500');
+                icon.innerHTML = '<i class="fas fa-check-circle text-green-500"></i>';
+                titleEl.className = 'text-sm font-semibold mb-1 text-green-800 dark:text-green-200';
+                messageEl.className = 'text-sm text-green-700 dark:text-green-300';
+            } else if (type === 'warning') {
+                content.classList.add('border-yellow-500');
+                icon.innerHTML = '<i class="fas fa-exclamation-triangle text-yellow-500"></i>';
+                titleEl.className = 'text-sm font-semibold mb-1 text-yellow-800 dark:text-yellow-200';
+                messageEl.className = 'text-sm text-yellow-700 dark:text-yellow-300';
+            } else {
+                content.classList.add('border-blue-500');
+                icon.innerHTML = '<i class="fas fa-info-circle text-blue-500"></i>';
+                titleEl.className = 'text-sm font-semibold mb-1 text-blue-800 dark:text-blue-200';
+                messageEl.className = 'text-sm text-blue-700 dark:text-blue-300';
+            }
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            popup.classList.remove('hidden');
+            
+            // Tự động đóng sau 5 giây
+            setTimeout(() => {
+                closeNotification();
+            }, 5000);
+        }
+        
+        // Hàm đóng notification
+        function closeNotification() {
+            const popup = document.getElementById('notificationPopup');
+            popup.classList.add('hidden');
+        }
         
         // Form validation
         form.addEventListener('submit', function(e) {
+            // Nếu đang submit (đã validate và đang submit programmatically), cho phép submit
+            if (isSubmitting) {
+                // Không preventDefault, cho phép form submit
+                return true;
+            }
+
+            // Reset error styling
+            document.querySelectorAll('input, select, textarea').forEach(element => {
+                element.classList.remove('border-red-500');
+            });
+
             let isValid = true;
             let errorMessages = [];
+            let firstErrorField = null;
 
-            // Validate Date of Birth (must be at least 18 years old)
+            // Validate Required Fields
+            const requiredFields = [
+                { name: 'PhoneNumber', label: 'Số điện thoại', element: document.querySelector('input[name="PhoneNumber"]') },
+                { name: 'Gender', label: 'Giới tính', element: document.querySelector('select[name="Gender"]') },
+                { name: 'DateOfBirth', label: 'Ngày sinh', element: document.querySelector('input[name="DateOfBirth"]') },
+                { name: 'Height', label: 'Chiều cao', element: document.querySelector('input[name="Height"]') },
+                { name: 'Location', label: 'Địa chỉ hiện tại', element: document.querySelector('input[name="Location"]') },
+                { name: 'Hometown', label: 'Quê quán', element: document.querySelector('input[name="Hometown"]') },
+                { name: 'Interests', label: 'Sở thích', element: document.querySelector('input[name="Interests"]') },
+                { name: 'PersonalityText', label: 'Mô tả tính cách', element: document.querySelector('textarea[name="PersonalityText"]') }
+            ];
+
+            // Kiểm tra các trường bắt buộc
+            requiredFields.forEach(field => {
+                if (field.element) {
+                    const value = field.element.value ? field.element.value.trim() : '';
+                    if (!value) {
+                        errorMessages.push(`${field.label} là bắt buộc`);
+                        field.element.classList.add('border-red-500');
+                        isValid = false;
+                        if (!firstErrorField) {
+                            firstErrorField = field.element;
+                        }
+                    }
+                }
+            });
+
+            // Validate Phone Number Format (nếu đã có giá trị)
+            const phone = document.querySelector('input[name="PhoneNumber"]');
+            if (phone && phone.value && phone.value.trim()) {
+                const phonePattern = /^[0-9+\-\s()]{10,15}$/;
+                if (!phonePattern.test(phone.value.trim())) {
+                    errorMessages.push('Số điện thoại không hợp lệ (phải từ 10-15 số)');
+                    phone.classList.add('border-red-500');
+                    isValid = false;
+                    if (!firstErrorField) {
+                        firstErrorField = phone;
+                    }
+                }
+            }
+
+            // Validate Date of Birth (must be at least 18 years old) - nếu đã có giá trị
             const dob = document.querySelector('input[name="DateOfBirth"]');
             if (dob && dob.value) {
                 const birthDate = new Date(dob.value);
@@ -390,45 +524,47 @@
                     errorMessages.push('Bạn phải từ 18 tuổi trở lên');
                     dob.classList.add('border-red-500');
                     isValid = false;
-                } else {
-                    dob.classList.remove('border-red-500');
+                    if (!firstErrorField) {
+                        firstErrorField = dob;
+                    }
                 }
             }
 
-            // Validate Height
+            // Validate Height (nếu đã có giá trị)
             const height = document.querySelector('input[name="Height"]');
             if (height && height.value) {
                 const heightValue = parseInt(height.value);
-                if (heightValue < 100 || heightValue > 250) {
+                if (isNaN(heightValue) || heightValue < 100 || heightValue > 250) {
                     errorMessages.push('Chiều cao phải từ 100 đến 250 cm');
                     height.classList.add('border-red-500');
                     isValid = false;
-                } else {
-                    height.classList.remove('border-red-500');
+                    if (!firstErrorField) {
+                        firstErrorField = height;
+                    }
                 }
             }
 
-            // Validate Phone Number
-            const phone = document.querySelector('input[name="PhoneNumber"]');
-            if (phone && phone.value) {
-                const phonePattern = /^[0-9+\-\s()]{10,15}$/;
-                if (!phonePattern.test(phone.value)) {
-                    errorMessages.push('Số điện thoại không hợp lệ');
-                    phone.classList.add('border-red-500');
-                    isValid = false;
-                } else {
-                    phone.classList.remove('border-red-500');
-                }
-            }
-
+            // Nếu có lỗi, prevent submit và hiển thị thông báo
             if (!isValid) {
                 e.preventDefault();
-                alert('Vui lòng kiểm tra lại:\n' + errorMessages.join('\n'));
+                e.stopPropagation();
+                
+                // Scroll đến field đầu tiên bị lỗi
+                if (firstErrorField) {
+                    firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstErrorField.focus();
+                }
+                
+                // Hiển thị thông báo lỗi bằng popup
+                showNotification('error', 'Lỗi xác thực', errorMessages.join('\n'));
                 return false;
             }
             
-            // Nếu validation thành công, hiển thị loading
+            // Nếu validation thành công, hiển thị loading và submit form
             if (isValid && !submitBtn.disabled) {
+                // Đánh dấu đang submit
+                isSubmitting = true;
+                
                 // Hiển thị loading overlay
                 loadingOverlay.classList.remove('hidden');
                 
@@ -436,7 +572,20 @@
                 submitBtn.disabled = true;
                 submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 submitText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
+                
+                // Sử dụng setTimeout để đảm bảo UI được cập nhật trước khi submit
+                setTimeout(() => {
+                    // Submit form programmatically
+                    form.submit();
+                }, 100);
+                
+                // PreventDefault để kiểm soát submit
+                e.preventDefault();
+                return false;
             }
+            
+            // Nếu có lỗi, đã preventDefault ở trên
+            return false;
         });
 
         // Clear error styling on input

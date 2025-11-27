@@ -28,5 +28,21 @@
             var fullPath = $"/uploads/avatars/{relativePath}";
             return $"{request.Scheme}://{request.Host}{fullPath}";
         }
+        public string GetUrl(string? path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return string.Empty;
+            }
+            var request = _httpContextAccessor.HttpContext?.Request;
+            if (request == null) return path; // phòng null
+
+            // Check if path already starts with / or http/https
+            if (path.StartsWith("/") || path.StartsWith("http://") || path.StartsWith("https://"))
+            {
+                return path;
+            }
+            return $"{request.Scheme}://{request.Host}/{path}";
+        }
     }
 }

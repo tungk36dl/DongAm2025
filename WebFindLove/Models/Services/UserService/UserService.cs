@@ -82,11 +82,8 @@ namespace WebFindLove.Models.Services.UserService
 
                 var data = await query.ToListAsync();
 
-                // Normalize avatar paths for all users
-                foreach (var user in data)
-                {
-                    user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
-                }
+                // Không normalize avatar ở đây - để Controller xử lý khi trả về view
+                // Avatar trong DB đã có format: uploads/avatars/filename.jpg
 
                 return new DataResponse<List<User>> { Success = true, Data = data };
             }
@@ -141,11 +138,8 @@ namespace WebFindLove.Models.Services.UserService
             try
             {
                 var u = await _userRepository.FindByIdAsync(id, r => r.Role);
-                if (u != null)
-                {
-                    // Normalize avatar path
-                    u.Avatar = _urlHelperService.GetFullUrl(u.Avatar);
-                }
+                // Không normalize avatar ở đây - để Controller xử lý khi trả về view
+                // Avatar trong DB đã có format: uploads/avatars/filename.jpg
                 return new DataResponse<User?> { Success = true, Data = u };
             }
             catch (Exception ex)
@@ -159,11 +153,8 @@ namespace WebFindLove.Models.Services.UserService
             try
             {
                 var user = await _userRepository.FindByUsernameOrEmailAsync(usernameOrEmail);
-                if (user != null)
-                {
-                    // Normalize avatar path
-                    user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
-                }
+                // Không normalize avatar ở đây - để Controller xử lý khi trả về view
+                // Avatar trong DB đã có format: uploads/avatars/filename.jpg
                 return new DataResponse<User?> { Success = true, Data = user };
             }
             catch (Exception ex)
@@ -212,11 +203,8 @@ namespace WebFindLove.Models.Services.UserService
 
                 var data = await query.ToListAsync();
 
-                // Normalize avatar paths for all users
-                foreach (var user in data)
-                {
-                    user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
-                }
+                // Không normalize avatar ở đây - để Controller xử lý khi trả về view
+                // Avatar trong DB đã có format: uploads/avatars/filename.jpg
 
                 _logger.LogInformation("SearchByFullName found {Count} users for FullName: {FullName}", 
                     data.Count, searchTerm);
@@ -247,7 +235,9 @@ namespace WebFindLove.Models.Services.UserService
                     PhoneNumber = u.PhoneNumber,
                     Gender = u.Gender,
                     Hometown = u.Hometown,
-                    Avatar = _urlHelperService.GetFullUrl(u.Avatar),
+                    // Avatar trong DB đã có format: uploads/avatars/filename.jpg
+                    // Controller sẽ dùng GetUrl() để convert thành full URL khi trả về view
+                    Avatar = u.Avatar,
                     DateOfBirth = u.DateOfBirth,
                     Bio = u.Bio,
                     Occupation = u.Occupation,
@@ -312,14 +302,12 @@ namespace WebFindLove.Models.Services.UserService
                 user.CreatedAt = DateTime.UtcNow;
                 user.UpdatedAt = DateTime.UtcNow;
 
-                // Normalize avatar path before saving
-                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
+                // Normalize avatar path để đảm bảo có format uploads/avatars/filename.jpg khi lưu vào DB
+                user.Avatar = NormalizeAvatarPathForDb(user.Avatar);
 
                 _userRepository.Add(user);
                 await _unitOfWork.SaveChangesAsync();
                 
-                // Normalize again after save (in case it was already normalized)
-                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
                 return new DataResponse<User> { Success = true, Data = user };
             }
             catch (ValidationException vex)
@@ -376,15 +364,13 @@ namespace WebFindLove.Models.Services.UserService
                     };
                 }
 
-                // Normalize avatar path before saving
-                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
+                // Normalize avatar path để đảm bảo có format uploads/avatars/filename.jpg khi lưu vào DB
+                user.Avatar = NormalizeAvatarPathForDb(user.Avatar);
                 
                 user.UpdatedAt = DateTime.UtcNow;
                 _userRepository.Update(user);
                 await _unitOfWork.SaveChangesAsync();
                 
-                // Normalize again after save (in case it was already normalized)
-                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
                 return new DataResponse<User> { Success = true, Data = user };
             }
             catch (ValidationException vex)
@@ -476,15 +462,13 @@ namespace WebFindLove.Models.Services.UserService
                     user.PasswordHash = _passwordHasher.HashPassword(user, model.NewPassword);
                 }
 
-                // Normalize avatar path before saving
-                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
+                // Normalize avatar path để đảm bảo có format uploads/avatars/filename.jpg khi lưu vào DB
+                user.Avatar = NormalizeAvatarPathForDb(user.Avatar);
                 
                 user.UpdatedAt = DateTime.UtcNow;
                 _userRepository.Update(user);
                 await _unitOfWork.SaveChangesAsync();
 
-                // Normalize again after save (in case it was already normalized)
-                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
                 return new DataResponse<User> { Success = true, Data = user };
             }
             catch (ValidationException vex)
@@ -606,7 +590,7 @@ namespace WebFindLove.Models.Services.UserService
                 _logger.LogInformation("Profile updated successfully for user {UserId}", model.Id);
                 
                 // Normalize avatar path before returning
-                user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
+                //user.Avatar = _urlHelperService.GetFullUrl(user.Avatar);
                 
                 return new DataResponse<User> { Success = true, Data = user };
             }
@@ -618,30 +602,78 @@ namespace WebFindLove.Models.Services.UserService
         }
 
         /// <summary>
-        /// Normalizes avatar path to ensure it has the full path format: uploads/avatars/filename.jpg
-        /// If the path already contains uploads/avatars/, returns as is
-        /// If it only contains avatars/, prepends uploads/
-        /// If it's just a filename, prepends uploads/avatars/
+        /// Normalize avatar path để đảm bảo có format phù hợp khi lưu vào DB
+        /// - Nếu là URL từ bên ngoài (Google, Facebook, etc.): giữ nguyên full URL
+        /// - Nếu là path local: normalize thành uploads/avatars/filename.jpg
         /// </summary>
-        //private string? _urlHelperService.GetFullUrl(string? avatar)
-        //{
-        //    if (string.IsNullOrWhiteSpace(avatar))
-        //        return avatar;
+        /// <param name="avatar">Avatar path có thể là: full URL (Google/Facebook), uploads/avatars/..., avatars/..., hoặc chỉ filename</param>
+        /// <returns>
+        /// - Full URL nếu là URL từ bên ngoài (Google, Facebook, etc.)
+        /// - Relative path uploads/avatars/filename.jpg nếu là file local
+        /// </returns>
+        private string? NormalizeAvatarPathForDb(string? avatar)
+        {
+            if (string.IsNullOrEmpty(avatar))
+            {
+                return avatar;
+            }
 
-        //    // Already has full path
-        //    if (avatar.StartsWith("uploads/avatars/") || avatar.StartsWith("/uploads/avatars/"))
-        //    {
-        //        return avatar.StartsWith("/") ? avatar : avatar;
-        //    }
+            // Nếu đã có uploads/avatars/ thì giữ nguyên (bỏ dấu / ở đầu nếu có)
+            if (avatar.StartsWith("uploads/avatars/"))
+            {
+                return avatar;
+            }
+            if (avatar.StartsWith("/uploads/avatars/"))
+            {
+                return avatar.TrimStart('/');
+            }
 
-        //    // Has avatars/ but missing uploads/
-        //    if (avatar.StartsWith("avatars/"))
-        //    {
-        //        return $"uploads/{avatar}";
-        //    }
+            // Nếu chỉ có avatars/ thì thêm uploads/
+            if (avatar.StartsWith("avatars/"))
+            {
+                return $"uploads/{avatar}";
+            }
+            if (avatar.StartsWith("/avatars/"))
+            {
+                return $"uploads/{avatar.TrimStart('/')}";
+            }
 
-        //    // Just filename, add full path
-        //    return $"uploads/avatars/{avatar}";
-        //}
+            // Nếu đã là full URL từ bên ngoài (Google, Facebook, etc.) - giữ nguyên URL
+            if (avatar.StartsWith("http://") || avatar.StartsWith("https://"))
+            {
+                try
+                {
+                    var uri = new Uri(avatar);
+                    var host = uri.Host.ToLower();
+                    
+                    // Kiểm tra xem URL có phải từ server của chúng ta không
+                    // Nếu là từ server của chúng ta (localhost, domain của app), extract relative path
+                    var path = uri.AbsolutePath.TrimStart('/');
+                    if (path.StartsWith("uploads/avatars/"))
+                    {
+                        // URL từ server của chúng ta, extract relative path
+                        return path;
+                    }
+                    
+                    // URL từ bên ngoài (Google, Facebook, etc.) - giữ nguyên URL
+                    // Vì ảnh không nằm trong server của chúng ta, cần lưu full URL để hiển thị sau này
+                    return avatar;
+                }
+                catch
+                {
+                    // Nếu không parse được URI, giữ nguyên URL (có thể là URL hợp lệ nhưng parse lỗi)
+                    return avatar;
+                }
+            }
+
+            // Nếu chỉ là filename (không có / và không phải URL) thì thêm uploads/avatars/
+            if (!avatar.Contains("/"))
+            {
+                return $"uploads/avatars/{avatar}";
+            }
+
+            // Trường hợp khác, giữ nguyên (có thể là path khác)
+            return avatar;
+        }
     }
 }
