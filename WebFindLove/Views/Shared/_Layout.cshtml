@@ -68,11 +68,17 @@
                     
                         @if (User.IsInRole("Admin"))
                         {
-                            <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Users" asp-action="Index">
-                                <i class="fas fa-users mr-1"></i>Người dùng
+                            <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium relative group" asp-controller="Dashboard" asp-action="Index">
+                                <i class="fas fa-chart-line mr-1 group-hover:animate-pulse"></i>Dashboard
+                                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                             </a>
-                            <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium" asp-controller="Roles" asp-action="Index">
+                            <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium relative group" asp-controller="Users" asp-action="Index">
+                                <i class="fas fa-users mr-1"></i>Người dùng
+                                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                            </a>
+                            <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium relative group" asp-controller="Roles" asp-action="Index">
                                 <i class="fas fa-user-shield mr-1"></i>Vai trò
+                                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                             </a>
                         }
                         <div class="relative group">
@@ -144,6 +150,9 @@
 
                         @if (User.IsInRole("Admin"))
                         {
+                            <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Dashboard" asp-action="Index">
+                                <i class="fas fa-chart-line mr-1"></i>Dashboard
+                            </a>
                             <a class="text-gray-700 dark:text-gray-300 hover:text-primary transition font-medium py-2" asp-controller="Users" asp-action="Index">
                                 <i class="fas fa-users mr-1"></i>Người dùng
                             </a>

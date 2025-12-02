@@ -1,0 +1,322 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    var period = ViewBag.Period as string ?? "today";
+    var totalUsers = (int)(ViewBag.TotalUsers ?? 0);
+    var activeUsers = (int)(ViewBag.ActiveUsers ?? 0);
+    var newUsersInPeriod = (int)(ViewBag.NewUsersInPeriod ?? 0);
+    var totalMessages = (int)(ViewBag.TotalMessages ?? 0);
+    var messagesInPeriod = (int)(ViewBag.MessagesInPeriod ?? 0);
+    var totalConversations = (int)(ViewBag.TotalConversations ?? 0);
+    var conversationsInPeriod = (int)(ViewBag.ConversationsInPeriod ?? 0);
+    var onlineUserCount = (int)(ViewBag.OnlineUserCount ?? 0);
+    var newUsersByDay = ViewBag.NewUsersByDay as List<object> ?? new List<object>();
+    var messagesByHour = ViewBag.MessagesByHour as List<object> ?? new List<object>();
+    var newUsersByWeek = ViewBag.NewUsersByWeek as List<object> ?? new List<object>();
+}
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8 animate-fadeIn">
+        <h1 class="text-4xl font-bold text-gray-800 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary mb-2">
+            <i class="fas fa-chart-line text-primary mr-3 animate-pulse"></i>Dashboard
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">Tổng quan thống kê hệ thống WebFindLove</p>
+    </div>
+
+    <!-- Period Filter -->
+    <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-xl p-6 mb-6 border border-gray-200/50 dark:border-gray-700/50 animate-scaleIn">
+        <div class="flex flex-wrap gap-3">
+            <a asp-action="Index" asp-route-period="today" 
+               class="px-4 py-2 rounded-lg transition-all duration-300 font-medium @(period == "today" ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600")">
+                <i class="fas fa-calendar-day mr-2"></i>Hôm nay
+            </a>
+            <a asp-action="Index" asp-route-period="yesterday" 
+               class="px-4 py-2 rounded-lg transition-all duration-300 font-medium @(period == "yesterday" ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600")">
+                <i class="fas fa-calendar-minus mr-2"></i>Hôm qua
+            </a>
+            <a asp-action="Index" asp-route-period="week" 
+               class="px-4 py-2 rounded-lg transition-all duration-300 font-medium @(period == "week" ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600")">
+                <i class="fas fa-calendar-week mr-2"></i>7 ngày qua
+            </a>
+            <a asp-action="Index" asp-route-period="month" 
+               class="px-4 py-2 rounded-lg transition-all duration-300 font-medium @(period == "month" ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600")">
+                <i class="fas fa-calendar mr-2"></i>Tháng này
+            </a>
+            <a asp-action="Index" asp-route-period="year" 
+               class="px-4 py-2 rounded-lg transition-all duration-300 font-medium @(period == "year" ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600")">
+                <i class="fas fa-calendar-alt mr-2"></i>Năm nay
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Users Card -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 animate-fadeIn">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-users text-2xl"></i>
+                </div>
+                <span class="text-blue-100 text-sm font-medium">Tổng số</span>
+            </div>
+            <h3 class="text-3xl font-bold mb-1">@totalUsers</h3>
+            <p class="text-blue-100 text-sm">Người dùng</p>
+        </div>
+
+        <!-- Active Users Card -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 animate-fadeIn" style="animation-delay: 0.1s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-user-check text-2xl"></i>
+                </div>
+                <span class="text-green-100 text-sm font-medium">Đang hoạt động</span>
+            </div>
+            <h3 class="text-3xl font-bold mb-1">@activeUsers</h3>
+            <p class="text-green-100 text-sm">Người dùng</p>
+        </div>
+
+        <!-- Online Users Card -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 animate-fadeIn" style="animation-delay: 0.2s" id="onlineUsersCard">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-circle text-2xl animate-pulse"></i>
+                </div>
+                <span class="text-purple-100 text-sm font-medium">Đang online</span>
+            </div>
+            <h3 class="text-3xl font-bold mb-1" id="onlineUsersCount">@onlineUserCount</h3>
+            <p class="text-purple-100 text-sm">Người dùng</p>
+        </div>
+
+        <!-- New Users Card -->
+        <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 animate-fadeIn" style="animation-delay: 0.3s">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-user-plus text-2xl"></i>
+                </div>
+                <span class="text-pink-100 text-sm font-medium">Mới đăng ký</span>
+            </div>
+            <h3 class="text-3xl font-bold mb-1">@newUsersInPeriod</h3>
+            <p class="text-pink-100 text-sm">Trong kỳ này</p>
+        </div>
+    </div>
+
+    <!-- Messages & Conversations Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Messages Card -->
+        <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-xl p-6 border border-gray-200/50 dark:border-gray-700/50 animate-scaleIn">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+                    <i class="fas fa-comments text-blue-500 mr-2"></i>Tin nhắn
+                </h2>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Tổng số tin nhắn</p>
+                        <p class="text-2xl font-bold text-gray-800 dark:text-white">@totalMessages</p>
+                    </div>
+                    <div class="bg-blue-500 rounded-full p-3">
+                        <i class="fas fa-envelope text-white"></i>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Tin nhắn trong kỳ</p>
+                        <p class="text-2xl font-bold text-gray-800 dark:text-white">@messagesInPeriod</p>
+                    </div>
+                    <div class="bg-green-500 rounded-full p-3">
+                        <i class="fas fa-paper-plane text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversations Card -->
+        <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-xl p-6 border border-gray-200/50 dark:border-gray-700/50 animate-scaleIn" style="animation-delay: 0.1s">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+                    <i class="fas fa-comments-dots text-purple-500 mr-2"></i>Cuộc trò chuyện
+                </h2>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                    <div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Tổng số cuộc trò chuyện</p>
+                        <p class="text-2xl font-bold text-gray-800 dark:text-white">@totalConversations</p>
+                    </div>
+                    <div class="bg-purple-500 rounded-full p-3">
+                        <i class="fas fa-comment-dots text-white"></i>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                    <div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Cuộc trò chuyện mới</p>
+                        <p class="text-2xl font-bold text-gray-800 dark:text-white">@conversationsInPeriod</p>
+                    </div>
+                    <div class="bg-orange-500 rounded-full p-3">
+                        <i class="fas fa-comment-medical text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- New Users Chart -->
+        @if (period == "month" && newUsersByDay.Any())
+        {
+            <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-xl p-6 border border-gray-200/50 dark:border-gray-700/50 animate-scaleIn">
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">
+                    <i class="fas fa-chart-bar text-primary mr-2"></i>Người dùng mới theo ngày (Tháng này)
+                </h2>
+                <canvas id="newUsersChart" height="300"></canvas>
+            </div>
+        }
+        
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Update online users count every 30 seconds
+        function updateOnlineUsers() {
+            fetch('@Url.Action("GetOnlineUsersCount", "Dashboard")')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('onlineUsersCount').textContent = data.count;
+                    }
+                })
+                .catch(error => console.error('Error updating online users:', error));
+        }
+
+        // Update every 30 seconds
+        setInterval(updateOnlineUsers, 30000);
+
+        // Charts
+        @if (period == "month" && newUsersByDay.Any())
+        {
+            <text>
+            const newUsersCtx = document.getElementById('newUsersChart');
+            if (newUsersCtx) {
+                const newUsersData = @Html.Raw(Json.Serialize(newUsersByDay));
+                new Chart(newUsersCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: newUsersData.map(d => 'Ngày ' + d.day),
+                        datasets: [{
+                            label: 'Số người đăng ký',
+                            data: newUsersData.map(d => d.count),
+                            backgroundColor: 'rgba(236, 72, 153, 0.6)',
+                            borderColor: 'rgba(236, 72, 153, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            </text>
+        }
+
+        @if (period == "today" && messagesByHour.Any())
+        {
+            <text>
+            const messagesHourCtx = document.getElementById('messagesByHourChart');
+            if (messagesHourCtx) {
+                const messagesHourData = @Html.Raw(Json.Serialize(messagesByHour));
+                new Chart(messagesHourCtx, {
+                    type: 'line',
+                    data: {
+                        labels: messagesHourData.map(d => d.hour + ':00'),
+                        datasets: [{
+                            label: 'Số tin nhắn',
+                            data: messagesHourData.map(d => d.count),
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointHoverRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            </text>
+        }
+
+        @if (period == "month" && newUsersByWeek.Any())
+        {
+            <text>
+            const newUsersWeekCtx = document.getElementById('newUsersByWeekChart');
+            if (newUsersWeekCtx) {
+                const newUsersWeekData = @Html.Raw(Json.Serialize(newUsersByWeek));
+                new Chart(newUsersWeekCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: newUsersWeekData.map(d => 'Tuần ' + d.week),
+                        datasets: [{
+                            data: newUsersWeekData.map(d => d.count),
+                            backgroundColor: [
+                                'rgba(236, 72, 153, 0.8)',
+                                'rgba(139, 92, 246, 0.8)',
+                                'rgba(59, 130, 246, 0.8)',
+                                'rgba(16, 185, 129, 0.8)',
+                                'rgba(245, 158, 11, 0.8)'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            </text>
+        }
+    </script>
+}
+

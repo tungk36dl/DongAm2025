@@ -43,9 +43,16 @@
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition transform hover:-translate-y-1">
                     <!-- Avatar Header -->
                     <div class="bg-gradient-to-br from-pink-500 to-purple-600 p-6 text-center relative">
-                        <div class="w-24 h-24 bg-white rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-purple-600 mb-3 shadow-lg">
+                     @if (!string.IsNullOrEmpty(matchedUser?.Avatar))
+                     {
+                        <img src="@matchedUser.Avatar" alt="@matchedUser.FullName" class="w-24 h-24 rounded-full object-cover border-4 border-pink-200">
+                     }
+                     else
+                     {
+                        <div class="w-24 h-24 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center text-white text-3xl font-bold">
                             @(matchedUser?.UserName?.Substring(0, 1).ToUpper())
                         </div>
+                     }
                         <h3 class="text-xl font-bold text-white">@matchedUser?.UserName</h3>
                         @if (!string.IsNullOrEmpty(matchedUser?.FullName))
                         {

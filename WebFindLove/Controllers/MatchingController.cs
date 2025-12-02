@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebFindLove.Helper.HelperServices;
 using WebFindLove.Models;
 using WebFindLove.Models.Services.MatchingService;
 using WebFindLove.Models.Services.MatchResultService;
@@ -11,15 +12,18 @@ namespace WebFindLove.Controllers
     {
         private readonly IMatchingService _matchingService;
         private readonly IMatchResultService _matchResultService;
+        private readonly IUrlHelperService _urlHelperService;
         private readonly ILogger<MatchingController> _logger;
 
         public MatchingController(
             IMatchingService matchingService,
             IMatchResultService matchResultService,
+            IUrlHelperService urlHelperService,
             ILogger<MatchingController> logger)
         {
             _matchingService = matchingService;
             _matchResultService = matchResultService;
+            _urlHelperService = urlHelperService;
             _logger = logger;
             Logger = logger;
             _logger.LogInformation("MatchingController initialized");
@@ -57,6 +61,15 @@ namespace WebFindLove.Controllers
 
                 _logger.LogInformation("Found {Count} one-way matches for user {UserId}", 
                     result.Data?.Count ?? 0, UserId.Value);
+                foreach (var match in result.Data ?? Enumerable.Empty<MatchResult>())
+                {
+                    if(match.MatchedUser != null)
+                    {
+                        match.MatchedUser.Avatar = _urlHelperService.GetUrl(match.MatchedUser?.Avatar);
+                    }
+                    _logger.LogDebug("Match: UserId={UserId}, MatchedUserId={MatchedUserId}, Score={Score}", 
+                        match.UserId, match.MatchedUserId, match.MatchScore);
+                }
 
                 return View(result.Data ?? new List<MatchResult>());
             }
