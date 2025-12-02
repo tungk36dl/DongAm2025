@@ -25,59 +25,192 @@
         </a>
     </div>
 
+    <!-- Statistics Section -->
+    @{
+        var maleCount = (int)(ViewBag.MaleCount ?? 0);
+        var femaleCount = (int)(ViewBag.FemaleCount ?? 0);
+        var otherGenderCount = (int)(ViewBag.OtherGenderCount ?? 0);
+        var ageGroups = ViewBag.AgeGroups as Dictionary<string, int> ?? new Dictionary<string, int>();
+        var totalGenderCount = maleCount + femaleCount + otherGenderCount;
+    }
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- Gender Statistics -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-xl p-4 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-mars text-2xl"></i>
+                <span class="text-blue-100 text-xs font-medium">Nam</span>
+            </div>
+            <h3 class="text-2xl font-bold">@maleCount</h3>
+            <p class="text-blue-100 text-xs mt-1">@(totalGenderCount > 0 ? ((maleCount * 100.0 / totalGenderCount).ToString("F1")) : "0")%</p>
+        </div>
+        
+        <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl shadow-xl p-4 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-venus text-2xl"></i>
+                <span class="text-pink-100 text-xs font-medium">Nữ</span>
+            </div>
+            <h3 class="text-2xl font-bold">@femaleCount</h3>
+            <p class="text-pink-100 text-xs mt-1">@(totalGenderCount > 0 ? ((femaleCount * 100.0 / totalGenderCount).ToString("F1")) : "0")%</p>
+        </div>
+        
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-xl p-4 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-genderless text-2xl"></i>
+                <span class="text-purple-100 text-xs font-medium">Khác</span>
+            </div>
+            <h3 class="text-2xl font-bold">@otherGenderCount</h3>
+            <p class="text-purple-100 text-xs mt-1">@(totalGenderCount > 0 ? ((otherGenderCount * 100.0 / totalGenderCount).ToString("F1")) : "0")%</p>
+        </div>
+        
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-xl p-4 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-users text-2xl"></i>
+                <span class="text-green-100 text-xs font-medium">Tổng</span>
+            </div>
+            <h3 class="text-2xl font-bold">@totalGenderCount</h3>
+            <p class="text-green-100 text-xs mt-1">Người dùng</p>
+        </div>
+    </div>
+
+    <!-- Age Statistics -->
+    @if (ageGroups.Any())
+    {
+        <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-xl p-6 mb-6 border border-gray-200/50 dark:border-gray-700/50 animate-scaleIn">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">
+                <i class="fas fa-chart-pie text-primary mr-2"></i>Thống Kê Độ Tuổi
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                @foreach (var ageGroup in ageGroups)
+                {
+                    <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <p class="text-2xl font-bold text-primary">@ageGroup.Value</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">@ageGroup.Key</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
     <!-- Search and Filter Section -->
     <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-xl p-6 mb-6 border border-gray-200/50 dark:border-gray-700/50 animate-scaleIn">
-        <form method="get" asp-action="Index" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div>
-                <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
-                    <i class="fas fa-search mr-1"></i>Tìm Kiếm
-                </label>
-                <input type="text" 
-                       name="Keyword" 
-                       value="@search?.Keyword"
-                       placeholder="Tên đăng nhập, Email hoặc Họ tên" 
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+        <form method="get" asp-action="Index" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                        <i class="fas fa-search mr-1"></i>Tìm Kiếm
+                    </label>
+                    <input type="text" 
+                           name="Keyword" 
+                           value="@search?.Keyword"
+                           placeholder="Tên đăng nhập, Email hoặc Họ tên" 
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                        <i class="fas fa-user-shield mr-1"></i>Vai Trò
+                    </label>
+                    <select name="Role" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">Tất Cả Vai Trò</option>
+                        <option value="Admin" selected="@(search?.Role == "Admin")">Quản Trị Viên</option>
+                        <option value="User" selected="@(search?.Role == "User")">Người Dùng</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                        <i class="fas fa-toggle-on mr-1"></i>Trạng Thái
+                    </label>
+                    <select name="IsActive" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">Tất Cả Trạng Thái</option>
+                        <option value="true" selected="@(search?.IsActive == true)">Hoạt Động</option>
+                        <option value="false" selected="@(search?.IsActive == false)">Không Hoạt Động</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                        <i class="fas fa-venus-mars mr-1"></i>Giới Tính
+                    </label>
+                    <select name="Gender" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">Tất Cả</option>
+                        <option value="Nam" selected="@(search?.Gender == "Nam")">Nam</option>
+                        <option value="Nữ" selected="@(search?.Gender == "Nữ")">Nữ</option>
+                        <option value="Male" selected="@(search?.Gender == "Male")">Male</option>
+                        <option value="Female" selected="@(search?.Gender == "Female")">Female</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                        <i class="fas fa-birthday-cake mr-1"></i>Độ Tuổi Từ
+                    </label>
+                    <input type="number" 
+                           name="AgeMin" 
+                           value="@search?.AgeMin"
+                           min="18" 
+                           max="100"
+                           placeholder="18" 
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                        <i class="fas fa-birthday-cake mr-1"></i>Độ Tuổi Đến
+                    </label>
+                    <input type="number" 
+                           name="AgeMax" 
+                           value="@search?.AgeMax"
+                           min="18" 
+                           max="100"
+                           placeholder="100" 
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                        <i class="fas fa-sort mr-1"></i>Sắp Xếp
+                    </label>
+                    <select name="SortBy" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="CreatedAt" selected="@(search?.SortBy == "CreatedAt" || string.IsNullOrEmpty(search?.SortBy))">Ngày Tạo</option>
+                        <option value="UserName" selected="@(search?.SortBy == "UserName")">Tên Đăng Nhập</option>
+                        <option value="Email" selected="@(search?.SortBy == "Email")">Email</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                        <i class="fas fa-sort-amount-down mr-1"></i>Thứ Tự
+                    </label>
+                    <select name="SortDescending" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="true" selected="@(search?.SortDescending == true)">Giảm Dần</option>
+                        <option value="false" selected="@(search?.SortDescending == false)">Tăng Dần</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
+                        <i class="fas fa-list-ol mr-1"></i>Số Lượng/Trang
+                    </label>
+                    <select name="PageSize" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="10" selected="@(pageSize == 10)">10</option>
+                        <option value="20" selected="@(pageSize == 20)">20</option>
+                        <option value="50" selected="@(pageSize == 50)">50</option>
+                        <option value="100" selected="@(pageSize == 100)">100</option>
+                    </select>
+                </div>
             </div>
 
-            <div>
-                <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
-                    <i class="fas fa-user-shield mr-1"></i>Vai Trò
-                </label>
-                <select name="Role" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                    <option value="">Tất Cả Vai Trò</option>
-                    <option value="Admin" selected="@(search?.Role == "Admin")">Quản Trị Viên</option>
-                    <!-- <option value="NhanVien" selected="@(search?.Role == "NhanVien")">Nhân Viên</option> -->
-                    <option value="User" selected="@(search?.Role == "User")">Người Dùng</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
-                    <i class="fas fa-toggle-on mr-1"></i>Trạng Thái
-                </label>
-                <select name="IsActive" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                    <option value="">Tất Cả Trạng Thái</option>
-                    <option value="true" selected="@(search?.IsActive == true)">Hoạt Động</option>
-                    <option value="false" selected="@(search?.IsActive == false)">Không Hoạt Động</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">
-                    <i class="fas fa-list-ol mr-1"></i>Số Lượng/Trang
-                </label>
-                <select name="PageSize" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                    <option value="10" selected="@(pageSize == 10)">10</option>
-                    <option value="20" selected="@(pageSize == 20)">20</option>
-                    <option value="50" selected="@(pageSize == 50)">50</option>
-                    <option value="100" selected="@(pageSize == 100)">100</option>
-                </select>
-            </div>
-
-            <div class="flex items-end">
-                <button type="submit" class="w-full bg-primary text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition-all duration-300 transform hover:scale-105 font-medium shadow-md hover:shadow-lg">
+            <div class="flex items-end gap-4">
+                <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition-all duration-300 transform hover:scale-105 font-medium shadow-md hover:shadow-lg">
                     <i class="fas fa-filter mr-2"></i>Lọc
                 </button>
+                <a asp-action="Index" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105 font-medium shadow-md hover:shadow-lg">
+                    <i class="fas fa-redo mr-2"></i>Reset
+                </a>
             </div>
             
             <!-- Hidden field to preserve page when filtering -->
@@ -215,6 +348,15 @@
                                         values["Role"] = search.Role;
                                     if (search?.IsActive != null && search.IsActive.HasValue)
                                         values["IsActive"] = search.IsActive.Value.ToString();
+                                    if (!string.IsNullOrEmpty(search?.Gender))
+                                        values["Gender"] = search.Gender;
+                                    if (search?.AgeMin != null)
+                                        values["AgeMin"] = search.AgeMin.Value.ToString();
+                                    if (search?.AgeMax != null)
+                                        values["AgeMax"] = search.AgeMax.Value.ToString();
+                                    if (!string.IsNullOrEmpty(search?.SortBy))
+                                        values["SortBy"] = search.SortBy;
+                                    values["SortDescending"] = (search?.SortDescending ?? false).ToString();
                                     values["PageSize"] = pageSize.ToString();
                                     values["Page"] = page.ToString();
                                     return values;

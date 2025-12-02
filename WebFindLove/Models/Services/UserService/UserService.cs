@@ -75,9 +75,73 @@ namespace WebFindLove.Models.Services.UserService
                     if (search.IsActive.HasValue)
                         query = query.Where(u => u.IsActive == search.IsActive.Value);
 
+                    // Filter by Gender
+                    if (!string.IsNullOrWhiteSpace(search.Gender))
+                    {
+                        query = query.Where(u => u.Gender != null && u.Gender.ToLower() == search.Gender.ToLower());
+                    }
+
+                    // Filter by Age Range
+                    if (search.AgeMin.HasValue || search.AgeMax.HasValue)
+                    {
+                        var currentYear = DateTime.UtcNow.Year;
+                        
+                        if (search.AgeMin.HasValue)
+                        {
+                            var maxBirthYear = currentYear - search.AgeMin.Value;
+                            query = query.Where(u => u.DateOfBirth.HasValue && 
+                                u.DateOfBirth.Value.Year <= maxBirthYear);
+                        }
+                        
+                        if (search.AgeMax.HasValue)
+                        {
+                            var minBirthYear = currentYear - search.AgeMax.Value;
+                            query = query.Where(u => u.DateOfBirth.HasValue && 
+                                u.DateOfBirth.Value.Year >= minBirthYear);
+                        }
+                    }
+
+                    // Sorting
+                    if (!string.IsNullOrWhiteSpace(search.SortBy))
+                    {
+                        switch (search.SortBy.ToLower())
+                        {
+                            case "createdat":
+                            case "created_at":
+                                query = search.SortDescending 
+                                    ? query.OrderByDescending(u => u.CreatedAt) 
+                                    : query.OrderBy(u => u.CreatedAt);
+                                break;
+                            case "username":
+                                query = search.SortDescending 
+                                    ? query.OrderByDescending(u => u.UserName) 
+                                    : query.OrderBy(u => u.UserName);
+                                break;
+                            case "email":
+                                query = search.SortDescending 
+                                    ? query.OrderByDescending(u => u.Email) 
+                                    : query.OrderBy(u => u.Email);
+                                break;
+                            default:
+                                // Default sort by CreatedAt descending
+                                query = query.OrderByDescending(u => u.CreatedAt);
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        // Default sort by CreatedAt descending
+                        query = query.OrderByDescending(u => u.CreatedAt);
+                    }
+
                     // paging
                     var skip = (Math.Max(1, search.Page) - 1) * Math.Max(1, search.PageSize);
                     query = query.Skip(skip).Take(Math.Max(1, search.PageSize));
+                }
+                else
+                {
+                    // Default sort by CreatedAt descending when no search
+                    query = query.OrderByDescending(u => u.CreatedAt);
                 }
 
                 var data = await query.ToListAsync();
@@ -122,6 +186,32 @@ namespace WebFindLove.Models.Services.UserService
 
                     if (search.IsActive.HasValue)
                         query = query.Where(u => u.IsActive == search.IsActive.Value);
+
+                    // Filter by Gender
+                    if (!string.IsNullOrWhiteSpace(search.Gender))
+                    {
+                        query = query.Where(u => u.Gender != null && u.Gender.ToLower() == search.Gender.ToLower());
+                    }
+
+                    // Filter by Age Range
+                    if (search.AgeMin.HasValue || search.AgeMax.HasValue)
+                    {
+                        var currentYear = DateTime.UtcNow.Year;
+                        
+                        if (search.AgeMin.HasValue)
+                        {
+                            var maxBirthYear = currentYear - search.AgeMin.Value;
+                            query = query.Where(u => u.DateOfBirth.HasValue && 
+                                u.DateOfBirth.Value.Year <= maxBirthYear);
+                        }
+                        
+                        if (search.AgeMax.HasValue)
+                        {
+                            var minBirthYear = currentYear - search.AgeMax.Value;
+                            query = query.Where(u => u.DateOfBirth.HasValue && 
+                                u.DateOfBirth.Value.Year >= minBirthYear);
+                        }
+                    }
                 }
 
                 var count = await query.CountAsync();

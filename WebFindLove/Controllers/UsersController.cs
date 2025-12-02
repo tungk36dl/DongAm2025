@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using WebFindLove.Helper.HelperServices;
+using WebFindLove.Models.Repositories.UserRepo;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebFindLove.Controllers
 {
@@ -19,14 +21,16 @@ namespace WebFindLove.Controllers
     {
         private readonly IUserService _userService;
         private readonly IRoleService _roleService;
+        private readonly IUserRepository _userRepository;
         private readonly PasswordHasher<User> _passwordHasher;
         private readonly ILogger<UsersController> _logger;
         private readonly IUrlHelperService _urlHelperService;
 
-        public UsersController(IUserService userService, IRoleService roleService, ILogger<UsersController> logger, IUrlHelperService urlHelperService)
+        public UsersController(IUserService userService, IRoleService roleService, IUserRepository userRepository, ILogger<UsersController> logger, IUrlHelperService urlHelperService)
         {
             _userService = userService;
             _roleService = roleService;
+            _userRepository = userRepository;
             _passwordHasher = new PasswordHasher<User>();
             _logger = logger;
             _logger.LogInformation("UsersController initialized");
@@ -88,6 +92,79 @@ namespace WebFindLove.Controllers
             // Calculate total pages
             var totalPages = (int)Math.Ceiling((double)totalCount / search.PageSize);
             
+            // Tính thống kê độ tuổi và giới tính
+            var allUsersQuery = _userRepository.FindAll(null, r => r.Role);
+            
+            // Áp dụng các filter tương tự như search để tính thống kê chính xác
+            var searchTerm = !string.IsNullOrWhiteSpace(search.Query) 
+                ? search.Query 
+                : (!string.IsNullOrWhiteSpace(search.Keyword) ? search.Keyword : null);
+            
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var qstr = searchTerm.Trim();
+                allUsersQuery = allUsersQuery.Where(u => (u.UserName != null && u.UserName.Contains(qstr))
+                                                        || (u.Email != null && u.Email.Contains(qstr))
+                                                        || (u.FullName != null && u.FullName.Contains(qstr)));
+            }
+            
+            if (!string.IsNullOrWhiteSpace(search.Role))
+                allUsersQuery = allUsersQuery.Where(u => u.RoleName == search.Role);
+            
+            if (search.IsActive.HasValue)
+                allUsersQuery = allUsersQuery.Where(u => u.IsActive == search.IsActive.Value);
+            
+            if (!string.IsNullOrWhiteSpace(search.Gender))
+                allUsersQuery = allUsersQuery.Where(u => u.Gender != null && u.Gender.ToLower() == search.Gender.ToLower());
+            
+            // Lấy tất cả users để tính thống kê
+            var allUsersForStats = await allUsersQuery.ToListAsync();
+            
+            // Thống kê giới tính
+            var maleCount = allUsersForStats.Count(u => u.Gender != null && u.Gender.ToLower() == "nam" || u.Gender?.ToLower() == "male");
+            var femaleCount = allUsersForStats.Count(u => u.Gender != null && u.Gender.ToLower() == "nữ" || u.Gender?.ToLower() == "female");
+            var otherGenderCount = allUsersForStats.Count(u => !string.IsNullOrEmpty(u.Gender) && 
+                u.Gender.ToLower() != "nam" && u.Gender.ToLower() != "male" && 
+                u.Gender.ToLower() != "nữ" && u.Gender.ToLower() != "female");
+            
+            // Thống kê độ tuổi
+            var currentYear = DateTime.UtcNow.Year;
+            var ageGroups = new Dictionary<string, int>
+            {
+                { "18-25", 0 },
+                { "26-35", 0 },
+                { "36-45", 0 },
+                { "46-55", 0 },
+                { "56+", 0 },
+                { "Không xác định", 0 }
+            };
+            
+            foreach (var user in allUsersForStats)
+            {
+                if (user.DateOfBirth.HasValue)
+                {
+                    var age = currentYear - user.DateOfBirth.Value.Year;
+                    if (user.DateOfBirth.Value.Date > DateTime.UtcNow.AddYears(-age)) age--;
+                    
+                    if (age >= 18 && age <= 25)
+                        ageGroups["18-25"]++;
+                    else if (age >= 26 && age <= 35)
+                        ageGroups["26-35"]++;
+                    else if (age >= 36 && age <= 45)
+                        ageGroups["36-45"]++;
+                    else if (age >= 46 && age <= 55)
+                        ageGroups["46-55"]++;
+                    else if (age >= 56)
+                        ageGroups["56+"]++;
+                    else
+                        ageGroups["Không xác định"]++;
+                }
+                else
+                {
+                    ageGroups["Không xác định"]++;
+                }
+            }
+            
             _logger.LogInformation("Successfully retrieved {UserCount} users out of {TotalCount} (Page {Page}/{TotalPages})", 
                 resp.Data?.Count ?? 0, totalCount, search.Page, totalPages);
             
@@ -96,6 +173,10 @@ namespace WebFindLove.Controllers
             ViewBag.CurrentPage = search.Page;
             ViewBag.PageSize = search.PageSize;
             ViewBag.TotalPages = totalPages;
+            ViewBag.MaleCount = maleCount;
+            ViewBag.FemaleCount = femaleCount;
+            ViewBag.OtherGenderCount = otherGenderCount;
+            ViewBag.AgeGroups = ageGroups;
             
             return View(resp.Data ?? new List<User>());
         }
